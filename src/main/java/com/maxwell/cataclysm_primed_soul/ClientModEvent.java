@@ -18,10 +18,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
         value = {Dist.CLIENT}
 )
 public class ClientModEvent {
-
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-
         event.enqueueWork(() -> {
             CustomBossBar.customBossBars.put(99, new CustomBossBar(
                     new ResourceLocation(Primed_Soul.MODID, "textures/gui/boss_bar/ignis_prime_bar_base.png"),
@@ -35,6 +33,7 @@ public class ClientModEvent {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.IGNIS_PRIME.get(), Ignis_PrimeRenderer::new);
     }
+
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(Ignis_PrimeModel.LAYER_LOCATION, Ignis_PrimeModel::createBodyLayer);

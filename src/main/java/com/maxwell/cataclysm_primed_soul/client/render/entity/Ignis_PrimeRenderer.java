@@ -1,10 +1,12 @@
 package com.maxwell.cataclysm_primed_soul.client.render.entity;
 
+import com.github.L_Ender.cataclysm.client.render.CMRenderTypes;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Ignis_PrimeModel;
+import com.maxwell.cataclysm_primed_soul.client.render.layer.Ignis_PrimeInterpolation_Layer;
 import com.maxwell.cataclysm_primed_soul.entity.InternalAnimationMonster.IABossMonsters.Ignis_PrimeEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.core.BlockPos;
@@ -13,27 +15,36 @@ import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nullable;
+
 @OnlyIn(Dist.CLIENT)
 public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_PrimeModel> {
     private static final ResourceLocation[] TEXTURES = new ResourceLocation[7];
 
     public Ignis_PrimeRenderer(EntityRendererProvider.Context renderManagerIn) {
         super(renderManagerIn, new Ignis_PrimeModel(renderManagerIn.bakeLayer(Ignis_PrimeModel.LAYER_LOCATION)), 1.0F);
-
-        for(int i = 0; i < 7; ++i) {
+        for (int i = 0; i < 7; ++i) {
             TEXTURES[i] = new ResourceLocation(Primed_Soul.MODID, "textures/entity/ignis_prime/ignis_prime_textures_" + i + ".png");
         }
+        this.addLayer(new Ignis_PrimeInterpolation_Layer(this));
     }
 
     @Override
     public ResourceLocation getTextureLocation(Ignis_PrimeEntity entity) {
-        int frame = (int)((float)entity.tickCount * 0.5F % 7.0F);
-        return TEXTURES[Mth.clamp(frame, 0, 6)];
+        return TEXTURES[0];
     }
 
+    @Nullable
     @Override
-    public void render(Ignis_PrimeEntity entity, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
-        super.render(entity, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
+    protected RenderType getRenderType(Ignis_PrimeEntity entity, boolean bodyVisible, boolean translucent, boolean outline) {
+        return RenderType.entityTranslucent(new ResourceLocation(Primed_Soul.MODID, "textures/entity/empty.png"));
+    }
+
+
+    @Override
+    protected void scale(Ignis_PrimeEntity entity, PoseStack matrixStack, float partialTick) {
+        float s = 1.6F;
+        matrixStack.scale(s, s, s);
     }
 
     @Override

@@ -9,17 +9,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 
 public class Ignis_PrimeEntity extends IABoss_monster {
-    public Ignis_PrimeEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel);
-    }
-    public static AttributeSupplier.Builder createAttributes() {
-        return Monster.createMonsterAttributes()
-                .add(Attributes.MAX_HEALTH, 600.0D)   
-                .add(Attributes.MOVEMENT_SPEED, 0.3D)
-                .add(Attributes.ATTACK_DAMAGE, 20.0D) 
-                .add(Attributes.ARMOR, 20.0D)         
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D); 
-    }
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState spawnAnimationState = new AnimationState();
     public AnimationState charge_attackAnimationState = new AnimationState();
@@ -38,6 +27,18 @@ public class Ignis_PrimeEntity extends IABoss_monster {
     public AnimationState deadAnimationState = new AnimationState();
     public AnimationState mode_changeAnimationState = new AnimationState();
     public AnimationState walkAnimationState = new AnimationState();
+    public Ignis_PrimeEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
+        super(pEntityType, pLevel);
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Monster.createMonsterAttributes()
+                .add(Attributes.MAX_HEALTH, 600.0D)
+                .add(Attributes.MOVEMENT_SPEED, 0.3D)
+                .add(Attributes.ATTACK_DAMAGE, 20.0D)
+                .add(Attributes.ARMOR, 20.0D)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
+    }
 
     public AnimationState getAnimationState(String input) {
         if (input == "swing") {
@@ -74,7 +75,7 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             return this.deadAnimationState;
         } else if (input == "mode_change") {
             return this.mode_changeAnimationState;
-        } else{
+        } else {
             return this.walkAnimationState;
         }
     }

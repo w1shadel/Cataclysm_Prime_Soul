@@ -14,20 +14,16 @@ import net.minecraftforge.registries.RegistryObject;
 @Mod.EventBusSubscriber(modid = Primed_Soul.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Primed_Soul.MODID);
-
-
     public static final RegistryObject<EntityType<Ignis_PrimeEntity>> IGNIS_PRIME = ENTITY_TYPES.register("ignis_prime",
             () -> EntityType.Builder.of(Ignis_PrimeEntity::new, MobCategory.MONSTER)
-                    .sized(2.25F, 3.5F) 
-                    .fireImmune()        
+                    .sized(2.25F, 3.5F)
+                    .fireImmune()
                     .clientTrackingRange(10)
                     .setShouldReceiveVelocityUpdates(true)
                     .build("ignis_prime"));
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
-
-
         event.put(IGNIS_PRIME.get(), Ignis_PrimeEntity.createAttributes().build());
     }
 }
