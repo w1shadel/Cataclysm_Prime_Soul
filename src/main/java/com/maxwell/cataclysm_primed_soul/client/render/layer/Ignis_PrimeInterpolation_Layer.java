@@ -28,34 +28,22 @@ public class Ignis_PrimeInterpolation_Layer extends RenderLayer<Ignis_PrimeEntit
         float speed = 0.4f;
         int totalTextures = 7;
         int loopSteps = (totalTextures - 1) * 2;
-
-        float preciseTick = (float)entity.tickCount + partialTicks;
+        float preciseTick = (float) entity.tickCount + partialTicks;
         float time = preciseTick * speed;
-
-        float currentStepFloat = time % (float)loopSteps;
-
+        float currentStepFloat = time % (float) loopSteps;
         int currentStep = (int) Math.floor(currentStepFloat);
-
         int nextStep = (currentStep + 1) % loopSteps;
-
-        float alpha = currentStepFloat - (float)currentStep;
-
+        float alpha = currentStepFloat - (float) currentStep;
         int currentFrame = getPingPongFrame(currentStep, totalTextures, loopSteps);
         int nextFrame = getPingPongFrame(nextStep, totalTextures, loopSteps);
-
         ResourceLocation currentTexture = TEXTURES[Mth.clamp(currentFrame, 0, 6)];
         ResourceLocation nextTexture = TEXTURES[Mth.clamp(nextFrame, 0, 6)];
-
-
         renderSmooth(matrixStack, buffer, packedLight, entity, currentTexture, 1.0F);
-
-
         renderSmooth(matrixStack, buffer, packedLight, entity, nextTexture, alpha);
     }
 
     private void renderSmooth(PoseStack ms, MultiBufferSource buffer, int light, Ignis_PrimeEntity entity, ResourceLocation tex, float alpha) {
         if (alpha <= 0.001f) return;
-
         VertexConsumer vc = buffer.getBuffer(CMRenderTypes.getGhost(tex));
         this.getParentModel().renderToBuffer(ms, vc, light, LivingEntityRenderer.getOverlayCoords(entity, 0.0F), 1.0F, 1.0F, 1.0F, alpha);
     }
@@ -66,13 +54,11 @@ public class Ignis_PrimeInterpolation_Layer extends RenderLayer<Ignis_PrimeEntit
     }
 
     private void renderNextFrameLayer(PoseStack ms, MultiBufferSource buffer, int light, Ignis_PrimeEntity entity, ResourceLocation tex, float alpha) {
-
         if (alpha <= 0.001f) return;
-
         VertexConsumer vc = buffer.getBuffer(CMRenderTypes.getGhost(tex));
-
         this.getParentModel().renderToBuffer(ms, vc, light, LivingEntityRenderer.getOverlayCoords(entity, 0.0F), 1.0F, 1.0F, 1.0F, alpha);
     }
+
     private void renderSmoothLayer(PoseStack ms, MultiBufferSource buffer, int light, Ignis_PrimeEntity entity, ResourceLocation tex, float alpha) {
         VertexConsumer vc = buffer.getBuffer(CMRenderTypes.getGhost(tex));
         this.getParentModel().renderToBuffer(ms, vc, light, LivingEntityRenderer.getOverlayCoords(entity, 0.0F), 1.0F, 1.0F, 1.0F, alpha);

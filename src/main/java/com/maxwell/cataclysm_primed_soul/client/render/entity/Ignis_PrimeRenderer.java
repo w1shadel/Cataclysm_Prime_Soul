@@ -1,6 +1,5 @@
 package com.maxwell.cataclysm_primed_soul.client.render.entity;
 
-import com.github.L_Ender.cataclysm.client.render.CMRenderTypes;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Ignis_PrimeModel;
 import com.maxwell.cataclysm_primed_soul.client.render.layer.Ignis_PrimeInterpolation_Layer;
@@ -11,7 +10,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -39,7 +37,6 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
     protected RenderType getRenderType(Ignis_PrimeEntity entity, boolean bodyVisible, boolean translucent, boolean outline) {
         return RenderType.entityTranslucent(new ResourceLocation(Primed_Soul.MODID, "textures/entity/empty.png"));
     }
-
 
     @Override
     protected void scale(Ignis_PrimeEntity entity, PoseStack matrixStack, float partialTick) {
