@@ -12,6 +12,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
+@SuppressWarnings("removal")
 @Mod.EventBusSubscriber(
         modid = Primed_Soul.MODID,
         bus = Mod.EventBusSubscriber.Bus.MOD,
@@ -24,7 +25,7 @@ public class ClientModEvent {
             CustomBossBar.customBossBars.put(99, new CustomBossBar(
                     new ResourceLocation(Primed_Soul.MODID, "textures/gui/boss_bar/ignis_prime_bar_base.png"),
                     new ResourceLocation(Primed_Soul.MODID, "textures/gui/boss_bar/ignis_prime_bar_overlay.png"),
-                    5, 16, 1, 1, -2, -2, 256, 16, 25, 182, ChatFormatting.GOLD
+                    5, 16, 1, 1, -2, -2, 256, 16, 25, 182, ChatFormatting.AQUA
             ));
         });
     }

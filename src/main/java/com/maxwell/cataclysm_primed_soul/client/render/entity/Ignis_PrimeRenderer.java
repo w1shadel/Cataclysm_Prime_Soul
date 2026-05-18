@@ -3,7 +3,7 @@ package com.maxwell.cataclysm_primed_soul.client.render.entity;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Ignis_PrimeModel;
 import com.maxwell.cataclysm_primed_soul.client.render.layer.Ignis_PrimeInterpolation_Layer;
-import com.maxwell.cataclysm_primed_soul.entity.InternalAnimationMonster.IABossMonsters.Ignis_PrimeEntity;
+import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
+@SuppressWarnings("removal")
 @OnlyIn(Dist.CLIENT)
 public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_PrimeModel> {
     private static final ResourceLocation[] TEXTURES = new ResourceLocation[7];
@@ -35,12 +36,13 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
     @Nullable
     @Override
     protected RenderType getRenderType(Ignis_PrimeEntity entity, boolean bodyVisible, boolean translucent, boolean outline) {
+        if (entity.isInvisible()) return null;
         return RenderType.entityTranslucent(new ResourceLocation(Primed_Soul.MODID, "textures/entity/empty.png"));
     }
 
     @Override
     protected void scale(Ignis_PrimeEntity entity, PoseStack matrixStack, float partialTick) {
-        float s = 1.6F;
+        float s = 1.3F;
         matrixStack.scale(s, s, s);
     }
 
