@@ -67,6 +67,16 @@ public class Ignis_PrimeEntity extends IABoss_monster {
     public AnimationState jab_attack_oneAnimationState = new AnimationState();
     public AnimationState jab_attack_twoAnimationState = new AnimationState();
     public AnimationState jab_attack_threeAnimationState = new AnimationState();
+    public AnimationState power_slamAnimationState = new AnimationState();
+    public AnimationState guard_startAnimationState = new AnimationState();
+    public AnimationState guard_loopAnimationState = new AnimationState();
+    public AnimationState guard_breakAnimationState = new AnimationState();
+    public AnimationState guard_endAnimationState = new AnimationState();
+    public AnimationState catch_startAnimationState = new AnimationState();
+    public AnimationState catch_successAnimationState = new AnimationState();
+    public AnimationState catch_failAnimationState = new AnimationState();
+    public AnimationState jab_attack_ex_oneAnimationState = new AnimationState();
+    public AnimationState overhead_guardbreakerAnimationState = new AnimationState();
     public AnimationState deadAnimationState = new AnimationState();
     public AnimationState mode_changeAnimationState = new AnimationState();
     public AnimationState walkAnimationState = new AnimationState();
@@ -178,6 +188,26 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             return this.jab_attack_twoAnimationState;
         } else if (input == "jab_attack_three") {
             return this.jab_attack_threeAnimationState;
+        } else if (input == "power_slam") {
+            return this.power_slamAnimationState;
+        } else if (input == "guard_start") {
+            return this.guard_startAnimationState;
+        } else if (input == "guard_loop") {
+            return this.guard_loopAnimationState;
+        } else if (input == "guard_break") {
+            return this.guard_breakAnimationState;
+        } else if (input == "guard_end") {
+            return this.guard_endAnimationState;
+        } else if (input == "catch_start") {
+            return this.catch_startAnimationState;
+        } else if (input == "catch_success") {
+            return this.catch_successAnimationState;
+        } else if (input == "catch_fail") {
+            return this.catch_failAnimationState;
+        } else if (input == "jab_attack_ex_one") {
+            return this.jab_attack_ex_oneAnimationState;
+        } else if (input == "overhead_guardbreaker") {
+            return this.overhead_guardbreakerAnimationState;
         } else if (input == "dead") {
             return this.deadAnimationState;
         } else if (input == "mode_change") {
@@ -206,6 +236,16 @@ public class Ignis_PrimeEntity extends IABoss_monster {
         this.jab_attack_oneAnimationState.stop();
         this.jab_attack_twoAnimationState.stop();
         this.jab_attack_threeAnimationState.stop();
+        this.power_slamAnimationState.stop();
+        this.guard_startAnimationState.stop();
+        this.guard_breakAnimationState.stop();
+        this.guard_endAnimationState.stop();
+        this.guard_loopAnimationState.stop();
+        this.catch_startAnimationState.stop();
+        this.catch_successAnimationState.stop();
+        this.catch_failAnimationState.stop();
+        this.overhead_guardbreakerAnimationState.stop();
+        this.jab_attack_ex_oneAnimationState.stop();
         this.mode_changeAnimationState.stop();
     }
 
