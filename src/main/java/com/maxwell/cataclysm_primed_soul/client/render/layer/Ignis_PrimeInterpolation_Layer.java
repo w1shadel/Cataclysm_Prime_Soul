@@ -27,7 +27,6 @@ public class Ignis_PrimeInterpolation_Layer extends RenderLayer<Ignis_PrimeEntit
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, Ignis_PrimeEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (entity.isInvisible()) return;
-
         float speed = 0.4f;
         int totalTextures = 7;
         int loopSteps = (totalTextures - 1) * 2;
