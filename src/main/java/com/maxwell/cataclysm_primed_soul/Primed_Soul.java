@@ -12,5 +12,12 @@ public class Primed_Soul {
     public Primed_Soul(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
         ModEntities.ENTITY_TYPES.register(modEventBus);
+        modEventBus.addListener(this::commonSetup);
+    }
+
+    private void commonSetup(final net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            com.maxwell.cataclysm_primed_soul.network.ModMessages.register();
+        });
     }
 }

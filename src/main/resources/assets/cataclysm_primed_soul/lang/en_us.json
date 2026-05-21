@@ -1,3 +1,6 @@
 {
- "entity.cataclysm_primed_soul.ignis_prime": "Ignis Prime"
+  "entity.cataclysm_primed_soul.ignis_prime": "Ignis Prime",
+  "chat.cataclysm_primed_soul.ignis_prime.appear": "The Lord of Black Flame, Ignis Prime, has manifested...! Armor around is weakened!",
+  "chat.cataclysm_primed_soul.ignis_prime.half_hp": "Ignis Prime's wrath siphons the surrounding heat...! Armor and Toughness are heavily reduced!",
+  "chat.cataclysm_primed_soul.ignis_prime.phase_2": "The ultimate soul erupts! All protective enchantments burn to ashes...!"
 }

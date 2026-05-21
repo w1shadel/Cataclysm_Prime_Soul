@@ -20,6 +20,8 @@ build
 # other
 eclipse
 run
+clog.txt
+clog_utf8.txt
 
 # Files from Forge MDK
 forge*changelog.txt

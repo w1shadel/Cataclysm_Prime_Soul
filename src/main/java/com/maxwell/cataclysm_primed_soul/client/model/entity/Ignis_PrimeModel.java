@@ -42,6 +42,14 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
         this.Core = this.Body_Upper.getChild("Core");
     }
 
+    public ModelPart getBoddies() { return Boddies; }
+    public ModelPart getBody_Upper() { return Body_Upper; }
+    public ModelPart getArm_Right() { return Arm_Right; }
+    public ModelPart getR_Under() { return R_Under; }
+    public ModelPart getGrip_pos() { return Grip_pos; }
+    public ModelPart getArm_Left() { return Arm_Left; }
+    public ModelPart getL_Under() { return L_Under; }
+
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
