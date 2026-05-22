@@ -3,6 +3,7 @@ package com.maxwell.cataclysm_primed_soul;
 import com.github.L_Ender.cataclysm.client.gui.CustomBossBar;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Ignis_PrimeModel;
 import com.maxwell.cataclysm_primed_soul.client.render.entity.Ignis_PrimeRenderer;
+import com.maxwell.cataclysm_primed_soul.client.render.entity.Prime_Fireball_Renderer;
 import com.maxwell.cataclysm_primed_soul.client.render.entity.Prime_Flame_Strike_Renderer;
 import com.maxwell.cataclysm_primed_soul.init.ModEntities;
 import net.minecraft.ChatFormatting;
@@ -35,6 +36,7 @@ public class ClientModEvent {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.IGNIS_PRIME.get(), Ignis_PrimeRenderer::new);
         event.registerEntityRenderer(ModEntities.PRIME_FLAME_STRIKE.get(), Prime_Flame_Strike_Renderer::new);
+        event.registerEntityRenderer(ModEntities.PRIME_FIREBALL.get(), Prime_Fireball_Renderer::new);
     }
 
     @SubscribeEvent

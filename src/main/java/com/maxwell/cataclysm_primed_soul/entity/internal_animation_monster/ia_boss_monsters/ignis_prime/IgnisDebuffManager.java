@@ -1,10 +1,9 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
@@ -19,11 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class IgnisDebuffManager {
     private static final UUID DEBUFF_ARMOR_UUID = UUID.fromString("f4d7b7e0-1234-4a5b-6c7d-8e9f01234567");
     private static final UUID DEBUFF_TOUGHNESS_UUID = UUID.fromString("f4d7b7e0-5678-4a5b-6c7d-8e9f01234567");
-
     private static final Map<UUID, Integer> activeDebuffs = new ConcurrentHashMap<>();
     private static final Map<UUID, Float> rawDamages = new ConcurrentHashMap<>();
     private static final Set<Ignis_PrimeEntity> activeBosses = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    // 一度第二形態移行（レベル3）に達したら永続的にレベル3を保持するためのSet
     private static final Set<UUID> phase3Bosses = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     public static void registerBoss(Ignis_PrimeEntity boss) {
@@ -51,34 +48,26 @@ public class IgnisDebuffManager {
 
     public static void tickBossDebuffs(Ignis_PrimeEntity boss) {
         if (boss == null || boss.level().isClientSide() || !boss.isAlive()) return;
-
         int currentLevel = 1;
         float hpPct = boss.getHealth() / boss.getMaxHealth();
-        // 一度レベル3になったら永続的にレベル3を保持する
         if (phase3Bosses.contains(boss.getUUID())) {
             currentLevel = 3;
         } else if (boss.getAttackState() == Ignis_PrimeEntity.STATE_PHASE_CHANGE && boss.phaseChangeTicks >= 70) {
             currentLevel = 3;
-            phase3Bosses.add(boss.getUUID()); // フラグを立てる
+            phase3Bosses.add(boss.getUUID());
         } else if (hpPct <= 0.5F) {
             currentLevel = 2;
         }
-
         double range = 50.0D;
         AABB area = boss.getBoundingBox().inflate(range);
         List<LivingEntity> targets = boss.level().getEntitiesOfClass(LivingEntity.class, area);
-
         Set<UUID> targetsInTick = new HashSet<>();
-
         for (LivingEntity target : targets) {
             if (target == boss || !target.isAlive()) continue;
-
             UUID uuid = target.getUUID();
             targetsInTick.add(uuid);
-
             applyOrUpdateDebuff(target, currentLevel);
         }
-
         for (UUID uuid : activeDebuffs.keySet()) {
             if (!targetsInTick.contains(uuid)) {
                 boolean inOtherBossRange = false;
@@ -94,8 +83,6 @@ public class IgnisDebuffManager {
                     if (p != null) {
                         entity = p;
                     } else {
-                        // プレイヤー以外のエンティティはtargetsの中から探すか、levelから直接参照する
-                        // tickBossDebuffsが動いているエンティティであるため、ここでentityを取得できなくても、removeDebuff内でremoveAttributeModifiersが呼ばれます
                     }
                     removeDebuff(entity, uuid);
                 }
@@ -106,7 +93,6 @@ public class IgnisDebuffManager {
     private static void applyOrUpdateDebuff(LivingEntity entity, int level) {
         UUID uuid = entity.getUUID();
         Integer existingLevel = activeDebuffs.get(uuid);
-
         if (existingLevel == null || existingLevel != level) {
             activeDebuffs.put(uuid, level);
             updateAttributes(entity, level);
@@ -131,10 +117,8 @@ public class IgnisDebuffManager {
 
     private static void updateAttributes(LivingEntity entity, int level) {
         removeAttributeModifiers(entity);
-
         double armorMod = 0;
         double toughnessMod = 0;
-
         if (level == 1) {
             armorMod = -0.2D;
         } else if (level == 2) {
@@ -144,12 +128,10 @@ public class IgnisDebuffManager {
             armorMod = -1.0D;
             toughnessMod = -0.5D;
         }
-
         AttributeInstance armorAttr = entity.getAttribute(Attributes.ARMOR);
         if (armorAttr != null && armorMod != 0) {
             armorAttr.addTransientModifier(new AttributeModifier(DEBUFF_ARMOR_UUID, "Ignis Armor Debuff", armorMod, AttributeModifier.Operation.MULTIPLY_TOTAL));
         }
-
         AttributeInstance toughnessAttr = entity.getAttribute(Attributes.ARMOR_TOUGHNESS);
         if (toughnessAttr != null && toughnessMod != 0) {
             toughnessAttr.addTransientModifier(new AttributeModifier(DEBUFF_TOUGHNESS_UUID, "Ignis Toughness Debuff", toughnessMod, AttributeModifier.Operation.MULTIPLY_TOTAL));
@@ -171,7 +153,6 @@ public class IgnisDebuffManager {
     public static void onLivingHurt(LivingHurtEvent event) {
         LivingEntity entity = event.getEntity();
         if (entity == null || entity.level().isClientSide()) return;
-
         UUID uuid = entity.getUUID();
         if (activeDebuffs.containsKey(uuid) && activeDebuffs.get(uuid) == 3) {
             rawDamages.put(uuid, event.getAmount());
@@ -182,7 +163,6 @@ public class IgnisDebuffManager {
     public static void onLivingDamage(LivingDamageEvent event) {
         LivingEntity entity = event.getEntity();
         if (entity == null || entity.level().isClientSide()) return;
-
         UUID uuid = entity.getUUID();
         if (activeDebuffs.containsKey(uuid) && activeDebuffs.get(uuid) == 3) {
             Float rawDamage = rawDamages.remove(uuid);

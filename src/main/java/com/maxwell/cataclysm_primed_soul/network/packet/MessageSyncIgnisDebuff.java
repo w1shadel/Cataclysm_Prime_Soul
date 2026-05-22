@@ -17,14 +17,14 @@ public class MessageSyncIgnisDebuff {
         return new MessageSyncIgnisDebuff(buf.readInt());
     }
 
-    public void encode(FriendlyByteBuf buf) {
-        buf.writeInt(this.level);
-    }
-
     public static void handle(MessageSyncIgnisDebuff msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ClientVisuals.setDebuffLevel(msg.level);
         });
         ctx.get().setPacketHandled(true);
+    }
+
+    public void encode(FriendlyByteBuf buf) {
+        buf.writeInt(this.level);
     }
 }

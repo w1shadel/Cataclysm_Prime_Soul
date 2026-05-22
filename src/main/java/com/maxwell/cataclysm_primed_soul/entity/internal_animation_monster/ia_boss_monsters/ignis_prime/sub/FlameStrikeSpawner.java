@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class FlameStrikeSpawner {
-
     public static SpawnerBuilder builder(Level level, double x, double z) {
         return new SpawnerBuilder(level, x, z);
     }
@@ -111,7 +110,6 @@ public class FlameStrikeSpawner {
             BlockPos blockpos = BlockPos.containing(x, maxY, z);
             boolean foundGround = false;
             double d0 = 0.0D;
-
             do {
                 BlockPos blockpos1 = blockpos.below();
                 BlockState blockstate = level.getBlockState(blockpos1);
@@ -128,7 +126,6 @@ public class FlameStrikeSpawner {
                 }
                 blockpos = blockpos.below();
             } while (blockpos.getY() >= Mth.floor(minY) - 1);
-
             if (foundGround) {
                 double spawnY = (double) blockpos.getY() + d0;
                 Prime_Flame_Strike_Entity entity = new Prime_Flame_Strike_Entity(

@@ -94,10 +94,12 @@ dependencies {
     implementation fg.deobf("curse.maven:powerful-dummy-1276893:6956104")
     implementation fg.deobf("curse.maven:mob-battle-mod-268746:6588027")
     implementation fg.deobf("curse.maven:goety-586095:8087429")
+    implementation fg.deobf("curse.maven:eeeabs-mobs-921600:8073814")
     implementation fg.deobf("curse.maven:get-it-together-drops-411045:4578649")
     implementation fg.deobf("curse.maven:cloth-config-348521:5729105")
     implementation fg.deobf("curse.maven:jei-integration-265917:4999754")
     implementation fg.deobf("curse.maven:catalogue-459701:4766090")
+    implementation fg.deobf("curse.maven:legendary-monsters-944035:8124553")
 //    implementation fg.deobf("maven.modrinth:manaitamtk:1.7.1")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

@@ -18,21 +18,16 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
+@SuppressWarnings("removal")
 @OnlyIn(Dist.CLIENT)
 public class Prime_Flame_Strike_Renderer extends EntityRenderer<Prime_Flame_Strike_Entity> {
     public static final ResourceLocation SOUL_FLAME_STRIKE = new ResourceLocation("cataclysm", "textures/entity/soul_flame_strike_sigil.png");
     public static final ResourceLocation PRIME_SIGIL_TEXTURE = new ResourceLocation(Primed_Soul.MODID, "textures/entity/prime_sigil.png");
-
     private static ResourceLocation WHITE_FLAME_TEXTURE = null;
     private static ResourceLocation WHITE_RING_TEXTURE = null;
 
     public Prime_Flame_Strike_Renderer(EntityRendererProvider.Context mgr) {
         super(mgr);
-    }
-
-    @Override
-    public ResourceLocation getTextureLocation(Prime_Flame_Strike_Entity entity) {
-        return SOUL_FLAME_STRIKE;
     }
 
     private static void registerWhiteFlameTexture(TextureManager textureManager) {
@@ -88,51 +83,50 @@ public class Prime_Flame_Strike_Renderer extends EntityRenderer<Prime_Flame_Stri
     }
 
     @Override
+    public ResourceLocation getTextureLocation(Prime_Flame_Strike_Entity entity) {
+        return SOUL_FLAME_STRIKE;
+    }
+
+    @Override
     public void render(Prime_Flame_Strike_Entity flameStrike, float entityYaw, float delta, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
         TextureManager textureManager = Minecraft.getInstance().getTextureManager();
         registerWhiteFlameTexture(textureManager);
         registerWhiteRingTexture(textureManager);
-
         matrixStackIn.pushPose();
         float age = (float) flameStrike.tickCount + delta;
         float radius = flameStrike.getRadius();
-
         boolean isWhite = flameStrike.isWhite();
         boolean isSoul = flameStrike.isSoul();
-
         float r = 1.0F, g = 1.0F, b = 1.0F;
         if (isSoul) {
-            r = 0.3F; g = 0.6F; b = 1.0F;
+            r = 0.3F;
+            g = 0.6F;
+            b = 1.0F;
         }
-
         if (flameStrike.isSee()) {
             renderSigil(matrixStackIn, bufferIn, radius, age * 2.0F, r, g, b, 0.8F);
             renderSigil(matrixStackIn, bufferIn, radius * 0.7F, age * -4.0F, r * 0.9F, g * 0.95F, b, 1.0F);
         }
-
         int warmup = flameStrike.getWarmupDelay();
         int wait = flameStrike.getWaitTime();
         int dur = flameStrike.getDuration();
         int expDelay = flameStrike.getExplosionDelay();
         float currentAge = (float) flameStrike.tickCount + delta;
-
-        if (!flameStrike.isWaiting() && currentAge >= (float)(warmup + wait) && currentAge < (float)(warmup + wait + dur)) {
-            float flameAge = currentAge - (float)(warmup + wait);
-            renderFlameColumn(matrixStackIn, bufferIn, radius, age, (float)dur, flameAge, r, g, b);
+        if (!flameStrike.isWaiting() && currentAge >= (float) (warmup + wait) && currentAge < (float) (warmup + wait + dur)) {
+            float flameAge = currentAge - (float) (warmup + wait);
+            renderFlameColumn(matrixStackIn, bufferIn, radius, age, (float) dur, flameAge, r, g, b);
         }
-
-        float endFlameTime = (float)(warmup + wait + dur);
+        float endFlameTime = (float) (warmup + wait + dur);
         if (currentAge >= endFlameTime) {
             float progress;
             if (expDelay <= 0) {
                 progress = 1.0F - (radius / Math.max(0.01F, flameStrike.getRadius()));
             } else {
-                progress = (currentAge - endFlameTime) / (float)expDelay;
+                progress = (currentAge - endFlameTime) / (float) expDelay;
             }
             progress = Math.max(0.0F, Math.min(1.0F, progress));
             renderExplosionRing(matrixStackIn, bufferIn, radius, progress, r, g, b);
         }
-
         matrixStackIn.popPose();
         super.render(flameStrike, entityYaw, delta, matrixStackIn, bufferIn, packedLightIn);
     }
@@ -170,34 +164,25 @@ public class Prime_Flame_Strike_Renderer extends EntityRenderer<Prime_Flame_Stri
             heightFactor = (maxDuration - currentAge) / 10.0F;
         }
         heightFactor = Math.max(0.0F, Math.min(1.0F, heightFactor));
-
         float flameHeight = radius * 4.0F * heightFactor;
         float flameWidth = radius * 0.9F;
-
         ms.pushPose();
         ms.mulPose(Axis.YP.rotationDegrees(age * 10.0F));
         VertexConsumer builder = buffer.getBuffer(RenderType.entityTranslucentEmissive(WHITE_FLAME_TEXTURE));
-
         for (int i = 0; i < 4; i++) {
             ms.pushPose();
             ms.mulPose(Axis.YP.rotationDegrees(i * 45.0F));
             Matrix4f m = ms.last().pose();
             Matrix3f n = ms.last().normal();
-
             float vOffset = -(age * 0.15F);
-
-            // 表側
             drawVertex(m, n, builder, -flameWidth, 0.0F, 0.0F, 0.0F, 1.0F + vOffset, 0, 1, 0, 240, r, g, b, 0.7F);
             drawVertex(m, n, builder, flameWidth, 0.0F, 0.0F, 1.0F, 1.0F + vOffset, 0, 1, 0, 240, r, g, b, 0.7F);
             drawVertex(m, n, builder, flameWidth, flameHeight, 0.0F, 1.0F, 0.0F + vOffset, 0, 1, 0, 240, r, g, b, 0.7F);
             drawVertex(m, n, builder, -flameWidth, flameHeight, 0.0F, 0.0F, 0.0F + vOffset, 0, 1, 0, 240, r, g, b, 0.7F);
-
-            // 裏側
             drawVertex(m, n, builder, flameWidth, 0.0F, 0.0F, 1.0F, 1.0F + vOffset, 0, -1, 0, 240, r, g, b, 0.7F);
             drawVertex(m, n, builder, -flameWidth, 0.0F, 0.0F, 0.0F, 1.0F + vOffset, 0, -1, 0, 240, r, g, b, 0.7F);
             drawVertex(m, n, builder, -flameWidth, flameHeight, 0.0F, 0.0F, 0.0F + vOffset, 0, -1, 0, 240, r, g, b, 0.7F);
             drawVertex(m, n, builder, flameWidth, flameHeight, 0.0F, 1.0F, 0.0F + vOffset, 0, -1, 0, 240, r, g, b, 0.7F);
-
             ms.popPose();
         }
         ms.popPose();
@@ -206,7 +191,6 @@ public class Prime_Flame_Strike_Renderer extends EntityRenderer<Prime_Flame_Stri
     private void renderExplosionRing(PoseStack ms, MultiBufferSource buffer, float radius, float progress, float r, float g, float b) {
         float currentRad = radius * (1.0F + progress * 2.0F);
         float alpha = 1.0F - progress;
-
         ms.pushPose();
         ms.scale(currentRad, currentRad, currentRad);
         ms.translate(0.0D, 0.01D, 0.0D);

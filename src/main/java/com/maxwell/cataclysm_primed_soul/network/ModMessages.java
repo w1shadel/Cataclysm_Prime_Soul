@@ -7,6 +7,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+@SuppressWarnings("removal")
 public class ModMessages {
     private static SimpleChannel INSTANCE;
     private static int packetId = 0;
@@ -22,15 +23,12 @@ public class ModMessages {
                 .clientAcceptedVersions(s -> true)
                 .serverAcceptedVersions(s -> true)
                 .simpleChannel();
-
         INSTANCE = net;
-
         net.messageBuilder(MessageIgnisVisualEffect.class, id())
                 .encoder(MessageIgnisVisualEffect::encode)
                 .decoder(MessageIgnisVisualEffect::decode)
                 .consumerNetworkThread(MessageIgnisVisualEffect::handle)
                 .add();
-
         net.messageBuilder(com.maxwell.cataclysm_primed_soul.network.packet.MessageSyncIgnisDebuff.class, id())
                 .encoder(com.maxwell.cataclysm_primed_soul.network.packet.MessageSyncIgnisDebuff::encode)
                 .decoder(com.maxwell.cataclysm_primed_soul.network.packet.MessageSyncIgnisDebuff::decode)

@@ -2,6 +2,7 @@ package com.maxwell.cataclysm_primed_soul.init;
 
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
+import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.Prime_Fireball_Entity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.Prime_Flame_Strike_Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -29,6 +30,13 @@ public class ModEntities {
                     .clientTrackingRange(10)
                     .updateInterval(Integer.MAX_VALUE)
                     .build("prime_flame_strike"));
+    public static final RegistryObject<EntityType<Prime_Fireball_Entity>> PRIME_FIREBALL = ENTITY_TYPES.register("prime_fireball",
+            () -> EntityType.Builder.<Prime_Fireball_Entity>of(Prime_Fireball_Entity::new, MobCategory.MISC)
+                    .sized(0.6F, 0.6F)
+                    .setUpdateInterval(1)
+                    .setTrackingRange(20)
+                    .setShouldReceiveVelocityUpdates(true)
+                    .build("prime_fireball"));
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {

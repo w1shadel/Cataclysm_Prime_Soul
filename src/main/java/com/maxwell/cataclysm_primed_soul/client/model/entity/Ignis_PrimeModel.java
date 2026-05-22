@@ -12,6 +12,7 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 
+@SuppressWarnings("removal")
 public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Primed_Soul.MODID, "ignis_primemodel"), "main");
     private final ModelPart Root;
@@ -41,14 +42,6 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
         this.Head = this.Body_Upper.getChild("Head");
         this.Core = this.Body_Upper.getChild("Core");
     }
-
-    public ModelPart getBoddies() { return Boddies; }
-    public ModelPart getBody_Upper() { return Body_Upper; }
-    public ModelPart getArm_Right() { return Arm_Right; }
-    public ModelPart getR_Under() { return R_Under; }
-    public ModelPart getGrip_pos() { return Grip_pos; }
-    public ModelPart getArm_Left() { return Arm_Left; }
-    public ModelPart getL_Under() { return L_Under; }
 
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
@@ -99,6 +92,34 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
         PartDefinition Core = Body_Upper.addOrReplaceChild("Core", CubeListBuilder.create(), PartPose.offset(0.0F, -9.3558F, -3.5359F));
         PartDefinition cube_r21 = Core.addOrReplaceChild("cube_r21", CubeListBuilder.create().texOffs(44, 40).addBox(0.0F, 2.0F, -1.0F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-0.5F, -2.5442F, -0.1641F, 0.2618F, 0.0F, 0.0F));
         return LayerDefinition.create(meshdefinition, 128, 128);
+    }
+
+    public ModelPart getBoddies() {
+        return Boddies;
+    }
+
+    public ModelPart getBody_Upper() {
+        return Body_Upper;
+    }
+
+    public ModelPart getArm_Right() {
+        return Arm_Right;
+    }
+
+    public ModelPart getR_Under() {
+        return R_Under;
+    }
+
+    public ModelPart getGrip_pos() {
+        return Grip_pos;
+    }
+
+    public ModelPart getArm_Left() {
+        return Arm_Left;
+    }
+
+    public ModelPart getL_Under() {
+        return L_Under;
     }
 
     public void setupAnim(Ignis_PrimeEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {

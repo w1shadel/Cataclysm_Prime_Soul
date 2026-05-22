@@ -1,27 +1,38 @@
 package com.maxwell.cataclysm_primed_soul.client.render.entity;
 
+import com.github.L_Ender.cataclysm.client.render.CMRenderTypes;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Ignis_PrimeModel;
 import com.maxwell.cataclysm_primed_soul.client.render.layer.Ignis_PrimeInterpolation_Layer;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
 import javax.annotation.Nullable;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 @SuppressWarnings("removal")
 @OnlyIn(Dist.CLIENT)
 public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_PrimeModel> {
     private static final ResourceLocation[] TEXTURES = new ResourceLocation[7];
-    private final java.util.Map<java.util.UUID, net.minecraft.world.phys.Vec3> prevLeftHandPositions = new java.util.HashMap<>();
-    private final java.util.Map<java.util.UUID, net.minecraft.world.phys.Vec3> prevRightHandPositions = new java.util.HashMap<>();
+    private static final ResourceLocation HAND_TRAIL_TEXTURE = new ResourceLocation("cataclysm", "textures/particle/storm.png");
+    private static final int HAND_TRAIL_SAMPLES = 20;
+    private static final double MIN_SAMPLE_DISTANCE = 0.05;
+    private final java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> leftHandTrails = new java.util.HashMap<>();
+    private final java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> rightHandTrails = new java.util.HashMap<>();
 
     public Ignis_PrimeRenderer(EntityRendererProvider.Context renderManagerIn) {
         super(renderManagerIn, new Ignis_PrimeModel(renderManagerIn.bakeLayer(Ignis_PrimeModel.LAYER_LOCATION)), 1.0F);
@@ -48,29 +59,27 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         double renderPosX = net.minecraft.util.Mth.lerp(partialTicks, entityIn.xo, entityIn.getX());
         double renderPosY = net.minecraft.util.Mth.lerp(partialTicks, entityIn.yo, entityIn.getY());
         double renderPosZ = net.minecraft.util.Mth.lerp(partialTicks, entityIn.zo, entityIn.getZ());
-
         super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
-
         net.minecraft.world.entity.Entity caughtEntity = entityIn.getCaughtEntity();
         int attackState = entityIn.getAttackState();
         boolean shouldShowTrail = attackState != 0 && attackState != 6 && attackState != 99 && (attackState < 21 || attackState > 24);
-
         if (caughtEntity != null || shouldShowTrail) {
             net.minecraft.world.phys.Vec3 rightHandPos = getRightHandPosition(entityIn, partialTicks, renderPosX, renderPosY, renderPosZ);
             net.minecraft.world.phys.Vec3 leftHandPos = getLeftHandPosition(entityIn, partialTicks, renderPosX, renderPosY, renderPosZ);
-
             if (caughtEntity != null) {
                 caughtEntity.setPos(rightHandPos.x, rightHandPos.y, rightHandPos.z);
                 caughtEntity.setOldPosAndRot();
             }
-
             if (shouldShowTrail) {
-                spawnHandTrail(entityIn, entityIn.getUUID(), rightHandPos, prevRightHandPositions);
-                spawnHandTrail(entityIn, entityIn.getUUID(), leftHandPos, prevLeftHandPositions);
+                updateTrailPoints(entityIn.getUUID(), rightHandPos, rightHandTrails);
+                updateTrailPoints(entityIn.getUUID(), leftHandPos, leftHandTrails);
+                renderHandTrail(entityIn, entityIn.getUUID(), rightHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 0.98F, 0.36F, 1.0F);
+                renderHandTrail(entityIn, entityIn.getUUID(), leftHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 0.35F, 0.78F, 1.0F);
             } else {
-                prevRightHandPositions.remove(entityIn.getUUID());
-                prevLeftHandPositions.remove(entityIn.getUUID());
+                rightHandTrails.remove(entityIn.getUUID());
+                leftHandTrails.remove(entityIn.getUUID());
             }
+
         }
     }
 
@@ -90,26 +99,70 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         return 0.0F;
     }
 
-    private void spawnHandTrail(Ignis_PrimeEntity entity, java.util.UUID uuid, net.minecraft.world.phys.Vec3 currentPos, java.util.Map<java.util.UUID, net.minecraft.world.phys.Vec3> prevPositions) {
-        net.minecraft.world.level.Level level = entity.level();
-        net.minecraft.world.phys.Vec3 prevPos = prevPositions.get(uuid);
-
-        if (prevPos != null && currentPos.distanceToSqr(prevPos) < 100.0D) {
-            int steps = Math.max(3, (int) (currentPos.distanceTo(prevPos) * 20));
-            for (int i = 0; i < steps; i++) {
-                double pct = (double) i / steps;
-                double x = net.minecraft.util.Mth.lerp(pct, prevPos.x, currentPos.x);
-                double y = net.minecraft.util.Mth.lerp(pct, prevPos.y, currentPos.y);
-                double z = net.minecraft.util.Mth.lerp(pct, prevPos.z, currentPos.z);
-
-                level.addParticle(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME,
-                        x + (level.random.nextDouble() - 0.5) * 0.1,
-                        y + (level.random.nextDouble() - 0.5) * 0.1,
-                        z + (level.random.nextDouble() - 0.5) * 0.1,
-                        0, 0, 0);
+    private void updateTrailPoints(java.util.UUID uuid, net.minecraft.world.phys.Vec3 currentPos, java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> trails) {
+        Deque<net.minecraft.world.phys.Vec3> trail = trails.computeIfAbsent(uuid, id -> new ArrayDeque<>());
+        net.minecraft.world.phys.Vec3 last = trail.peekLast();
+        if (last != null) {
+            double distSq = currentPos.distanceToSqr(last);
+            if (distSq > 100.0D) {
+                trail.clear();
+            } else if (distSq < MIN_SAMPLE_DISTANCE * MIN_SAMPLE_DISTANCE) {
+                return;
             }
         }
-        prevPositions.put(uuid, currentPos);
+        trail.addLast(currentPos);
+        while (trail.size() > HAND_TRAIL_SAMPLES) {
+            trail.removeFirst();
+        }
+    }
+
+    private void renderHandTrail(Ignis_PrimeEntity entity, java.util.UUID uuid,
+                                 java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> trails,
+                                 double entityX, double entityY, double entityZ, PoseStack poseStack,
+                                 MultiBufferSource buffer, int packedLight, float red, float green, float blue) {
+        Deque<net.minecraft.world.phys.Vec3> trail = trails.get(uuid);
+        if (trail == null || trail.size() < 2 || entity.isInvisible()) return;
+        poseStack.pushPose();
+        poseStack.translate(-entityX, -entityY, -entityZ);
+        PoseStack.Pose pose = poseStack.last();
+        Matrix4f matrix = pose.pose();
+        Matrix3f normal = pose.normal();
+        VertexConsumer consumer = buffer.getBuffer(CMRenderTypes.getLightTrailEffect(HAND_TRAIL_TEXTURE));
+        net.minecraft.world.phys.Vec3[] points = trail.toArray(new net.minecraft.world.phys.Vec3[0]);
+        net.minecraft.world.phys.Vec3 cameraPos = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher().camera.getPosition();
+        for (int i = 1; i < points.length; i++) {
+            float ratio = (float) i / (float) (points.length - 1);
+            float prevRatio = (float) (i - 1) / (float) (points.length - 1);
+            float width = 0.2F + ratio * 0.8F;
+            float alpha = 0.2F + ratio * 0.6F;
+            addTrailSegment(consumer, matrix, normal, points[i - 1], points[i], width, red, green, blue, alpha, prevRatio, ratio, packedLight, cameraPos);
+        }
+        poseStack.popPose();
+    }
+
+    private void addTrailSegment(VertexConsumer consumer, Matrix4f matrix, Matrix3f normal,
+                                 net.minecraft.world.phys.Vec3 from, net.minecraft.world.phys.Vec3 to, float width,
+                                 float red, float green, float blue, float alpha, float u0, float u1, int light,
+                                 net.minecraft.world.phys.Vec3 cameraPos) {
+        net.minecraft.world.phys.Vec3 direction = to.subtract(from);
+        if (direction.lengthSqr() < 1.0E-5D) return;
+        net.minecraft.world.phys.Vec3 toCamera = from.subtract(cameraPos).normalize();
+        net.minecraft.world.phys.Vec3 side = direction.cross(toCamera).normalize().scale(width);
+        addTrailVertex(consumer, matrix, normal, from.add(side), red, green, blue, alpha, u0, 0.0F, light);
+        addTrailVertex(consumer, matrix, normal, to.add(side), red, green, blue, alpha, u1, 0.0F, light);
+        addTrailVertex(consumer, matrix, normal, to.subtract(side), red, green, blue, alpha, u1, 1.0F, light);
+        addTrailVertex(consumer, matrix, normal, from.subtract(side), red, green, blue, alpha, u0, 1.0F, light);
+    }
+
+    private void addTrailVertex(VertexConsumer consumer, Matrix4f matrix, Matrix3f normal, net.minecraft.world.phys.Vec3 pos,
+                                float red, float green, float blue, float alpha, float u, float v, int light) {
+        consumer.vertex(matrix, (float) pos.x, (float) pos.y, (float) pos.z)
+                .color(red, green, blue, alpha)
+                .uv(u, v)
+                .overlayCoords(OverlayTexture.NO_OVERLAY)
+                .uv2(light)
+                .normal(normal, 0.0F, 1.0F, 0.0F)
+                .endVertex();
     }
 
     private net.minecraft.world.phys.Vec3 getRightHandPosition(Ignis_PrimeEntity entity, float partialTicks, double entityX, double entityY, double entityZ) {
@@ -131,7 +184,6 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         PoseStack poseStack = new PoseStack();
         float yaw = net.minecraft.util.Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
         float s = 1.3F;
-
         poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180.0F - yaw));
         poseStack.scale(-s, -s, s);
         poseStack.translate(0.0F, -1.501F, 0.0F);

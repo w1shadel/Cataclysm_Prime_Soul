@@ -4,6 +4,7 @@ import com.github.L_Ender.cataclysm.init.ModEffect;
 import com.github.L_Ender.cataclysm.init.ModParticle;
 import com.github.L_Ender.cataclysm.util.CMDamageTypes;
 import com.github.L_Ender.cataclysm.util.CustomExplosion.IgnisExplosion;
+import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.HealBlockManager;
 import com.maxwell.cataclysm_primed_soul.init.ModEntities;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -28,7 +29,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.HealBlockManager;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -40,15 +40,12 @@ public class Prime_Flame_Strike_Entity extends Entity {
     private static final EntityDataAccessor<Boolean> SOUL;
     private static final EntityDataAccessor<Float> DAMAGE;
     private static final EntityDataAccessor<Float> HPDAMAGE;
-
-    // 追加パラメータのSynchedEntityData
     private static final EntityDataAccessor<Integer> DURATION;
     private static final EntityDataAccessor<Integer> WAIT_TIME;
     private static final EntityDataAccessor<Integer> WARMUP_DELAY;
     private static final EntityDataAccessor<Integer> EXPLOSION_DELAY;
     private static final EntityDataAccessor<Float> EXPLOSION_RADIUS;
     private static final EntityDataAccessor<Boolean> WHITE;
-
     private static final float MAX_RADIUS = 32.0F;
 
     static {
@@ -58,7 +55,6 @@ public class Prime_Flame_Strike_Entity extends Entity {
         SOUL = SynchedEntityData.defineId(Prime_Flame_Strike_Entity.class, EntityDataSerializers.BOOLEAN);
         DAMAGE = SynchedEntityData.defineId(Prime_Flame_Strike_Entity.class, EntityDataSerializers.FLOAT);
         HPDAMAGE = SynchedEntityData.defineId(Prime_Flame_Strike_Entity.class, EntityDataSerializers.FLOAT);
-
         DURATION = SynchedEntityData.defineId(Prime_Flame_Strike_Entity.class, EntityDataSerializers.INT);
         WAIT_TIME = SynchedEntityData.defineId(Prime_Flame_Strike_Entity.class, EntityDataSerializers.INT);
         WARMUP_DELAY = SynchedEntityData.defineId(Prime_Flame_Strike_Entity.class, EntityDataSerializers.INT);
@@ -91,7 +87,6 @@ public class Prime_Flame_Strike_Entity extends Entity {
         this.setSoul(soul);
         this.setYRot(rotation * (180F / (float) Math.PI));
         this.setPos(x, y, z);
-        // デフォルトの爆発半径を設定
         this.setExplosionRadius(casterIn instanceof Player ? 1.0F : 2.0F);
     }
 
@@ -102,7 +97,6 @@ public class Prime_Flame_Strike_Entity extends Entity {
         this.getEntityData().define(DATA_WAITING, true);
         this.getEntityData().define(DATA_SEE, false);
         this.getEntityData().define(SOUL, false);
-
         this.getEntityData().define(DURATION, 600);
         this.getEntityData().define(WAIT_TIME, 0);
         this.getEntityData().define(WARMUP_DELAY, 0);
@@ -221,12 +215,10 @@ public class Prime_Flame_Strike_Entity extends Entity {
         super.tick();
         boolean flag = this.isWaiting();
         float f = this.getRadius();
-
         int warmup = this.getWarmupDelay();
         int wait = this.getWaitTime();
         int dur = this.getDuration();
         int expDelay = this.getExplosionDelay();
-
         if (this.level().isClientSide) {
             if (flag && this.random.nextBoolean()) {
                 return;
@@ -247,13 +239,10 @@ public class Prime_Flame_Strike_Entity extends Entity {
                         double d0 = this.getX() + (this.random.nextDouble() - 0.5D) * 0.15D * (double) f;
                         double d2 = this.getY() + 0.05D;
                         double d4 = this.getZ() + (this.random.nextDouble() - 0.5D) * 0.15D * (double) f;
-                        
                         double vx = (this.random.nextDouble() - 0.5D) * 0.08D * (double) f;
                         double vy = (0.25D + this.random.nextDouble() * 0.35D) * (double) f * 0.6D;
                         double vz = (this.random.nextDouble() - 0.5D) * 0.08D * (double) f;
-                        
                         this.level().addParticle(particleoptions, d0, d2, d4, vx, vy, vz);
-                        
                         if (this.isWhite() || !this.isSoul()) {
                             double cvx = (this.random.nextDouble() - 0.5D) * 0.12D * (double) f;
                             double cvy = (0.2D + this.random.nextDouble() * 0.25D) * (double) f * 0.6D;
@@ -282,9 +271,7 @@ public class Prime_Flame_Strike_Entity extends Entity {
             if (flag != flag1) {
                 this.setWaiting(flag1);
             }
-
             int endFlameTick = warmup + wait + dur;
-
             if (this.tickCount >= endFlameTick) {
                 if (expDelay <= 0) {
                     if (this.getRadius() > 0.0F) {
@@ -301,7 +288,6 @@ public class Prime_Flame_Strike_Entity extends Entity {
                     }
                 }
             }
-
             if (flag1) {
                 return;
             }
@@ -387,7 +373,6 @@ public class Prime_Flame_Strike_Entity extends Entity {
         this.setSoul(p_19727_.getBoolean("is_soul"));
         this.setDamage(p_19727_.getFloat("damage"));
         this.setHpDamage(p_19727_.getFloat("Hpdamage"));
-
         this.setDuration(p_19727_.getInt("Duration"));
         this.setWaitTime(p_19727_.getInt("WaitTime"));
         this.setWarmupDelay(p_19727_.getInt("Delay"));
@@ -405,7 +390,6 @@ public class Prime_Flame_Strike_Entity extends Entity {
         p_19737_.putBoolean("is_soul", this.isSoul());
         p_19737_.putFloat("damage", this.getDamage());
         p_19737_.putFloat("Hpdamage", this.getHpDamage());
-
         p_19737_.putInt("Duration", this.getDuration());
         p_19737_.putInt("WaitTime", this.getWaitTime());
         p_19737_.putInt("Delay", this.getWarmupDelay());
