@@ -25,6 +25,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -75,7 +77,6 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             .defineId(Ignis_PrimeEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> CAUGHT_ENTITY_ID = SynchedEntityData
             .defineId(Ignis_PrimeEntity.class, EntityDataSerializers.INT);
-    private static final UUID DEFENSE_REDUCTION_ID = UUID.fromString("f4d7b7e0-1234-4a5b-6c7d-8e9f01234567");
     private final CMBossInfoServer bossEvent;
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState spawnAnimationState = new AnimationState();
@@ -635,22 +636,26 @@ public class Ignis_PrimeEntity extends IABoss_monster {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new IgnisStateGoal(this, 0, STATE_ULTRACHARGE, STATE_ULTRACHARGE_LIKEAMMO, 30, 0, 30.0F) {
+
+        this.goalSelector.addGoal(1, new IgnisStateGoal(this, 0, STATE_ULTRACHARGE, STATE_ULTRACHARGE_LIKEAMMO, 30, 0, 100.0F) {
             @Override
             public boolean canUse() {
-                return super.canUse() && ignis.getBossPhase() >= 2 && ignis.ultCooldown <= 0 && ignis.getRandom().nextFloat() < 0.05F;
+
+                return super.canUse() && ignis.getTarget() != null && ignis.getBossPhase() >= 2 && ignis.ultCooldown <= 0 && ignis.getRandom().nextFloat() < 0.05F;
             }
 
             @Override
             public void start() {
                 super.start();
-                ignis.ultCooldown = 600;
                 ignis.sendBossMessage("chat.cataclysm_primed_soul.ignis_prime.ultracharge");
+                ignis.ultCooldown = 1200; 
             }
         });
-        this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ULTRACHARGE_LIKEAMMO, STATE_ULTRACHARGE_LIKEAMMO, STATE_ULTRACHARGE_STRIKING, 20, 0, 100.0F));
-        this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ULTRACHARGE_STRIKING, STATE_ULTRACHARGE_STRIKING, STATE_ULTRACHARGE_STRIKING_END, 120, 0, 100.0F));
+
+        this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ULTRACHARGE_LIKEAMMO, STATE_ULTRACHARGE_LIKEAMMO, STATE_ULTRACHARGE_STRIKING, 80, 0, 100.0F));
+        this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ULTRACHARGE_STRIKING, STATE_ULTRACHARGE_STRIKING, STATE_ULTRACHARGE_STRIKING_END, 80, 0, 100.0F));
         this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ULTRACHARGE_STRIKING_END, STATE_ULTRACHARGE_STRIKING_END, 0, 60, 0, 100.0F));
+
         this.goalSelector.addGoal(2, new IgnisStateGoal(this, 0, STATE_ROCK_START, STATE_ROCK_LOOP, 18, 18, 15.0F) {
             @Override
             public boolean canUse() {
@@ -814,6 +819,8 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                 return super.canUse() && t != null && ignis.distanceTo(t) <= 15.0D && ignis.getRandom().nextFloat() < 0.15F;
             }
         });
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
         this.goalSelector.addGoal(4, new InternalMoveGoal(this, false, 1.2D));
     }
 
@@ -1135,64 +1142,159 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.8, 1.0, 0.8));
                 if (this.attackTicks == 20) {
                     if (!this.level().isClientSide) {
-                        this.setInvisible(true);
                         this.dropAggroFromEnemies();
                         this.playSound(SoundEvents.FIRECHARGE_USE, 2.0F, 0.5F);
                     }
                 }
                 break;
             case STATE_ULTRACHARGE_LIKEAMMO:
-                this.setInvisible(true);
+                this.setInvisible(false);
                 this.setNoGravity(true);
-                if (this.attackTicks == 1) {
-                    this.storedY = this.getY();
-                    float yaw = this.getYRot() * ((float) Math.PI / 180F);
-                    Vec3 shootDir = new Vec3(-Mth.sin(yaw), 0, Mth.cos(yaw)).scale(4.0D);
-                    this.setDeltaMovement(shootDir);
-                    this.hasImpulse = true;
-                    this.playSound(SoundEvents.GENERIC_EXPLODE, 2.0F, 1.5F);
+
+                if (this.attackTicks <= 20) {
+                    if (this.attackTicks == 1) {
+                        this.storedY = this.getY();
+                        float yaw = this.getYRot() * ((float) Math.PI / 180F);
+                        Vec3 shootDir = new Vec3(-Mth.sin(yaw), 0, Mth.cos(yaw)).scale(5.5D);
+                        this.setDeltaMovement(shootDir);
+                        this.hasImpulse = true;
+                        this.playSound(SoundEvents.GENERIC_EXPLODE, 2.5F, 1.2F);
+                    }
+                    this.performAreaDamage(1.5F, 1.2F, 4.0D, 3.0D, 0.0D, 0.3D);
+                    this.destroyBlocksInAABB(this.getBoundingBox().inflate(3.0D));
+
+                    if (this.tickCount % 2 == 0) {
+                        if (!this.level().isClientSide) {
+                            com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity.ScreenShake(this.level(), this.position(), 15.0F, 0.15F, 0, 8);
+                            this.playSound(SoundEvents.WARDEN_SONIC_BOOM, 1.5F, 1.2F);
+                        }
+                        this.level().addParticle(net.minecraft.core.particles.ParticleTypes.SONIC_BOOM, this.getX(), this.getY() + 1.2D, this.getZ(), 0, 0, 0);
+                    }
+
+                    this.setXRot(0.0F);
+                    this.xRotO = 0.0F;
                 }
-                this.destroyBlocksInAABB(this.getBoundingBox().inflate(2.5D));
+
+                else {
+                    if (target != null) {
+                        this.slamPos = target.position();
+                    } else if (this.slamPos == null) {
+                        this.slamPos = this.position();
+                    }
+
+                    double time = (double) this.tickCount;
+                    double idSeed = (double) this.getId();
+
+                    double radiusOffset = Math.sin(time * 0.06D + idSeed) * 4.0D;
+                    double radius = 18.0D + radiusOffset;
+
+                    double angleOffset = Math.cos(time * 0.04D + idSeed * 0.5D) * 0.25D;
+                    double angle = (time * 0.11D) + angleOffset;
+
+                    double climbProgress = (double) (this.attackTicks - 20) / 60.0D;
+                    double heightProgress = Math.sin(climbProgress * Math.PI / 2.0D);
+                    double altitudeSway = Math.sin(time * 0.08D + idSeed * 2.0D) * 3.5D;
+                    double currentTargetY = this.storedY + (heightProgress * 70.0D) + altitudeSway;
+
+                    double targetX = this.slamPos.x + Math.cos(angle) * radius;
+                    double targetZ = this.slamPos.z + Math.sin(angle) * radius;
+                    Vec3 targetOrbitalPos = new Vec3(targetX, currentTargetY, targetZ);
+
+                    Vec3 steerVec = targetOrbitalPos.subtract(this.position());
+
+                    Vec3 currentVelocity = this.getDeltaMovement();
+                    Vec3 blendedVelocity = currentVelocity.scale(0.82D).add(steerVec.scale(0.18D));
+
+                    double speedCap = 6.2D;
+                    if (blendedVelocity.length() > speedCap) {
+                        blendedVelocity = blendedVelocity.normalize().scale(speedCap);
+                    }
+                    this.setDeltaMovement(blendedVelocity);
+
+                    if (blendedVelocity.lengthSqr() > 1.0E-4D) {
+
+                        float travelYaw = (float) (Mth.atan2(blendedVelocity.z, blendedVelocity.x) * (180D / Math.PI)) - 90.0F;
+                        this.setYRot(travelYaw);
+                        this.yBodyRot = travelYaw;
+                        this.yHeadRot = travelYaw;
+                        this.yRotO = travelYaw; 
+
+                        double horizontalDist = Math.sqrt(blendedVelocity.x * blendedVelocity.x + blendedVelocity.z * blendedVelocity.z);
+                        float travelPitch = (float) -(Mth.atan2(blendedVelocity.y, horizontalDist) * (180D / Math.PI));
+                        this.setXRot(travelPitch);
+                        this.xRotO = travelPitch;
+                    }
+
+                    if (this.tickCount % 2 == 0) {
+                        this.level().addParticle(net.minecraft.core.particles.ParticleTypes.EXPLOSION, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
+                        this.playSound(SoundEvents.FIREWORK_ROCKET_SHOOT, 1.2F, 0.85F + this.random.nextFloat() * 0.2F);
+                    }
+                    this.destroyBlocksInAABB(this.getBoundingBox().inflate(3.0D));
+                }
+
+                if (this.attackTicks >= 80) {
+                    if (!this.level().isClientSide) {
+                        this.setAttackState(STATE_ULTRACHARGE_STRIKING);
+                    }
+                }
                 break;
+
             case STATE_ULTRACHARGE_STRIKING:
-                this.setInvisible(true);
-                this.setNoGravity(true);
-                this.setDeltaMovement(Vec3.ZERO);
-                if (this.attackTicks == 1) {
-                    this.slamPos = this.position();
-                }
-                if (this.slamPos != null) {
-                    for (int i = 0; i < 3; i++) {
-                        this.level().addParticle(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME,
-                                this.slamPos.x + (this.random.nextDouble() - 0.5) * 4,
-                                this.storedY + 0.2,
-                                this.slamPos.z + (this.random.nextDouble() - 0.5) * 4,
-                                0, 0.1, 0);
+                this.setInvisible(false);
+
+                if (this.attackTicks < 15) {
+                    this.setNoGravity(true);
+                    this.setDeltaMovement(Vec3.ZERO);
+
+
+                    if (target != null) {
+                        this.slamPos = target.position(); 
+                    }
+
+                    if (this.slamPos != null) {
+                        for (int i = 0; i < 3; i++) {
+                            this.level().addParticle(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME,
+                                    this.slamPos.x + (this.random.nextDouble() - 0.5) * 4,
+                                    this.storedY + 0.2,
+                                    this.slamPos.z + (this.random.nextDouble() - 0.5) * 4,
+                                    0, 0.1, 0);
+                        }
                     }
                 }
-                if (this.attackTicks == 60) {
-                    if (!this.level().isClientSide && this.slamPos != null) {
-                        this.moveTo(this.slamPos.x, this.storedY + 200.0D, this.slamPos.z);
-                        this.setInvisible(false);
-                        this.setNoGravity(false);
-                        this.setDeltaMovement(0, -8.0D, 0);
-                        this.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 4.0F, 0.5F);
+
+                else {
+                    this.setNoGravity(false);
+                    this.setDeltaMovement(0, -8.0D, 0);
+                    this.hasImpulse = true;
+
+
+                    if (this.attackTicks == 15) {
+                        if (!this.level().isClientSide && this.slamPos != null) {
+
+                            this.moveTo(this.slamPos.x, this.storedY + 70.0D, this.slamPos.z);
+                            this.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 4.0F, 0.5F);
+                        }
                     }
+                    this.destroyBlocksInAABB(this.getBoundingBox().inflate(3.5D));
                 }
-                if (this.attackTicks > 60 && this.getY() <= this.storedY + 1.5D) {
+
+                if (this.attackTicks > 15 && (this.getY() <= this.storedY + 1.5D || this.onGround())) {
                     if (!this.level().isClientSide) {
                         this.setPos(this.getX(), this.storedY, this.getZ());
                         this.setAttackState(STATE_ULTRACHARGE_STRIKING_END);
+
                         this.playSound(SoundEvents.GENERIC_EXPLODE, 5.0F, 0.5F);
-                        this.performAreaDamage(10.0F, 4.0F, 15.0D, 6.0D, 0, 1.5D);
-                        this.spawnPrimeFlameArc(20, 10.0D, 360.0F, 6.0F, 0);
+                        this.performAreaDamage(12.0F, 4.0F, 16.0D, 6.0D, 0, 1.5D);
+                        this.spawnPrimeFlameArc(24, 12.0D, 360.0F, 6.5F, 0);
                         com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity.ScreenShake(this.level(), this.position(), 100.0F, 1.0F, 0, 50);
-                        this.destroyBlocksInAABB(this.getBoundingBox().inflate(10.0D, 4.0D, 10.0D));
+                        this.destroyBlocksInAABB(this.getBoundingBox().inflate(12.0D, 4.0D, 10.0D));
                     }
                 }
                 break;
+
             case STATE_ULTRACHARGE_STRIKING_END:
                 this.setInvisible(false);
+
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.2, 1.0, 0.2));
                 break;
         }

@@ -126,6 +126,7 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
         this.root().getAllParts().forEach(ModelPart::resetPose);
         this.animateHeadLookTarget(netHeadYaw, headPitch);
         float attackSpeed = entity.getAttackSpeedMultiplier();
+        this.Boddies.xRot += entity.getXRot() * ((float) Math.PI / 180F);
         this.animate(entity.getAnimationState("idle"), Ignis_PrimeAnimation.IDLE, ageInTicks, 0.75F);
         this.animate(entity.getAnimationState("spawn"), Ignis_PrimeAnimation.SPAWN, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("charge_attack"), Ignis_PrimeAnimation.CHARGE_ATTACK, ageInTicks, attackSpeed);

@@ -98,7 +98,6 @@ public class ClientVisuals {
         if (mc.level == null) return;
         Entity entity = mc.level.getEntity(msg.getEntityId());
         if (!(entity instanceof LivingEntity boss)) return;
-        System.out.println("[Ignis Visual Effect] Received packet! Type: " + msg.getEffectType() + " for Boss ID: " + msg.getEntityId());
         try {
             switch (msg.getEffectType()) {
                 case 0:
