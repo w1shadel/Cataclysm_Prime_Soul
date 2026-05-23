@@ -151,6 +151,10 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
         this.animate(entity.getAnimationState("catch_fail"), Ignis_PrimeAnimation.CATCH_FAIL, ageInTicks, attackSpeed);
         this.animate(entity.getAnimationState("jab_attack_ex_one"), Ignis_PrimeAnimation.JAB_ATTACK_EX_ONE, ageInTicks, attackSpeed);
         this.animate(entity.getAnimationState("overhead_guardbreaker"), Ignis_PrimeAnimation.OVERHEAD_GUARDBREAKER, ageInTicks, attackSpeed);
+        this.animate(entity.getAnimationState("ultracharge_charge"), Ignis_PrimeAnimation.CHARGE_FULLPOWER, ageInTicks, attackSpeed);
+        this.animate(entity.getAnimationState("ultracharge_likeammo"), Ignis_PrimeAnimation.CHARGE_STILL_AMMO, ageInTicks, attackSpeed);
+        this.animate(entity.getAnimationState("ultracharge_striking"), Ignis_PrimeAnimation.STRIKING, ageInTicks, attackSpeed);
+        this.animate(entity.getAnimationState("ultracharge_striking_end"), Ignis_PrimeAnimation.STRIKING_FINISH, ageInTicks, attackSpeed);
         this.animate(entity.getAnimationState("mode_change"), Ignis_PrimeAnimation.MODE_CHANGE, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("dead"), Ignis_PrimeAnimation.DEAD, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("walk"), Ignis_PrimeAnimation.WALK, ageInTicks, 1.0F);
