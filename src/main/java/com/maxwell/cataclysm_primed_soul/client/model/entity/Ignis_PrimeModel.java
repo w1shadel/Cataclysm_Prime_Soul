@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 
 @SuppressWarnings("removal")
 public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
+
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Primed_Soul.MODID, "ignis_primemodel"), "main");
     private final ModelPart Root;
     private final ModelPart Boddies;
@@ -26,6 +27,8 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
     private final ModelPart R_Under;
     private final ModelPart Grip_pos;
     private final ModelPart Head;
+    private final ModelPart Eye_Left;
+    private final ModelPart Eye_Right;
     private final ModelPart Core;
 
     public Ignis_PrimeModel(ModelPart root) {
@@ -40,6 +43,8 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
         this.R_Under = this.Arm_Right.getChild("R_Under");
         this.Grip_pos = this.R_Under.getChild("Grip_pos");
         this.Head = this.Body_Upper.getChild("Head");
+        this.Eye_Left = this.Head.getChild("Eye_Left");
+        this.Eye_Right = this.Head.getChild("Eye_Right");
         this.Core = this.Body_Upper.getChild("Core");
     }
 
@@ -89,6 +94,8 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
         PartDefinition cube_r18 = Head.addOrReplaceChild("cube_r18", CubeListBuilder.create().texOffs(32, 54).addBox(-1.0F, -2.0F, -1.0F, 2.0F, 2.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.0607F, -7.4888F, -4.383F, 0.3227F, -0.4418F, 0.06F));
         PartDefinition cube_r19 = Head.addOrReplaceChild("cube_r19", CubeListBuilder.create().texOffs(60, 83).addBox(-1.0F, -2.0F, -1.0F, 2.0F, 4.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-1.4393F, -9.2888F, -4.683F, 0.4163F, 0.1109F, -0.0475F));
         PartDefinition cube_r20 = Head.addOrReplaceChild("cube_r20", CubeListBuilder.create().texOffs(84, 3).addBox(-1.0F, -1.0F, -0.5F, 2.0F, 2.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.2607F, -7.4888F, -5.383F, 0.3491F, -0.5236F, 0.0F));
+        PartDefinition Eye_Left = Head.addOrReplaceChild("Eye_Left", CubeListBuilder.create(), PartPose.offset(2.6607F, -5.6888F, -5.083F));
+        PartDefinition Eye_Right = Head.addOrReplaceChild("Eye_Right", CubeListBuilder.create(), PartPose.offset(-1.3393F, -5.5888F, -5.683F));
         PartDefinition Core = Body_Upper.addOrReplaceChild("Core", CubeListBuilder.create(), PartPose.offset(0.0F, -9.3558F, -3.5359F));
         PartDefinition cube_r21 = Core.addOrReplaceChild("cube_r21", CubeListBuilder.create().texOffs(44, 40).addBox(0.0F, 2.0F, -1.0F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-0.5F, -2.5442F, -0.1641F, 0.2618F, 0.0F, 0.0F));
         return LayerDefinition.create(meshdefinition, 128, 128);
@@ -177,4 +184,5 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
     public ModelPart root() {
         return Root;
     }
+
 }
