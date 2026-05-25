@@ -15,18 +15,23 @@ import net.minecraft.util.Mth;
 
 @SuppressWarnings("removal")
 public class Ignis_PrimeInterpolation_Layer extends RenderLayer<Ignis_PrimeEntity, Ignis_PrimeModel> {
-    private static final ResourceLocation[] TEXTURES = new ResourceLocation[7];
+    private static final ResourceLocation[] BLUE_TEXTURES = new ResourceLocation[7];
+    private static final ResourceLocation[] WHITE_TEXTURES = new ResourceLocation[7];
 
     public Ignis_PrimeInterpolation_Layer(RenderLayerParent<Ignis_PrimeEntity, Ignis_PrimeModel> parent) {
         super(parent);
         for (int i = 0; i < 7; ++i) {
-            TEXTURES[i] = new ResourceLocation(Primed_Soul.MODID, "textures/entity/ignis_prime/ignis_prime_textures_" + i + ".png");
+            BLUE_TEXTURES[i] = new ResourceLocation(Primed_Soul.MODID, "textures/entity/ignis_prime/one_ignis_prime_textures_" + i + ".png");
+            WHITE_TEXTURES[i] = new ResourceLocation(Primed_Soul.MODID, "textures/entity/ignis_prime/ignis_prime_textures_" + i + ".png");
         }
     }
 
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, Ignis_PrimeEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (entity.isInvisible()) return;
+
+        ResourceLocation[] currentTextures = entity.getBossPhase() < 2 ? BLUE_TEXTURES : WHITE_TEXTURES;
+
         float speed = 0.4f;
         int totalTextures = 7;
         int loopSteps = (totalTextures - 1) * 2;
@@ -38,8 +43,10 @@ public class Ignis_PrimeInterpolation_Layer extends RenderLayer<Ignis_PrimeEntit
         float alpha = currentStepFloat - (float) currentStep;
         int currentFrame = getPingPongFrame(currentStep, totalTextures, loopSteps);
         int nextFrame = getPingPongFrame(nextStep, totalTextures, loopSteps);
-        ResourceLocation currentTexture = TEXTURES[Mth.clamp(currentFrame, 0, 6)];
-        ResourceLocation nextTexture = TEXTURES[Mth.clamp(nextFrame, 0, 6)];
+
+        ResourceLocation currentTexture = currentTextures[Mth.clamp(currentFrame, 0, 6)];
+        ResourceLocation nextTexture = currentTextures[Mth.clamp(nextFrame, 0, 6)];
+
         renderSmooth(matrixStack, buffer, packedLight, entity, currentTexture, 1.0F);
         renderSmooth(matrixStack, buffer, packedLight, entity, nextTexture, alpha);
     }

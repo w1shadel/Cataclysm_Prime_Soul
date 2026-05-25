@@ -36,8 +36,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Ignis_PrimeEntity extends IABoss_monster {
+    private static final double TARGETING_RANGE = 100.0D;
     public static final int STATE_CHARGE_START = 1;
     public static final int STATE_UPPERCUT = 2;
     public static final int STATE_JAB_1 = 3;
@@ -69,6 +71,9 @@ public class Ignis_PrimeEntity extends IABoss_monster {
     public static final int STATE_ULTRACHARGE_LIKEAMMO = 34;
     public static final int STATE_ULTRACHARGE_STRIKING = 35;
     public static final int STATE_ULTRACHARGE_STRIKING_END = 36;
+    public static final int STATE_DASH = 40;
+    public static final int STATE_DASH_UPPER = 41;
+    public static final int STATE_GUARD_COUNTER = 42;
     public static final int STATE_PHASE_CHANGE = 99;
     private static final EntityDataAccessor<Integer> PHASE = SynchedEntityData.defineId(Ignis_PrimeEntity.class,
             EntityDataSerializers.INT);
@@ -96,10 +101,13 @@ public class Ignis_PrimeEntity extends IABoss_monster {
     public AnimationState guard_startAnimationState = new AnimationState();
     public AnimationState guard_loopAnimationState = new AnimationState();
     public AnimationState guard_breakAnimationState = new AnimationState();
+    public AnimationState guard_counterAnimationState = new AnimationState();
     public AnimationState guard_endAnimationState = new AnimationState();
     public AnimationState catch_startAnimationState = new AnimationState();
     public AnimationState catch_successAnimationState = new AnimationState();
     public AnimationState catch_failAnimationState = new AnimationState();
+    public AnimationState dashAnimationState = new AnimationState();
+    public AnimationState dash_upperAnimationState = new AnimationState();
     public AnimationState jab_attack_ex_oneAnimationState = new AnimationState();
     public AnimationState overhead_guardbreakerAnimationState = new AnimationState();
     public AnimationState ultracharge_chargeAnimationState = new AnimationState();
@@ -139,9 +147,6 @@ public class Ignis_PrimeEntity extends IABoss_monster {
     private double storedY = 0.0D;
     private Vec3 slamPos = null;
     private int ultCooldown = 0;
-    private int sideStepCooldown = 0;
-    private int comboHistory = 0;
-    private boolean strafeDirection = false;
 
     public Ignis_PrimeEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -153,6 +158,7 @@ public class Ignis_PrimeEntity extends IABoss_monster {
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 600.0D)
+                .add(Attributes.FOLLOW_RANGE, TARGETING_RANGE)
                 .add(Attributes.MOVEMENT_SPEED, 0.35D)
                 .add(Attributes.ATTACK_DAMAGE, 20.0D)
                 .add(Attributes.ARMOR, 20.0D)
@@ -165,6 +171,8 @@ public class Ignis_PrimeEntity extends IABoss_monster {
         this.showAfterUppercutAmbush();
         this.setDeltaMovement(Vec3.ZERO);
         this.setAttackState(STATE_DEATH);
+        this.caughtEntity = null;
+        this.setCaughtEntityId(-1);
         if (!this.level().isClientSide()) {
             IgnisDebuffManager.unregisterBoss(this);
         }
@@ -173,11 +181,12 @@ public class Ignis_PrimeEntity extends IABoss_monster {
     @Override
     public void remove(Entity.RemovalReason reason) {
         super.remove(reason);
+        this.caughtEntity = null;
+        this.setCaughtEntityId(-1);
         if (!this.level().isClientSide()) {
             IgnisDebuffManager.unregisterBoss(this);
         }
     }
-
     @Override
     protected void tickDeath() {
         ++this.deathTime;
@@ -280,6 +289,8 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             return this.guard_loopAnimationState;
         } else if (input == "guard_break") {
             return this.guard_breakAnimationState;
+        } else if (input == "guard_counter") {
+            return this.guard_counterAnimationState;
         } else if (input == "guard_end") {
             return this.guard_endAnimationState;
         } else if (input == "catch_start") {
@@ -288,6 +299,10 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             return this.catch_successAnimationState;
         } else if (input == "catch_fail") {
             return this.catch_failAnimationState;
+        }else if (input == "dash") {
+            return this.dashAnimationState;
+        }else if (input == "dash_upper") {
+            return this.dash_upperAnimationState;
         } else if (input == "jab_attack_ex_one") {
             return this.jab_attack_ex_oneAnimationState;
         } else if (input == "overhead_guardbreaker") {
@@ -331,11 +346,14 @@ public class Ignis_PrimeEntity extends IABoss_monster {
         this.power_slamAnimationState.stop();
         this.guard_startAnimationState.stop();
         this.guard_breakAnimationState.stop();
+        this.guard_counterAnimationState.stop();
         this.guard_endAnimationState.stop();
         this.guard_loopAnimationState.stop();
         this.catch_startAnimationState.stop();
         this.catch_successAnimationState.stop();
         this.catch_failAnimationState.stop();
+        this.dash_upperAnimationState.stop();
+        this.dashAnimationState.stop();
         this.overhead_guardbreakerAnimationState.stop();
         this.jab_attack_ex_oneAnimationState.stop();
         this.mode_changeAnimationState.stop();
@@ -430,13 +448,17 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                     this.playSound(SoundEvents.SHIELD_BLOCK, 1.0F, 0.8F + this.random.nextFloat() * 0.2F);
                     if (!this.level().isClientSide) {
                         com.maxwell.cataclysm_primed_soul.network.ModMessages.sendToClients(new com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect(this.getId(), 4));
+                        if (this.random.nextFloat() < 0.40F) {
+                            this.setAttackState(STATE_GUARD_COUNTER);
+                            this.isGuarding = false;
+                        }
                     }
                 }
                 return false;
             }
         }
-        if (!isGenericKill && amount > 30.0F) {
-            amount = 30.0F;
+        if (!isGenericKill && amount > 35.0F) {
+            amount = 35.0F + (amount - 35.0F) * 0.10F;
         }
         return super.hurt(source, amount);
     }
@@ -483,10 +505,54 @@ public class Ignis_PrimeEntity extends IABoss_monster {
         return Math.round(baseTick / this.getAttackSpeedMultiplier());
     }
 
+    private boolean isValidTarget(LivingEntity target) {
+        if (target == null || !target.isAlive()) {
+            return false;
+        }
+        if (target instanceof Player player && (player.isCreative() || player.isSpectator())) {
+            return false;
+        }
+        return this.distanceToSqr(target) <= TARGETING_RANGE * TARGETING_RANGE;
+    }
+
+    private Player findNearestValidPlayer(double range) {
+        Player nearestPlayer = null;
+        double nearestDistanceSqr = range * range;
+        List<Player> players = this.level().getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(range));
+        for (Player player : players) {
+            if (player.isAlive() && !player.isCreative() && !player.isSpectator()) {
+                double distanceSqr = this.distanceToSqr(player);
+                if (distanceSqr <= nearestDistanceSqr) {
+                    nearestDistanceSqr = distanceSqr;
+                    nearestPlayer = player;
+                }
+            }
+        }
+        return nearestPlayer;
+    }
+
     @Override
     public void tick() {
         super.tick();
         if (!this.level().isClientSide()) {
+            LivingEntity target = this.getTarget();
+            if (!this.isValidTarget(target)) {
+                Player nearestPlayer = this.findNearestValidPlayer(TARGETING_RANGE);
+                if (nearestPlayer != null) {
+                    this.setTarget(nearestPlayer);
+                    target = nearestPlayer;
+                } else if (target != null) {
+                    this.setTarget(null);
+                    target = null;
+                }
+            }
+
+            int currentAttackState = this.getAttackState();
+            if (currentAttackState != STATE_CATCH_START && currentAttackState != STATE_CATCH_SUCCESS && this.caughtEntity != null) {
+                this.caughtEntity = null;
+                this.setCaughtEntityId(-1);
+            }
+
             if (!this.hasSentAppearMessage) {
                 this.hasSentAppearMessage = true;
                 IgnisDebuffManager.registerBoss(this);
@@ -502,11 +568,9 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                 if (!this.level().isClientSide) {
                     com.maxwell.cataclysm_primed_soul.network.ModMessages.sendToClients(new com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect(this.getId(), 3));
                     com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity.ScreenShake(this.level(), this.position(), 30.0F, 0.3F, 0, 45);
-                    System.out.println("[Ignis Visual Effect] Sent PhaseChange packet & spawned ScreenShake");
                 }
             }
             IgnisDebuffManager.tickBossDebuffs(this);
-            LivingEntity target = this.getTarget();
             if (target != null && target.isUsingItem() && (target.getUseItem().getItem() instanceof net.minecraft.world.item.ShieldItem || target.getUseItem().canPerformAction(net.minecraftforge.common.ToolActions.SHIELD_BLOCK))) {
                 this.targetShieldingTicks++;
                 if (this.targetShieldingTicks >= 60 && this.getAttackState() == 0 && this.overheadCooldown <= 0) {
@@ -518,7 +582,6 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             } else {
                 this.targetShieldingTicks = 0;
             }
-            int currentAttackState = this.getAttackState();
             if ((this.lastAttackState == STATE_UPPERCUT_HORIZONTAL || this.lastAttackState == STATE_UPPERCUT_VERTICAL)
                     && currentAttackState == 0) {
                 if (this.uppercutStartPos != null) {
@@ -584,7 +647,6 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             }
         }
     }
-
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if (ATTACK_STATE.equals(key)) {
@@ -622,8 +684,10 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                 case STATE_ULTRACHARGE -> this.ultracharge_chargeAnimationState.start(this.tickCount);
                 case STATE_ULTRACHARGE_LIKEAMMO -> this.ultracharge_likeammoAnimationState.start(this.tickCount);
                 case STATE_ULTRACHARGE_STRIKING -> this.ultracharge_striking_AnimationState.start(this.tickCount);
-                case STATE_ULTRACHARGE_STRIKING_END ->
-                        this.ultracharge_striking_end_AnimationState.start(this.tickCount);
+                case STATE_DASH -> this.dashAnimationState.start(this.tickCount);
+                case STATE_DASH_UPPER -> this.dash_upperAnimationState.start(this.tickCount);
+                case STATE_GUARD_COUNTER -> this.guard_counterAnimationState.start(this.tickCount);
+                case STATE_ULTRACHARGE_STRIKING_END -> this.ultracharge_striking_end_AnimationState.start(this.tickCount);
             }
             if (state == 0 || (state != STATE_ULTRACHARGE && state != STATE_ULTRACHARGE_LIKEAMMO)) {
                 this.setInvisible(false);
@@ -638,6 +702,18 @@ public class Ignis_PrimeEntity extends IABoss_monster {
     @Override
     protected void registerGoals() {
         super.registerGoals();
+        this.goalSelector.addGoal(1, new IgnisStateGoal(this, 0, STATE_DASH, 0, 30, 0, 35.0F) {
+            @Override
+            public boolean canUse() {
+                LivingEntity target = ignis.getTarget();
+                if (target == null) return false;
+                double distance = ignis.distanceTo(target);
+                return super.canUse() && distance >= 8.0D && ignis.getRandom().nextFloat() < 0.25F;
+            }
+        });
+        this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_DASH, STATE_DASH, 0, 30, 0, 35.0F));
+        this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_DASH_UPPER, STATE_DASH_UPPER, 0, 25, 0, 20.0F));
+        this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_GUARD_COUNTER, STATE_GUARD_COUNTER, 0, 22, 0, 20.0F));
         this.goalSelector.addGoal(1, new IgnisStateGoal(this, 0, STATE_ULTRACHARGE, STATE_ULTRACHARGE_LIKEAMMO, 30, 0, 100.0F) {
             @Override
             public boolean canUse() {
@@ -666,30 +742,21 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                         && ignis.getRandom().nextFloat() < chance;
             }
         });
-        this.goalSelector.addGoal(0, new IgnisRockLoopGoal(this));
-        this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ROCK_END, STATE_ROCK_END, 0, 21, 0, 20.0F) {
+        this.goalSelector.addGoal(2, new IgnisStateGoal(this, 0, STATE_ROCK_START, STATE_ROCK_LOOP, 18, 18, 30.0F) {
             @Override
-            public void tick() {
-                super.tick();
-                if (ignis.attackTicks == 10)
-                    ignis.performRockThrow();
-            }
-
-            @Override
-            public void stop() {
-                super.stop();
-                if (ignis.rockProjectileHit) {
-                    ignis.setAttackState(STATE_CHARGE_START);
-                } else {
-                    ignis.setAttackState(0);
-                    ignis.setRockCooldown(140);
-                }
+            public boolean canUse() {
+                LivingEntity t = ignis.getTarget();
+                if (t == null || !ignis.isRockReady()) return false;
+                double distance = ignis.distanceTo(t);
+                return super.canUse() && distance >= 8.0D && distance <= 35.0D && ignis.getRandom().nextFloat() < 0.35F;
             }
         });
+        this.goalSelector.addGoal(0, new IgnisRockLoopGoal(this));
+        this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ROCK_END, STATE_ROCK_END, 0, 21, 0, 30.0F));
         this.goalSelector.addGoal(1, new IgnisChargeGoal(this, 15.0F) {
             @Override
             public boolean canUse() {
-                if (ignis.lastAttackState == STATE_UPPERCUT && ignis.distanceTo(ignis.getTarget()) < 8.0D) return false;
+                if (ignis.lastAttackState == STATE_UPPERCUT && ignis.distanceTo(Objects.requireNonNull(ignis.getTarget())) < 8.0D) return false;
                 return super.canUse();
             }
         });
@@ -892,7 +959,7 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             if (state == STATE_JAB_1 || state == STATE_ROCK_START || state == STATE_CHARGE_START
                     || state == STATE_UPPERCUT || state == STATE_CATCH_START || state == STATE_POWER_SLAM
                     || state == STATE_OVERHEAD_GUARDBREAKER || state == STATE_JAB_EX_ONE
-                    || state == STATE_COMBO_RUSH_1) {
+                    || state == STATE_COMBO_RUSH_1 || state == STATE_DASH) {
                 this.totalAttacksMade++;
             }
         }
@@ -919,7 +986,6 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                 handleChargeMovement();
                 if (!this.level().isClientSide && this.tickCount % 2 == 0) {
                     com.maxwell.cataclysm_primed_soul.network.ModMessages.sendToClients(new com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect(this.getId(), 2));
-                    System.out.println("[Ignis Visual Effect] Sent Charge packet");
                 }
                 break;
             case STATE_ROCK_START:
@@ -1010,16 +1076,18 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             case STATE_POWER_SLAM:
                 if (this.attackTicks == getScaledTick(38)) {
                     this.playSound(SoundEvents.GENERIC_EXPLODE, 1.5F, 0.6F);
-                    this.performAreaDamage(2.0F, 1.5F, 7.0D, 3.0D, 0.0D, 0.6D);
+                    this.performAreaDamage(2.0F, 1.2F, 7.0D, 3.0D, 0.0D, 0.5D);
                     this.spawnFallingBlockShockwave(7, 360.0F);
                     this.spawnFlameStrike(this.getX(), this.getZ(), this.getY() - 1, this.getY() + 1, 0, 40, 10, 0,
                             5.0F, false);
                     if (!this.level().isClientSide) {
                         com.maxwell.cataclysm_primed_soul.network.ModMessages.sendToClients(new com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect(this.getId(), 1));
                         com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity.ScreenShake(this.level(), this.position(), 20.0F, 0.25F, 0, 20);
-                        System.out.println("[Ignis Visual Effect] Sent PowerSlam packet & spawned ScreenShake");
                         this.destroyBlocksInAABB(this.getBoundingBox().inflate(7.0D, 2.0D, 7.0D));
                     }
+                }
+                if (this.attackTicks == getScaledTick(41) || this.attackTicks == getScaledTick(44)) {
+                    this.performAreaDamage(0.8F, 0.8F, 7.0D, 3.0D, 0.0D, 0.2D);
                 }
                 break;
             case STATE_JAB_EX_ONE:
@@ -1325,14 +1393,81 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                 this.setInvisible(false);
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.2, 1.0, 0.2));
                 break;
+            case STATE_DASH:
+                this.getNavigation().stop();
+                this.setDeltaMovement(this.getDeltaMovement().multiply(0.2D, 1.0D, 0.2D));
+                if (target != null) {
+                    this.lookAt(target, 45.0F, 45.0F);
+                    this.yBodyRot = this.getYRot();
+                }
+                if (this.attackTicks == 16) {
+                    if (target != null) {
+                        double yaw = Math.toRadians(target.getYRot());
+                        double offsetX = Math.sin(yaw) * 1.5D;
+                        double offsetZ = -Math.cos(yaw) * 1.5D;
+                        double targetY = target.getY();
+                        if (this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                            serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.PORTAL, this.getX(), this.getY() + 1.5D, this.getZ(), 30, 0.5D, 0.5D, 0.5D, 0.2D);
+                            serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME, this.getX(), this.getY() + 1.0D, this.getZ(), 20, 0.4D, 0.4D, 0.4D, 0.1D);
+                        }
+                        this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.5F, 1.2F);
+                        this.teleportTo(target.getX() + offsetX, targetY, target.getZ() + offsetZ);
+                        this.lookAt(target, 360.0F, 360.0F);
+                        this.yBodyRot = this.getYRot();
+                        this.yRotO = this.getYRot();
+                        this.setDeltaMovement(Vec3.ZERO);
+                        if (this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                            serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.PORTAL, this.getX(), this.getY() + 1.5D, this.getZ(), 30, 0.5D, 0.5D, 0.5D, 0.2D);
+                            serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME, this.getX(), this.getY() + 1.0D, this.getZ(), 20, 0.4D, 0.4D, 0.4D, 0.1D);
+                        }
+                    }
+                    this.setAttackState(STATE_DASH_UPPER);
+                }
+                break;
+            case STATE_DASH_UPPER:
+                this.getNavigation().stop();
+                this.setDeltaMovement(this.getDeltaMovement().multiply(0.5D, 1.0D, 0.5D));
+                if (target != null) {
+                    this.lookAt(target, 45.0F, 45.0F);
+                    this.yBodyRot = this.getYRot();
+                }
+                if (this.attackTicks == 6) {
+                    this.playSound(SoundEvents.PLAYER_ATTACK_STRONG, 2.0F, 0.8F);
+                    this.playSound(SoundEvents.GENERIC_EXPLODE, 1.5F, 1.1F);
+                    this.performForwardArcDamage(2.5F, 4.5F, 120.0F, 0.3F, 1.8D);
+                    this.setDeltaMovement(this.getDeltaMovement().add(0, 0.35D, 0));
+                    this.hasImpulse = true;
+                    if (!this.level().isClientSide) {
+                        com.maxwell.cataclysm_primed_soul.network.ModMessages.sendToClients(new com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect(this.getId(), 0));
+                        com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity.ScreenShake(this.level(), this.position(), 25.0F, 0.25F, 0, 15);
+                    }
+                }
+                break;
+            case STATE_GUARD_COUNTER:
+                this.getNavigation().stop();
+                this.setDeltaMovement(this.getDeltaMovement().multiply(0.5D, 1.0D, 0.5D));
+                if (target != null) {
+                    this.lookAt(target, 45.0F, 45.0F);
+                    this.yBodyRot = this.getYRot();
+                }
+                if (this.attackTicks == 12) {
+                    this.playSound(SoundEvents.PLAYER_ATTACK_KNOCKBACK, 2.0F, 0.8F);
+                    this.playSound(SoundEvents.SHIELD_BLOCK, 1.5F, 0.5F);
+                    this.performForwardArcDamage(2.0F, 4.0F, 110.0F, 1.5F, 0.2D);
+                    if (!this.level().isClientSide) {
+                        com.maxwell.cataclysm_primed_soul.network.ModMessages.sendToClients(new com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect(this.getId(), 1));
+                        com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity.ScreenShake(this.level(), this.position(), 20.0F, 0.2F, 0, 15);
+                    }
+                }
+                break;
         }
         handlePrimePhaseAttackAugments(state, target);
         if (state != STATE_UPPERCUT_HORIZONTAL && state != STATE_UPPERCUT_VERTICAL) {
             if (this.isNoGravity())
                 this.setNoGravity(false);
         }
-    }
 
+    }
     private void handlePhaseChangeAction() {
         this.getNavigation().stop();
         this.setDeltaMovement(0.0D, this.getDeltaMovement().y, 0.0D);
@@ -1341,6 +1476,41 @@ public class Ignis_PrimeEntity extends IABoss_monster {
         this.hurtTime = 0;
         if (!this.level().isClientSide()) {
             this.phaseChangeTicks++;
+            if (this.phaseChangeTicks == 1) {
+                this.playSound(SoundEvents.EVOKER_PREPARE_ATTACK, 2.0F, 0.5F);
+                this.playSound(SoundEvents.BEACON_ACTIVATE, 2.0F, 0.5F);
+            }
+            if (this.phaseChangeTicks < 70 && this.phaseChangeTicks % 5 == 0) {
+                this.playSound(SoundEvents.FIRE_AMBIENT, 1.5F, 0.8F + this.getRandom().nextFloat() * 0.4F);
+            }
+            if (this.phaseChangeTicks == 70) {
+                this.playSound(SoundEvents.GENERIC_EXPLODE, 3.0F, 0.5F);
+                this.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 2.5F, 0.75F);
+                com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity.ScreenShake(this.level(), this.position(), 40.0F, 0.5F, 0, 30);
+                com.maxwell.cataclysm_primed_soul.network.ModMessages.sendToClients(new com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect(this.getId(), 3));
+            }
+            if (this.phaseChangeTicks >= 70 && this.phaseChangeTicks <= 86) {
+                if (this.phaseChangeTicks % 2 == 0) {
+                    double distance = (this.phaseChangeTicks - 70) * 1.1D + 2.0D;
+                    List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(distance, 3.0D, distance));
+                    for (LivingEntity target : targets) {
+                        if (target != this && !this.isAlliedTo(target)) {
+                            double distToTarget = this.distanceTo(target);
+                            if (Math.abs(distToTarget - distance) <= 2.0D) {
+                                float dmg = (float) (this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 1.5F);
+                                if (target.hurt(this.damageSources().indirectMagic(this, this), dmg)) {
+                                    target.setSecondsOnFire(8);
+                                    double dx = target.getX() - this.getX();
+                                    double dz = target.getZ() - this.getZ();
+                                    double d2 = Math.max(dx * dx + dz * dz, 0.001D);
+                                    target.push(dx / d2 * 3.5D, 0.5D, dz / d2 * 3.5D);
+                                    target.hasImpulse = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             if (this.phaseChangeTicks >= 96) {
                 this.phaseChangeTicks = 0;
                 this.setAttackState(0);
@@ -1443,7 +1613,40 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             this.rockProjectileHit = true;
         }
     }
+    public void performTectonicWave(int phase, LivingEntity target) {
+        if (this.level().isClientSide || target == null) return;
 
+        float pitch = 0.6F + (phase * 0.2F);
+        this.playSound(SoundEvents.GENERIC_EXPLODE, 2.0F, pitch);
+        this.playSound(SoundEvents.LIGHTNING_BOLT_IMPACT, 1.5F, pitch + 0.4F);
+        com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity.ScreenShake(this.level(), this.position(), 20.0F + (phase * 10.0F), 0.25F, 0, 15);
+
+        Vec3 dir = target.position().subtract(this.position()).normalize();
+        float yaw = (float) (Mth.atan2(dir.z, dir.x) * (180D / Math.PI)) - 90.0F;
+        double dist = this.distanceTo(target);
+
+        switch (phase) {
+            case 0 -> { // 1回目: ターゲットへ一直線の連鎖爆発
+                for (int i = 1; i <= 6; i++) {
+                    double px = this.getX() + dir.x * (i * 3.5D);
+                    double pz = this.getZ() + dir.z * (i * 3.5D);
+                    spawnFlameStrike(px, pz, this.getY() - 1, this.getY() + 1, yaw, 25, 0, i * 2, 2.2F, true);
+                }
+            }
+            case 1 -> { // 2回目: ターゲット周辺を覆う扇形
+                spawnPrimeFlameArc(9, dist + 1.5D, 100.0F, 3.0F, 5);
+            }
+            case 2 -> { // 3回目: ターゲットの背後を爆撃＋左右からの包囲
+                double bX = target.getX() + dir.x * 5.0D;
+                double bZ = target.getZ() + dir.z * 5.0D;
+                spawnFlameStrike(bX, bZ, target.getY() - 1, target.getY() + 1, yaw, 50, 5, 0, 6.0F, true);
+                spawnPrimeFlameArc(6, dist, 150.0F, 3.5F, 0);
+                if (isPrimeSecondForm()) {
+                    spawnPrimeFireballVolley(target, 4, 3, 1.5D, 20.0F);
+                }
+            }
+        }
+    }
     public boolean isRockReady() {
         return this.rockCooldown <= 0;
     }
@@ -1601,7 +1804,6 @@ public class Ignis_PrimeEntity extends IABoss_monster {
             if (this.canDamageTarget(target) && this.isInFrontArc(target, 120) && this.distanceTo(target) <= 3.0D + this.getBbWidth()) {
                 float damage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 2.5F;
                 if (target.isBlocking()) {
-                    damage *= 0.8F;
                     if (target instanceof Player player) {
                         player.getCooldowns().addCooldown(player.getUseItem().getItem(), 100);
                         player.stopUsingItem();
@@ -1610,7 +1812,7 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                 }
                 if (target.hurt(this.damageSources().magic(), damage)) {
                     this.applyAttackKnockback(target, 1.5F, 0.0D, 0.0D);
-                    this.heal(damage * 0.15F);
+                    this.heal(damage * 0.10F);
                 }
             }
         }
@@ -1649,7 +1851,7 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                 float damage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMultiplier;
                 if (target.hurt(this.damageSources().mobAttack(this), damage)) {
                     this.applyAttackKnockback(target, knockback, forwardPush, verticalImpulse);
-                    this.heal(damage * 0.15F);
+                    this.heal(damage * 0.10F);
                     hit = true;
                 }
             }
@@ -1674,7 +1876,7 @@ public class Ignis_PrimeEntity extends IABoss_monster {
                 float damage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMultiplier;
                 if (target.hurt(this.damageSources().mobAttack(this), damage)) {
                     this.applyAttackKnockback(target, knockback, forwardPush, verticalImpulse);
-                    this.heal(damage * 0.15F);
+                    this.heal(damage * 0.10F);
                     hit = true;
                 }
             }

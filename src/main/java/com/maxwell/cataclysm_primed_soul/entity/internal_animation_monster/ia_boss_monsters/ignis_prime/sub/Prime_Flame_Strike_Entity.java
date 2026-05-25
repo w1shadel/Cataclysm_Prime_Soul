@@ -326,7 +326,7 @@ public class Prime_Flame_Strike_Entity extends Entity {
                     i = Mth.clamp(i, 0, 4);
                     MobEffectInstance effectinstance = new MobEffectInstance((MobEffect) ModEffect.EFFECTBLAZING_BRAND.get(), 200, i, false, false, true);
                     Hitentity.addEffect(effectinstance);
-                    HealBlockManager.applyHealBlock(Hitentity, 100);
+                    HealBlockManager.applyHealBlock(Hitentity, 60);
                 }
             } else if (!caster.isAlliedTo(Hitentity) && !Hitentity.isAlliedTo(caster)) {
                 boolean flag = Hitentity.hurt(CMDamageTypes.causeFlameStrikeDamage(this, caster), this.getDamage() + Hitentity.getMaxHealth() * 0.01F * this.getHpDamage());
@@ -342,7 +342,7 @@ public class Prime_Flame_Strike_Entity extends Entity {
                     i = Mth.clamp(i, 0, 4);
                     MobEffectInstance effectinstance = new MobEffectInstance((MobEffect) ModEffect.EFFECTBLAZING_BRAND.get(), 200, i, false, false, true);
                     Hitentity.addEffect(effectinstance);
-                    HealBlockManager.applyHealBlock(Hitentity, 100);
+                    HealBlockManager.applyHealBlock(Hitentity, 60);
                 }
             }
         }

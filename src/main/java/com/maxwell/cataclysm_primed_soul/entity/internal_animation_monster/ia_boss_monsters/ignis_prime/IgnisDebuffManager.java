@@ -120,13 +120,13 @@ public class IgnisDebuffManager {
         double armorMod = 0;
         double toughnessMod = 0;
         if (level == 1) {
-            armorMod = -0.2D;
+            armorMod = -0.20D;
         } else if (level == 2) {
-            armorMod = -0.5D;
-            toughnessMod = -0.2D;
+            armorMod = -0.45D;
+            toughnessMod = -0.20D;
         } else if (level == 3) {
-            armorMod = -1.0D;
-            toughnessMod = -0.5D;
+            armorMod = -0.75D;
+            toughnessMod = -0.40D;
         }
         AttributeInstance armorAttr = entity.getAttribute(Attributes.ARMOR);
         if (armorAttr != null && armorMod != 0) {
@@ -137,7 +137,6 @@ public class IgnisDebuffManager {
             toughnessAttr.addTransientModifier(new AttributeModifier(DEBUFF_TOUGHNESS_UUID, "Ignis Toughness Debuff", toughnessMod, AttributeModifier.Operation.MULTIPLY_TOTAL));
         }
     }
-
     private static void removeAttributeModifiers(LivingEntity entity) {
         AttributeInstance armorAttr = entity.getAttribute(Attributes.ARMOR);
         if (armorAttr != null) {

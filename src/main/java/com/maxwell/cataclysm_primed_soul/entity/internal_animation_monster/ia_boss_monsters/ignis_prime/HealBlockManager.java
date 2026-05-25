@@ -27,12 +27,10 @@ public class HealBlockManager {
         LivingEntity entity = event.getEntity();
         if (entity != null && !entity.level().isClientSide()) {
             if (blockedEntities.containsKey(entity.getUUID())) {
-                event.setAmount(0.0F);
-                event.setCanceled(true);
+                event.setAmount(event.getAmount() * 0.4F);
             }
         }
     }
-
     @SubscribeEvent
     public static void onLivingUpdate(LivingEvent.LivingTickEvent event) {
         LivingEntity entity = event.getEntity();

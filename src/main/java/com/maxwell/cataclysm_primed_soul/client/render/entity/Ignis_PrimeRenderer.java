@@ -82,10 +82,14 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
 
             int i = 0;
             for (ShadowPose shadow : shadows) {
-                float shadowAlpha = 0.3F - (i * 0.05F); 
+                float shadowAlpha = 0.3F - (i * 0.05F);
                 if (shadowAlpha > 0) {
                     matrixStackIn.pushPose();
                     matrixStackIn.translate(shadow.pos.x - renderPosX, shadow.pos.y - renderPosY, shadow.pos.z - renderPosZ);
+                    matrixStackIn.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180.0F - shadow.yaw));
+                    float s = 1.3F;
+                    matrixStackIn.scale(-s, -s, s);
+                    matrixStackIn.translate(0.0F, -1.501F, 0.0F);
 
                     VertexConsumer shadowVc = bufferIn.getBuffer(RenderType.entityTranslucent(TEXTURES[0]));
                     this.model.renderToBuffer(matrixStackIn, shadowVc, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 0.4F, 0.8F, shadowAlpha);
@@ -234,9 +238,9 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         PoseStack poseStack = createModelPose(entity, partialTicks);
         this.getModel().getArm_Left().translateAndRotate(poseStack);
         this.getModel().getL_Under().translateAndRotate(poseStack);
+        this.getModel().getHand_pos().translateAndRotate(poseStack);
         return toWorldPosition(poseStack, entityX, entityY, entityZ);
     }
-
     private PoseStack createModelPose(Ignis_PrimeEntity entity, float partialTicks) {
         PoseStack poseStack = new PoseStack();
         float yaw = net.minecraft.util.Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
