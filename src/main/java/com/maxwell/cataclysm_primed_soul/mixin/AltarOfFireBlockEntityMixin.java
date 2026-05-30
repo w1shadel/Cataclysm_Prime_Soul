@@ -32,6 +32,7 @@ public abstract class AltarOfFireBlockEntityMixin {
     private void onTick(Level level, BlockState state, BlockPos pos, CallbackInfo ci) {
         AltarOfFire_Block_Entity altar = (AltarOfFire_Block_Entity) (Object) this;
         ItemStack held = altar.getItem(0);
+
         if (!held.isEmpty() && held.getItem() == ModItems.ABYSSAL_ASHES.get()) {
             this.summoningthis = true;
 
@@ -51,12 +52,10 @@ public abstract class AltarOfFireBlockEntityMixin {
                     Ignis_PrimeEntity prime = new Ignis_PrimeEntity(com.maxwell.cataclysm_primed_soul.init.ModEntities.IGNIS_PRIME.get(), serverLevel);
                     if (prime != null) {
                         prime.setPos(pos.getX() + 0.5D, pos.getY() + 1.2D, pos.getZ() + 0.5D);
-                        prime.setHomePos(pos);
 
-                        prime.startSpawnJumpAttack();
-
-                        String dimLoc = serverLevel.dimension().location().toString();
-                        prime.setDimensionType(dimLoc);
+                        double jumpHeight = 1.6D;
+                        prime.setDeltaMovement(0.0D, jumpHeight, 0.0D);
+                        prime.hasImpulse = true;
 
                         boolean flag = serverLevel.addFreshEntity(prime);
                         if (flag) {
@@ -65,7 +64,7 @@ public abstract class AltarOfFireBlockEntityMixin {
                                     pos.getX() + 0.5D,
                                     pos.getY() + 1.0D,
                                     pos.getZ() + 0.5D,
-                                    0.0F, 60, 0, 0, 5.5F, 0.0F, 0.0F, true, prime
+                                    0.0F, 60, 0, 0, 5.5F, 10.0F, 10.0F, true, prime
                             );
                             flameStrike.setWhite(true);
                             serverLevel.addFreshEntity(flameStrike);
@@ -96,10 +95,10 @@ public abstract class AltarOfFireBlockEntityMixin {
         for(float i = -size; i <= size; ++i) {
             for(float j = -size; j <= size; ++j) {
                 for(float k = -size; k <= size; ++k) {
-                    double d3 = (double)j + (rnd.nextDouble() - rnd.nextDouble()) * (double)0.5F;
-                    double d2d = (double)i + (rnd.nextDouble() - rnd.nextDouble()) * (double)0.5F;
-                    double d5 = (double)k + (rnd.nextDouble() - rnd.nextDouble()) * (double)0.5F;
-                    double d6 = (double)Mth.sqrt((float)(d3 * d3 + d2d * d2d + d5 * d5)) / (double)0.5F + rnd.nextGaussian() * 0.05;
+                    double d3 = (double) j + (rnd.nextDouble() - rnd.nextDouble()) * 0.5D;
+                    double d2d = (double) i + (rnd.nextDouble() - rnd.nextDouble()) * 0.5D;
+                    double d5 = (double) k + (rnd.nextDouble() - rnd.nextDouble()) * 0.5D;
+                    double d6 = (double) Mth.sqrt((float) (d3 * d3 + d2d * d2d + d5 * d5)) / 0.5F + rnd.nextGaussian() * 0.05;
                     level.addParticle(ParticleTypes.SOUL_FIRE_FLAME, d0, d1, d2, d3 / d6, d2d / d6, d5 / d6);
                     if (i != -size && i != size && j != -size && j != size) {
                         k += size * 2.0F - 1.0F;
