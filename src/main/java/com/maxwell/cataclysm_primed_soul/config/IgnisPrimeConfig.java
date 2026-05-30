@@ -254,7 +254,7 @@ public class IgnisPrimeConfig {
 
         builder.push("guard");
         GUARD_MAX_AXE_HITS = builder.defineInRange("maxAxeHits", 3, 1, 1000);
-        GUARD_MAX_DAMAGE_PLAYER = new ConfigFloat(builder.defineInRange("maxDamagePlayer", 60.0, 1.0, 100_000.0));
+        GUARD_MAX_DAMAGE_PLAYER = new ConfigFloat(builder.defineInRange("maxDamagePlayer", 120.0, 1.0, 100_000.0));
         GUARD_MAX_DAMAGE_NON_PLAYER = new ConfigFloat(builder.defineInRange("maxDamageNonPlayer", 400.0, 1.0, 100_000.0));
         builder.pop();
 

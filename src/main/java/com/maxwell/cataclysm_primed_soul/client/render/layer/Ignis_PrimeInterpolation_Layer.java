@@ -31,7 +31,16 @@ public class Ignis_PrimeInterpolation_Layer extends RenderLayer<Ignis_PrimeEntit
     public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, Ignis_PrimeEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (entity.isInvisible()) return;
 
-        ResourceLocation[] currentTextures = entity.getBossPhase() < 2 ? BLUE_TEXTURES : WHITE_TEXTURES;
+        ResourceLocation[] currentTextures = BLUE_TEXTURES;
+        if (entity.getBossPhase() >= 2) {
+            if (entity.getAttackState() == Ignis_PrimeEntity.STATE_PHASE_CHANGE) {
+                if (entity.attackTicks >= 70) {
+                    currentTextures = WHITE_TEXTURES;
+                }
+            } else {
+                currentTextures = WHITE_TEXTURES;
+            }
+        }
 
         float speed = 0.4f;
         int totalTextures = 7;
