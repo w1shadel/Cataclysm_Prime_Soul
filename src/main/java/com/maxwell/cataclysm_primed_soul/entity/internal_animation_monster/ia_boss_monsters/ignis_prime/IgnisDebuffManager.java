@@ -1,5 +1,7 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime;
 
+import com.maxwell.cataclysm_primed_soul.Primed_Soul;
+import com.maxwell.cataclysm_primed_soul.config.IgnisPrimeConfig;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -14,7 +16,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Mod.EventBusSubscriber(modid = "cataclysm_primed_soul")
+@Mod.EventBusSubscriber(modid = Primed_Soul.MODID)
 public class IgnisDebuffManager {
     private static final UUID DEBUFF_ARMOR_UUID = UUID.fromString("f4d7b7e0-1234-4a5b-6c7d-8e9f01234567");
     private static final UUID DEBUFF_TOUGHNESS_UUID = UUID.fromString("f4d7b7e0-5678-4a5b-6c7d-8e9f01234567");
@@ -58,7 +60,7 @@ public class IgnisDebuffManager {
         } else if (hpPct <= 0.5F) {
             currentLevel = 2;
         }
-        double range = 50.0D;
+        double range = IgnisPrimeConfig.DEBUFF_RANGE.get();
         AABB area = boss.getBoundingBox().inflate(range);
         List<LivingEntity> targets = boss.level().getEntitiesOfClass(LivingEntity.class, area);
         Set<UUID> targetsInTick = new HashSet<>();
@@ -120,13 +122,13 @@ public class IgnisDebuffManager {
         double armorMod = 0;
         double toughnessMod = 0;
         if (level == 1) {
-            armorMod = -0.20D;
+            armorMod = IgnisPrimeConfig.DEBUFF_ARMOR_LEVEL_1.get();
         } else if (level == 2) {
-            armorMod = -0.45D;
-            toughnessMod = -0.20D;
+            armorMod = IgnisPrimeConfig.DEBUFF_ARMOR_LEVEL_2.get();
+            toughnessMod = IgnisPrimeConfig.DEBUFF_TOUGHNESS_LEVEL_2.get();
         } else if (level == 3) {
-            armorMod = -0.75D;
-            toughnessMod = -0.40D;
+            armorMod = IgnisPrimeConfig.DEBUFF_ARMOR_LEVEL_3.get();
+            toughnessMod = IgnisPrimeConfig.DEBUFF_TOUGHNESS_LEVEL_3.get();
         }
         AttributeInstance armorAttr = entity.getAttribute(Attributes.ARMOR);
         if (armorAttr != null && armorMod != 0) {

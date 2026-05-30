@@ -121,18 +121,21 @@ public class Prime_Fireball_Entity extends AbstractHurtingProjectile {
         this.timer = delay;
     }
 
-    protected void onHitEntity(EntityHitResult p_37626_) {
-        super.onHitEntity(p_37626_);
+    protected void onHitEntity(EntityHitResult hit) {
+        super.onHitEntity(hit);
+        Entity entity = hit.getEntity();
         Entity shooter = this.getOwner();
-        if (!this.level().isClientSide && !(p_37626_.getEntity() instanceof Ignis_Fireball_Entity) && !(p_37626_.getEntity() instanceof com.github.L_Ender.cataclysm.entity.projectile.Ignis_Abyss_Fireball_Entity) && !(p_37626_.getEntity() instanceof Cm_Falling_Block_Entity) && (!(p_37626_.getEntity() instanceof Ignis_Entity) || !(shooter instanceof Ignis_Entity)) && this.getFired()) {
-            Entity entity = p_37626_.getEntity();
+        if (entity == shooter || entity instanceof com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity) {
+            return;
+        }
+        if (!this.level().isClientSide && !(entity instanceof Ignis_Fireball_Entity) && !(entity instanceof com.github.L_Ender.cataclysm.entity.projectile.Ignis_Abyss_Fireball_Entity) && !(entity instanceof Cm_Falling_Block_Entity) && (!(entity instanceof Ignis_Entity) || !(shooter instanceof Ignis_Entity)) && this.getFired()) {
             boolean flag;
             if (shooter instanceof LivingEntity) {
                 LivingEntity owner = (LivingEntity) shooter;
                 if (entity instanceof LivingEntity) {
-                    flag = entity.hurt(this.damageSources().mobProjectile(this, owner), 10.0F + ((LivingEntity) entity).getMaxHealth() * 0.2F);
+                    flag = entity.hurt(this.damageSources().mobProjectile(this, owner), 7.0F + ((LivingEntity) entity).getMaxHealth() * 0.10F);
                 } else {
-                    flag = entity.hurt(this.damageSources().mobProjectile(this, owner), 10.0F);
+                    flag = entity.hurt(this.damageSources().mobProjectile(this, owner), 7.0F);
                 }
                 if (flag) {
                     this.doEnchantDamageEffects(owner, entity);
@@ -147,7 +150,7 @@ public class Prime_Fireball_Entity extends AbstractHurtingProjectile {
             }
             IgnisExplosion explosion = new IgnisExplosion(this.level(), this, (DamageSource) null, (ExplosionDamageCalculator) null, this.getX(), this.getY(), this.getZ(), 2.0F, true, BlockInteraction.KEEP);
             explosion.explode();
-            explosion.finalizeExplosion(3, (double) 0.75F);
+            explosion.finalizeExplosion(2, (double) 0.5F);
             this.discard();
             if (flag && entity instanceof LivingEntity) {
                 MobEffectInstance effectinstance1 = ((LivingEntity) entity).getEffect((MobEffect) ModEffect.EFFECTBLAZING_BRAND.get());
@@ -174,7 +177,7 @@ public class Prime_Fireball_Entity extends AbstractHurtingProjectile {
             if (!this.level().isClientSide) {
                 IgnisExplosion explosion = new IgnisExplosion(this.level(), this, (DamageSource) null, (ExplosionDamageCalculator) null, this.getX(), this.getY(), this.getZ(), 2.0F, true, BlockInteraction.KEEP);
                 explosion.explode();
-                explosion.finalizeExplosion(3, (double) 0.5F);
+                explosion.finalizeExplosion(2, (double) 0.35F);
                 this.discard();
             }
         }

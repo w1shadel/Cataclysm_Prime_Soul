@@ -1,6 +1,7 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.goal;
 
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.AI.InternalAttackGoal;
+import com.maxwell.cataclysm_primed_soul.config.IgnisPrimeConfig;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
 
 public class IgnisJabGoal extends InternalAttackGoal {
@@ -30,7 +31,7 @@ public class IgnisJabGoal extends InternalAttackGoal {
                 ignis.setAttackState(nextState);
             } else {
                 ignis.setAttackState(0);
-                ignis.setJabCooldown(60);
+                ignis.setJabCooldown(IgnisPrimeConfig.JAB_COOLDOWN.get());
             }
         }
         ignis.getNavigation().stop();

@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class IgnisRockLoopGoal extends InternalAttackGoal {
     public IgnisRockLoopGoal(Ignis_PrimeEntity entity) {
-        // maxTickをアニメーションの長さに合わせる
+
         super(entity, 16, 16, 0, 70, 0, 35.0F);
     }
 
@@ -17,6 +17,7 @@ public class IgnisRockLoopGoal extends InternalAttackGoal {
         LivingEntity target = ignis.getTarget();
 
         ignis.getNavigation().stop();
+        ignis.setDeltaMovement(0.0D, ignis.getDeltaMovement().y, 0.0D);
         if (target != null) {
             ignis.getLookControl().setLookAt(target, 30.0F, 30.0F);
         }
@@ -39,5 +40,6 @@ public class IgnisRockLoopGoal extends InternalAttackGoal {
             this.entity.setAttackState(0);
         }
         this.entity.getNavigation().stop();
+        this.entity.setDeltaMovement(0.0D, this.entity.getDeltaMovement().y, 0.0D);
     }
 }

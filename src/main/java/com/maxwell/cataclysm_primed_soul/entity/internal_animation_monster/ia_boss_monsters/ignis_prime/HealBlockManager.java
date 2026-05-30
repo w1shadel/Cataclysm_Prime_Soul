@@ -1,5 +1,7 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime;
 
+import com.maxwell.cataclysm_primed_soul.Primed_Soul;
+import com.maxwell.cataclysm_primed_soul.config.IgnisPrimeConfig;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,9 +14,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Mod.EventBusSubscriber(modid = "cataclysm_primed_soul")
+@Mod.EventBusSubscriber(modid = Primed_Soul.MODID)
 public class HealBlockManager {
     private static final Map<UUID, Integer> blockedEntities = new ConcurrentHashMap<>();
+
+    /**
+     * コンフィグで設定された持続時間で回復妨害を適用する。
+     */
+    public static void applyHealBlock(LivingEntity entity) {
+        applyHealBlock(entity, IgnisPrimeConfig.HEAL_BLOCK_DURATION_TICKS.get());
+    }
 
     public static void applyHealBlock(LivingEntity entity, int durationTicks) {
         if (entity == null || entity.level().isClientSide()) return;
@@ -27,7 +36,8 @@ public class HealBlockManager {
         LivingEntity entity = event.getEntity();
         if (entity != null && !entity.level().isClientSide()) {
             if (blockedEntities.containsKey(entity.getUUID())) {
-                event.setAmount(event.getAmount() * 0.4F);
+                float rate = (float) IgnisPrimeConfig.HEAL_REDUCTION_RATE.get();
+                event.setAmount(event.getAmount() * rate);
             }
         }
     }

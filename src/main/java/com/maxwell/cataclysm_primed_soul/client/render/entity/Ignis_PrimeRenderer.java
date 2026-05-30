@@ -101,7 +101,13 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
             shadowHistory.remove(entityIn.getUUID());
         }
 
-        super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
+        int originalHurtTime = entityIn.hurtTime;
+        entityIn.hurtTime = entityIn.shouldRenderHurtFlash() ? Math.max(1, entityIn.getHurtFlashTicks()) : 0;
+        try {
+            super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
+        } finally {
+            entityIn.hurtTime = originalHurtTime;
+        }
 
         boolean isUltimate = attackState >= 33 && attackState <= 36;
         if (isUltimate || attackState != 0) {

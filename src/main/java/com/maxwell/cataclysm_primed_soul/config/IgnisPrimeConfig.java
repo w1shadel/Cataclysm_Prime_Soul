@@ -1,0 +1,314 @@
+package com.maxwell.cataclysm_primed_soul.config;
+
+import net.minecraftforge.common.ForgeConfigSpec;
+
+public class IgnisPrimeConfig {
+
+    public static final ForgeConfigSpec SPEC;
+
+    public static final ConfigFloat MAX_HEALTH;
+    public static final ConfigFloat ATTACK_DAMAGE;
+    public static final ConfigFloat ARMOR;
+    public static final ConfigFloat MOVEMENT_SPEED;
+    public static final ConfigFloat KNOCKBACK_RESISTANCE;
+    public static final ConfigFloat TARGETING_RANGE;
+    public static final ForgeConfigSpec.IntValue XP_REWARD;
+    public static final ConfigFloat NATURAL_HEAL_AMOUNT;
+
+    public static final ConfigFloat PHASE2_HP_THRESHOLD;
+    public static final ForgeConfigSpec.IntValue PHASE2_DRAIN_INTERVAL;
+    public static final ConfigFloat PHASE2_DRAIN_PERCENT;
+    public static final ConfigFloat HALF_HP_THRESHOLD;
+
+    public static final ForgeConfigSpec.IntValue JAB_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue DASH_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue JUMP_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue CATCH_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue OVERHEAD_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue GUARD_COOLDOWN;
+    public static final ForgeConfigSpec.IntValue ULT_COOLDOWN;
+
+    public static final ConfigFloat JAB_DAMAGE_MULT_1;
+    public static final ConfigFloat JAB_DAMAGE_MULT_2;
+    public static final ConfigFloat JAB_DAMAGE_MULT_3;
+    public static final ConfigFloat JAB_KNOCKBACK_1;
+    public static final ConfigFloat JAB_KNOCKBACK_2;
+    public static final ConfigFloat JAB_KNOCKBACK_3;
+
+    public static final ConfigFloat UPPERCUT_DAMAGE_MULT;
+    public static final ConfigFloat UPPERCUT_KNOCKBACK;
+    public static final ConfigFloat UPPERCUT_VERTICAL_IMPULSE;
+    public static final ConfigFloat UPPERCUT_HORIZ_DAMAGE_MULT;
+    public static final ConfigFloat UPPERCUT_HORIZ_KNOCKBACK;
+    public static final ConfigFloat UPPERCUT_VERT_DAMAGE_MULT;
+    public static final ConfigFloat UPPERCUT_VERT_KNOCKBACK;
+
+    public static final ConfigFloat CHARGE_SW_DAMAGE_MULT;
+    public static final ConfigFloat CHARGE_SW_KNOCKBACK;
+
+    public static final ConfigFloat POWER_SLAM_DAMAGE_MULT;
+    public static final ConfigFloat POWER_SLAM_KNOCKBACK;
+
+    public static final ConfigFloat CATCH_DAMAGE_1;
+    public static final ConfigFloat CATCH_DAMAGE_2;
+    public static final ConfigFloat CATCH_DAMAGE_3;
+    public static final ConfigFloat CATCH_DAMAGE_FINAL;
+
+    public static final ConfigFloat DASH_UPPER_DAMAGE_MULT;
+    public static final ConfigFloat DASH_UPPER_KNOCKBACK;
+    public static final ForgeConfigSpec.IntValue DASH_UPPER_SLOWDOWN_TICKS;
+    public static final ForgeConfigSpec.IntValue DASH_UPPER_SLOWDOWN_LEVEL;
+
+    public static final ConfigFloat GUARD_COUNTER_DAMAGE_MULT;
+    public static final ConfigFloat GUARD_COUNTER_KNOCKBACK;
+
+    public static final ConfigFloat JAB_EX_DAMAGE_1;
+    public static final ConfigFloat JAB_EX_KNOCKBACK_1;
+    public static final ConfigFloat JAB_EX_DAMAGE_2;
+    public static final ConfigFloat JAB_EX_KNOCKBACK_2;
+
+    public static final ConfigFloat OVERHEAD_DAMAGE_MULT;
+    public static final ConfigFloat OVERHEAD_KNOCKBACK;
+
+    public static final ConfigFloat JUMP_LAND_DAMAGE_MULT;
+    public static final ConfigFloat JUMP_LAND_KNOCKBACK;
+
+    public static final ConfigFloat ULTRACHARGE_AREA_DAMAGE_MULT;
+    public static final ConfigFloat ULTRACHARGE_AREA_KNOCKBACK;
+
+    public static final ConfigFloat COMBO_RUSH_1_JAB1_DAMAGE;
+    public static final ConfigFloat COMBO_RUSH_1_JAB1_KB;
+    public static final ConfigFloat COMBO_RUSH_1_JAB2_DAMAGE;
+    public static final ConfigFloat COMBO_RUSH_1_JAB2_KB;
+    public static final ConfigFloat COMBO_RUSH_2_DAMAGE;
+    public static final ConfigFloat COMBO_RUSH_2_KB;
+    public static final ConfigFloat COMBO_RUSH_3_DAMAGE;
+    public static final ConfigFloat COMBO_RUSH_3_KB;
+
+    public static final ConfigFloat DASH_COMBO_HIT1_DAMAGE;
+    public static final ConfigFloat DASH_COMBO_HIT1_KB;
+    public static final ConfigFloat DASH_COMBO_HIT2_DAMAGE;
+    public static final ConfigFloat DASH_COMBO_HIT2_KB;
+    public static final ConfigFloat DASH_COMBO_HIT3_DAMAGE;
+    public static final ConfigFloat DASH_COMBO_HIT3_KB;
+
+    public static final ForgeConfigSpec.IntValue GUARD_MAX_AXE_HITS;
+    public static final ConfigFloat GUARD_MAX_DAMAGE_PLAYER;
+    public static final ConfigFloat GUARD_MAX_DAMAGE_NON_PLAYER;
+
+    public static final ConfigFloat DEBUFF_RANGE;
+    public static final ConfigFloat DEBUFF_ARMOR_LEVEL_1;
+    public static final ConfigFloat DEBUFF_ARMOR_LEVEL_2;
+    public static final ConfigFloat DEBUFF_ARMOR_LEVEL_3;
+    public static final ConfigFloat DEBUFF_TOUGHNESS_LEVEL_2;
+    public static final ConfigFloat DEBUFF_TOUGHNESS_LEVEL_3;
+
+    public static final ForgeConfigSpec.IntValue HEAL_BLOCK_DURATION_TICKS;
+    public static final ConfigFloat HEAL_REDUCTION_RATE;
+
+    public static final ConfigFloat DASH_MIN_DISTANCE;
+    public static final ConfigFloat DASH_MAX_DISTANCE;
+    public static final ConfigFloat DASH_CHANCE_NEAR;
+    public static final ConfigFloat DASH_CHANCE_FAR;
+    public static final ConfigFloat JUMP_MIN_DISTANCE;
+    public static final ConfigFloat JUMP_MAX_DISTANCE;
+    public static final ConfigFloat JUMP_CHANCE_NEAR;
+    public static final ConfigFloat JUMP_CHANCE_FAR;
+    public static final ConfigFloat ULTRACHARGE_CHANCE;
+    public static final ForgeConfigSpec.IntValue CATCH_MIN_ATTACKS;
+    public static final ForgeConfigSpec.IntValue POWER_SLAM_FORCE_ATTACKS;
+    public static final ForgeConfigSpec.IntValue OVERHEAD_FORCE_ATTACKS;
+    public static final ForgeConfigSpec.IntValue JAB_EX_COMBO_COUNT;
+    public static final ConfigFloat RECENT_DAMAGE_GUARD_THRESHOLD;
+    public static final ForgeConfigSpec.IntValue TARGET_SHIELDING_THRESHOLD;
+
+    public static final ConfigFloat FLAME_STRIKE_DAMAGE;
+    public static final ConfigFloat FLAME_STRIKE_HP_DAMAGE;
+    public static final ConfigFloat SOUL_FLAME_STRIKE_DAMAGE;
+    public static final ConfigFloat SOUL_FLAME_STRIKE_HP_DAMAGE;
+
+    static {
+        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+
+        builder.push("general");
+        MAX_HEALTH = new ConfigFloat(builder.defineInRange("maxHealth", 600.0, 1.0, 1_000_000.0));
+        ATTACK_DAMAGE = new ConfigFloat(builder.defineInRange("attackDamage", 20.0, 1.0, 10_000.0));
+        ARMOR = new ConfigFloat(builder.defineInRange("armor", 20.0, 0.0, 100.0));
+        MOVEMENT_SPEED = new ConfigFloat(builder.defineInRange("movementSpeed", 0.35, 0.01, 10.0));
+        KNOCKBACK_RESISTANCE = new ConfigFloat(builder.defineInRange("knockbackResistance", 1.0, 0.0, 1.0));
+        TARGETING_RANGE = new ConfigFloat(builder.defineInRange("targetingRange", 100.0, 10.0, 1000.0));
+        XP_REWARD = builder.defineInRange("xpReward", 1000, 0, 1_000_000);
+        NATURAL_HEAL_AMOUNT = new ConfigFloat(builder.defineInRange("naturalHealAmount", 50.0, 0.0, 100_000.0));
+        builder.pop();
+
+        builder.push("phase");
+        PHASE2_HP_THRESHOLD = new ConfigFloat(builder.defineInRange("phase2HealthThreshold", 0.01, 0.001, 0.99));
+        PHASE2_DRAIN_INTERVAL = builder.defineInRange("phase2DrainInterval", 20, 1, 1200);
+        PHASE2_DRAIN_PERCENT = new ConfigFloat(builder.defineInRange("phase2DrainPercent", 0.01, 0.0, 1.0));
+        HALF_HP_THRESHOLD = new ConfigFloat(builder.defineInRange("halfHpThreshold", 0.5, 0.01, 0.99));
+        builder.pop();
+
+        builder.push("cooldowns");
+        JAB_COOLDOWN = builder.defineInRange("jabCooldown", 60, 0, 12_000);
+        DASH_COOLDOWN = builder.defineInRange("dashCooldown", 160, 0, 12_000);
+        JUMP_COOLDOWN = builder.defineInRange("jumpCooldown", 260, 0, 12_000);
+        CATCH_COOLDOWN = builder.defineInRange("catchCooldown", 400, 0, 12_000);
+        OVERHEAD_COOLDOWN = builder.defineInRange("overheadCooldown", 200, 0, 12_000);
+        GUARD_COOLDOWN = builder.defineInRange("guardCooldown", 1200, 0, 72_000);
+        ULT_COOLDOWN = builder.defineInRange("ultCooldown", 1200, 0, 72_000);
+        builder.pop();
+
+        builder.push("combat");
+
+        builder.push("jab");
+        JAB_DAMAGE_MULT_1 = new ConfigFloat(builder.defineInRange("damageMult1", 1.0, 0.0, 100.0));
+        JAB_DAMAGE_MULT_2 = new ConfigFloat(builder.defineInRange("damageMult2", 1.0, 0.0, 100.0));
+        JAB_DAMAGE_MULT_3 = new ConfigFloat(builder.defineInRange("damageMult3", 2.0, 0.0, 100.0));
+        JAB_KNOCKBACK_1 = new ConfigFloat(builder.defineInRange("knockback1", 0.4, 0.0, 10.0));
+        JAB_KNOCKBACK_2 = new ConfigFloat(builder.defineInRange("knockback2", 0.4, 0.0, 10.0));
+        JAB_KNOCKBACK_3 = new ConfigFloat(builder.defineInRange("knockback3", 0.8, 0.0, 10.0));
+        builder.pop();
+
+        builder.push("uppercut");
+        UPPERCUT_DAMAGE_MULT = new ConfigFloat(builder.defineInRange("damageMult", 1.8, 0.0, 100.0));
+        UPPERCUT_KNOCKBACK = new ConfigFloat(builder.defineInRange("knockback", 0.55, 0.0, 10.0));
+        UPPERCUT_VERTICAL_IMPULSE = new ConfigFloat(builder.defineInRange("verticalImpulse", 1.8, 0.0, 20.0));
+        UPPERCUT_HORIZ_DAMAGE_MULT = new ConfigFloat(builder.defineInRange("horizDamageMult", 1.5, 0.0, 100.0));
+        UPPERCUT_HORIZ_KNOCKBACK = new ConfigFloat(builder.defineInRange("horizKnockback", 1.1, 0.0, 10.0));
+        UPPERCUT_VERT_DAMAGE_MULT = new ConfigFloat(builder.defineInRange("vertDamageMult", 2.0, 0.0, 100.0));
+        UPPERCUT_VERT_KNOCKBACK = new ConfigFloat(builder.defineInRange("vertKnockback", 0.15, 0.0, 10.0));
+        builder.pop();
+
+        builder.push("charge_shockwave");
+        CHARGE_SW_DAMAGE_MULT = new ConfigFloat(builder.defineInRange("damageMult", 2.5, 0.0, 100.0));
+        CHARGE_SW_KNOCKBACK = new ConfigFloat(builder.defineInRange("knockback", 1.5, 0.0, 10.0));
+        builder.pop();
+
+        builder.push("power_slam");
+        POWER_SLAM_DAMAGE_MULT = new ConfigFloat(builder.defineInRange("damageMult", 2.0, 0.0, 100.0));
+        POWER_SLAM_KNOCKBACK = new ConfigFloat(builder.defineInRange("knockback", 1.2, 0.0, 10.0));
+        builder.pop();
+
+        builder.push("catch");
+        CATCH_DAMAGE_1 = new ConfigFloat(builder.defineInRange("damage1", 10.0, 0.0, 10_000.0));
+        CATCH_DAMAGE_2 = new ConfigFloat(builder.defineInRange("damage2", 10.0, 0.0, 10_000.0));
+        CATCH_DAMAGE_3 = new ConfigFloat(builder.defineInRange("damage3", 15.0, 0.0, 10_000.0));
+        CATCH_DAMAGE_FINAL = new ConfigFloat(builder.defineInRange("damageFinal", 20.0, 0.0, 10_000.0));
+        builder.pop();
+
+        builder.push("dash_upper");
+        DASH_UPPER_DAMAGE_MULT = new ConfigFloat(builder.defineInRange("damageMult", 2.5, 0.0, 100.0));
+        DASH_UPPER_KNOCKBACK = new ConfigFloat(builder.defineInRange("knockback", 0.3, 0.0, 10.0));
+        DASH_UPPER_SLOWDOWN_TICKS = builder.defineInRange("slowdownTicks", 40, 0, 1200);
+        DASH_UPPER_SLOWDOWN_LEVEL = builder.defineInRange("slowdownLevel", 2, 0, 255);
+        builder.pop();
+
+        builder.push("guard_counter");
+        GUARD_COUNTER_DAMAGE_MULT = new ConfigFloat(builder.defineInRange("damageMult", 2.0, 0.0, 100.0));
+        GUARD_COUNTER_KNOCKBACK = new ConfigFloat(builder.defineInRange("knockback", 1.5, 0.0, 10.0));
+        builder.pop();
+
+        builder.push("jab_ex");
+        JAB_EX_DAMAGE_1 = new ConfigFloat(builder.defineInRange("damage1", 1.5, 0.0, 100.0));
+        JAB_EX_KNOCKBACK_1 = new ConfigFloat(builder.defineInRange("knockback1", 0.5, 0.0, 10.0));
+        JAB_EX_DAMAGE_2 = new ConfigFloat(builder.defineInRange("damage2", 2.5, 0.0, 100.0));
+        JAB_EX_KNOCKBACK_2 = new ConfigFloat(builder.defineInRange("knockback2", 1.0, 0.0, 10.0));
+        builder.pop();
+
+        builder.push("overhead");
+        OVERHEAD_DAMAGE_MULT = new ConfigFloat(builder.defineInRange("damageMult", 2.5, 0.0, 100.0));
+        OVERHEAD_KNOCKBACK = new ConfigFloat(builder.defineInRange("knockback", 1.5, 0.0, 10.0));
+        builder.pop();
+
+        builder.push("jump_land");
+        JUMP_LAND_DAMAGE_MULT = new ConfigFloat(builder.defineInRange("damageMult", 2.5, 0.0, 100.0));
+        JUMP_LAND_KNOCKBACK = new ConfigFloat(builder.defineInRange("knockback", 1.6, 0.0, 10.0));
+        builder.pop();
+
+        builder.push("ultracharge");
+        ULTRACHARGE_AREA_DAMAGE_MULT = new ConfigFloat(builder.defineInRange("areaDamageMult", 3.5, 0.0, 100.0));
+        ULTRACHARGE_AREA_KNOCKBACK = new ConfigFloat(builder.defineInRange("areaKnockback", 4.0, 0.0, 100.0));
+        builder.pop();
+
+        builder.push("combo_rush");
+        COMBO_RUSH_1_JAB1_DAMAGE = new ConfigFloat(builder.defineInRange("rush1Jab1Damage", 1.5, 0.0, 100.0));
+        COMBO_RUSH_1_JAB1_KB = new ConfigFloat(builder.defineInRange("rush1Jab1Knockback", 0.5, 0.0, 10.0));
+        COMBO_RUSH_1_JAB2_DAMAGE = new ConfigFloat(builder.defineInRange("rush1Jab2Damage", 2.5, 0.0, 100.0));
+        COMBO_RUSH_1_JAB2_KB = new ConfigFloat(builder.defineInRange("rush1Jab2Knockback", 1.0, 0.0, 10.0));
+        COMBO_RUSH_2_DAMAGE = new ConfigFloat(builder.defineInRange("rush2Damage", 1.5, 0.0, 100.0));
+        COMBO_RUSH_2_KB = new ConfigFloat(builder.defineInRange("rush2Knockback", 1.1, 0.0, 10.0));
+        COMBO_RUSH_3_DAMAGE = new ConfigFloat(builder.defineInRange("rush3Damage", 2.5, 0.0, 100.0));
+        COMBO_RUSH_3_KB = new ConfigFloat(builder.defineInRange("rush3Knockback", 1.5, 0.0, 10.0));
+        builder.pop();
+
+        builder.push("dash_attack_combo");
+        DASH_COMBO_HIT1_DAMAGE = new ConfigFloat(builder.defineInRange("hit1Damage", 1.5, 0.0, 100.0));
+        DASH_COMBO_HIT1_KB = new ConfigFloat(builder.defineInRange("hit1Knockback", 0.4, 0.0, 10.0));
+        DASH_COMBO_HIT2_DAMAGE = new ConfigFloat(builder.defineInRange("hit2Damage", 1.8, 0.0, 100.0));
+        DASH_COMBO_HIT2_KB = new ConfigFloat(builder.defineInRange("hit2Knockback", 0.4, 0.0, 10.0));
+        DASH_COMBO_HIT3_DAMAGE = new ConfigFloat(builder.defineInRange("hit3Damage", 2.5, 0.0, 100.0));
+        DASH_COMBO_HIT3_KB = new ConfigFloat(builder.defineInRange("hit3Knockback", 1.2, 0.0, 10.0));
+        builder.pop();
+
+        builder.pop();
+
+        builder.push("guard");
+        GUARD_MAX_AXE_HITS = builder.defineInRange("maxAxeHits", 3, 1, 1000);
+        GUARD_MAX_DAMAGE_PLAYER = new ConfigFloat(builder.defineInRange("maxDamagePlayer", 60.0, 1.0, 100_000.0));
+        GUARD_MAX_DAMAGE_NON_PLAYER = new ConfigFloat(builder.defineInRange("maxDamageNonPlayer", 400.0, 1.0, 100_000.0));
+        builder.pop();
+
+        builder.push("debuff");
+        DEBUFF_RANGE = new ConfigFloat(builder.defineInRange("range", 50.0, 1.0, 1000.0));
+        DEBUFF_ARMOR_LEVEL_1 = new ConfigFloat(builder.defineInRange("armorLevel1", -0.20, -1.0, 0.0));
+        DEBUFF_ARMOR_LEVEL_2 = new ConfigFloat(builder.defineInRange("armorLevel2", -0.45, -1.0, 0.0));
+        DEBUFF_ARMOR_LEVEL_3 = new ConfigFloat(builder.defineInRange("armorLevel3", -0.75, -1.0, 0.0));
+        DEBUFF_TOUGHNESS_LEVEL_2 = new ConfigFloat(builder.defineInRange("toughnessLevel2", -0.20, -1.0, 0.0));
+        DEBUFF_TOUGHNESS_LEVEL_3 = new ConfigFloat(builder.defineInRange("toughnessLevel3", -0.40, -1.0, 0.0));
+        builder.pop();
+
+        builder.push("heal_block");
+        HEAL_BLOCK_DURATION_TICKS = builder.defineInRange("durationTicks", 120, 0, 72_000);
+        HEAL_REDUCTION_RATE = new ConfigFloat(builder.defineInRange("reductionRate", 0.4, 0.0, 1.0));
+        builder.pop();
+
+        builder.push("ai");
+        DASH_MIN_DISTANCE = new ConfigFloat(builder.defineInRange("dashMinDistance", 8.0, 0.0, 1000.0));
+        DASH_MAX_DISTANCE = new ConfigFloat(builder.defineInRange("dashMaxDistance", 35.0, 1.0, 1000.0));
+        DASH_CHANCE_NEAR = new ConfigFloat(builder.defineInRange("dashChanceNear", 0.22, 0.0, 1.0));
+        DASH_CHANCE_FAR = new ConfigFloat(builder.defineInRange("dashChanceFar", 0.35, 0.0, 1.0));
+        JUMP_MIN_DISTANCE = new ConfigFloat(builder.defineInRange("jumpMinDistance", 5.0, 0.0, 1000.0));
+        JUMP_MAX_DISTANCE = new ConfigFloat(builder.defineInRange("jumpMaxDistance", 24.0, 1.0, 1000.0));
+        JUMP_CHANCE_NEAR = new ConfigFloat(builder.defineInRange("jumpChanceNear", 0.12, 0.0, 1.0));
+        JUMP_CHANCE_FAR = new ConfigFloat(builder.defineInRange("jumpChanceFar", 0.25, 0.0, 1.0));
+        ULTRACHARGE_CHANCE = new ConfigFloat(builder.defineInRange("ultrachargeChance", 0.05, 0.0, 1.0));
+        CATCH_MIN_ATTACKS = builder.defineInRange("catchMinAttacks", 10, 0, 10_000);
+        POWER_SLAM_FORCE_ATTACKS = builder.defineInRange("powerSlamForceAttacks", 6, 0, 10_000);
+        OVERHEAD_FORCE_ATTACKS = builder.defineInRange("overheadForceAttacks", 8, 0, 10_000);
+        JAB_EX_COMBO_COUNT = builder.defineInRange("jabExComboCount", 2, 1, 100);
+        RECENT_DAMAGE_GUARD_THRESHOLD = new ConfigFloat(builder.defineInRange("recentDamageGuardThreshold", 200.0, 1.0, 100_000.0));
+        TARGET_SHIELDING_THRESHOLD = builder.defineInRange("targetShieldingThreshold", 60, 0, 12_000);
+        builder.pop();
+
+        builder.push("flame_strike");
+        FLAME_STRIKE_DAMAGE = new ConfigFloat(builder.defineInRange("damage", 6.8, 0.0, 10_000.0));
+        FLAME_STRIKE_HP_DAMAGE = new ConfigFloat(builder.defineInRange("hpDamage", 6.0, 0.0, 10_000.0));
+        SOUL_FLAME_STRIKE_DAMAGE = new ConfigFloat(builder.defineInRange("soulDamage", 5.0, 0.0, 10_000.0));
+        SOUL_FLAME_STRIKE_HP_DAMAGE = new ConfigFloat(builder.defineInRange("soulHpDamage", 3.0, 0.0, 10_000.0));
+        builder.pop();
+
+        SPEC = builder.build();
+    }
+
+    public static class ConfigFloat {
+        private final ForgeConfigSpec.DoubleValue doubleValue;
+
+        public ConfigFloat(ForgeConfigSpec.DoubleValue doubleValue) {
+            this.doubleValue = doubleValue;
+        }
+
+        public float get() {
+            return this.doubleValue.get().floatValue();
+        }
+    }
+}

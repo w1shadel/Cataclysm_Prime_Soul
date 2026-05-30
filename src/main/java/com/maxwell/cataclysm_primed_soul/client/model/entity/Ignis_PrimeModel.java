@@ -15,7 +15,6 @@ import net.minecraft.resources.ResourceLocation;
 @SuppressWarnings("removal")
 public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
 
-    // This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Primed_Soul.MODID, "ignis_primemodel"), "main");
 	private final ModelPart Root;
 	private final ModelPart Boddies;
@@ -211,6 +210,9 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
         this.animate(entity.getAnimationState("ultracharge_likeammo"), Ignis_PrimeAnimation.CHARGE_STILL_AMMO, ageInTicks, attackSpeed);
         this.animate(entity.getAnimationState("ultracharge_striking"), Ignis_PrimeAnimation.STRIKING, ageInTicks, attackSpeed);
         this.animate(entity.getAnimationState("ultracharge_striking_end"), Ignis_PrimeAnimation.STRIKING_FINISH, ageInTicks, attackSpeed);
+        this.animate(entity.getAnimationState("jump_attack_start"), Ignis_PrimeAnimation.JAMP_ATTACK_START, ageInTicks, attackSpeed);
+        this.animate(entity.getAnimationState("jump_attack_fall_loop"), Ignis_PrimeAnimation.JAMP_ATTACK_DOWN_LOOP, ageInTicks, attackSpeed);
+        this.animate(entity.getAnimationState("jump_attack_end"), Ignis_PrimeAnimation.JAMP_ATTACK_END, ageInTicks, attackSpeed);
         this.animate(entity.getAnimationState("mode_change"), Ignis_PrimeAnimation.MODE_CHANGE, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("dead"), Ignis_PrimeAnimation.DEAD, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("walk"), Ignis_PrimeAnimation.WALK, ageInTicks, 1.0F);

@@ -5,6 +5,7 @@ import com.github.L_Ender.cataclysm.init.ModParticle;
 import com.github.L_Ender.cataclysm.util.CMDamageTypes;
 import com.github.L_Ender.cataclysm.util.CustomExplosion.IgnisExplosion;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.HealBlockManager;
+import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
 import com.maxwell.cataclysm_primed_soul.init.ModEntities;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -311,6 +312,9 @@ public class Prime_Flame_Strike_Entity extends Entity {
 
     protected void damage(LivingEntity Hitentity) {
         LivingEntity caster = this.getOwner();
+        if (Hitentity instanceof Ignis_PrimeEntity) {
+            return;
+        }
         if (Hitentity.isAlive() && !Hitentity.isInvulnerable() && Hitentity != caster && this.tickCount % 2 == 0) {
             if (caster == null) {
                 boolean flag = Hitentity.hurt(this.damageSources().magic(), this.getDamage() + Hitentity.getMaxHealth() * 0.01F * this.getHpDamage());

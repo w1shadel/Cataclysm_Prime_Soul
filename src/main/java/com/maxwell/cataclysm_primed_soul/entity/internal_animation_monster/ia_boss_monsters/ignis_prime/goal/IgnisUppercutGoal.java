@@ -23,6 +23,11 @@ public class IgnisUppercutGoal extends InternalAttackGoal {
     }
 
     @Override
+    public boolean canContinueToUse() {
+        return ignis.getAttackState() == this.attackstate && !ignis.isPassenger();
+    }
+
+    @Override
     public void stop() {
         if (ignis.getAttackState() == this.attackstate) {
             LivingEntity target = ignis.getTarget();

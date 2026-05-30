@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
@@ -54,11 +55,12 @@ public class Ignis_PrimeInterpolation_Layer extends RenderLayer<Ignis_PrimeEntit
     private void renderSmooth(PoseStack ms, MultiBufferSource buffer, int light, Ignis_PrimeEntity entity, ResourceLocation tex, float alpha) {
         if (alpha <= 0.001f) return;
         VertexConsumer vc = buffer.getBuffer(CMRenderTypes.getGhost(tex));
-        boolean hurt = entity.hurtTime > 0 || entity.deathTime > 0;
+        boolean hurt = entity.shouldRenderHurtFlash();
         float red = 1.0F;
         float green = hurt ? 0.35F : 1.0F;
         float blue = hurt ? 0.35F : 1.0F;
-        this.getParentModel().renderToBuffer(ms, vc, light, LivingEntityRenderer.getOverlayCoords(entity, 0.0F), red, green, blue, alpha);
+        int overlay = hurt ? LivingEntityRenderer.getOverlayCoords(entity, 0.0F) : OverlayTexture.NO_OVERLAY;
+        this.getParentModel().renderToBuffer(ms, vc, light, overlay, red, green, blue, alpha);
     }
 
     private int getPingPongFrame(int step, int total, int loop) {

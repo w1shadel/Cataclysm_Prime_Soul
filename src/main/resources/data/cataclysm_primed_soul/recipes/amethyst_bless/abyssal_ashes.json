@@ -1,0 +1,11 @@
+
+{
+  "type": "cataclysm:amethyst_bless",
+  "ingredients": {
+    "item": "cataclysm:burning_ashes"
+  },
+  "result": {
+    "item": "cataclysm_primed_soul:abyssal_ashes"
+  },
+  "time": 120
+}

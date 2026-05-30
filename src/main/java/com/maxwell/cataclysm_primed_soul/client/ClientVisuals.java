@@ -115,10 +115,31 @@ public class ClientVisuals {
                 case 4:
                     spawnGuardSuccessVisuals(boss);
                     break;
+                case 5:
+                    spawnGuardPrimedVisuals(boss);
+                    break;
             }
         } catch (Exception e) {
             System.err.println("[Ignis Visual Effect] Error executing client visuals: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private static void spawnGuardPrimedVisuals(LivingEntity boss) {
+        var level = boss.level();
+        var rand = boss.getRandom();
+        float yaw = boss.yBodyRot * ((float) Math.PI / 180F);
+        double fx = boss.getX() - Math.sin(yaw) * 1.0D;
+        double fz = boss.getZ() + Math.cos(yaw) * 1.0D;
+        for (int i = 0; i < 8; i++) {
+            double mx = (rand.nextDouble() - 0.5D) * 0.1D;
+            double my = (rand.nextDouble() - 0.5D) * 0.1D;
+            double mz = (rand.nextDouble() - 0.5D) * 0.1D;
+            level.addParticle(ParticleTypes.SOUL_FIRE_FLAME, fx + rand.nextGaussian() * 0.4D, boss.getY() + 1.2D + rand.nextGaussian() * 0.4D, fz + rand.nextGaussian() * 0.4D, mx, my, mz);
+            level.addParticle(ParticleTypes.GLOW, fx + rand.nextGaussian() * 0.4D, boss.getY() + 1.2D + rand.nextGaussian() * 0.4D, fz + rand.nextGaussian() * 0.4D, 0.0D, 0.0D, 0.0D);
+        }
+        if (rand.nextInt(3) == 0) {
+            level.addParticle(ParticleTypes.FLASH, fx, boss.getY() + 1.5D, fz, 0.0D, 0.0D, 0.0D);
         }
     }
 

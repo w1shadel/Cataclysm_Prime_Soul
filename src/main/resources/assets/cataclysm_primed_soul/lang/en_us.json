@@ -3,5 +3,8 @@
   "chat.cataclysm_primed_soul.ignis_prime.appear": "The Lord of Black Flame, Ignis Prime, has manifested...! Armor around is weakened!",
   "chat.cataclysm_primed_soul.ignis_prime.half_hp": "Ignis Prime's wrath siphons the surrounding heat...! Armor and Toughness are heavily reduced!",
   "chat.cataclysm_primed_soul.ignis_prime.phase_2": "The ultimate soul erupts! All protective enchantments burn to ashes...",
-  "chat.cataclysm_primed_soul.ignis_prime.ultracharge": "§6...I am......"
+  "chat.cataclysm_primed_soul.ignis_prime.ultracharge": "§6...I am......",
+  "item.cataclysm_primed_soul.abyssal_ashes": "§bAshes of the Abyss",
+  "tooltip.cataclysm_primed_soul.abyssal_ashes.desc": "§6 If you offer it to the Altar of Fire again, something might happen.",
+  "creative_tab.cataclysm_primed_soul.prime_tab": "Primed Souls"
 }
