@@ -3,11 +3,14 @@ package com.maxwell.cataclysm_primed_soul.client.render.entity;
 import com.github.L_Ender.cataclysm.client.model.entity.Ignis_Fireball_Model;
 import com.github.L_Ender.cataclysm.client.render.CMRenderTypes;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
+import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.Prime_Fireball_Entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -15,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -24,8 +28,8 @@ import org.joml.Matrix4f;
 @SuppressWarnings("removal")
 @OnlyIn(Dist.CLIENT)
 public class Prime_Fireball_Renderer extends EntityRenderer<Prime_Fireball_Entity> {
-    private static final ResourceLocation IGNIS_FIRE_BALL = new ResourceLocation(Primed_Soul.MODID, "textures/entity/prime_fireball.png");
     private static final ResourceLocation TRAIL_TEXTURE = new ResourceLocation("cataclysm", "textures/particle/storm.png");
+    private static ResourceLocation DYNAMIC_FIREBALL_TEXTURE = null;
     private final RandomSource random = RandomSource.create();
     public Ignis_Fireball_Model model = new Ignis_Fireball_Model();
 
@@ -33,11 +37,41 @@ public class Prime_Fireball_Renderer extends EntityRenderer<Prime_Fireball_Entit
         super(manager);
     }
 
+    private static void registerDynamicFireballTexture(net.minecraft.client.renderer.texture.TextureManager textureManager) {
+        if (DYNAMIC_FIREBALL_TEXTURE == null) {
+            DYNAMIC_FIREBALL_TEXTURE = new ResourceLocation(Primed_Soul.MODID, "textures/dynamic/prime_fireball.png");
+            net.minecraft.client.renderer.texture.DynamicTexture dynamicTexture = new net.minecraft.client.renderer.texture.DynamicTexture(32, 32, true);
+            com.mojang.blaze3d.platform.NativeImage nativeImage = dynamicTexture.getPixels();
+            if (nativeImage != null) {
+                for (int y = 0; y < 32; y++) {
+                    float dy = (y - 15.5F) / 15.5F;
+                    for (int x = 0; x < 32; x++) {
+                        float dx = (x - 15.5F) / 15.5F;
+                        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+                        float intensity = 1.0F - (dist / 1.2F);
+                        intensity = Math.max(0.0F, Math.min(1.0F, intensity));
+                        intensity = intensity * intensity;
+                        int alpha = (int) (intensity * 255.0F);
+                        int color = (alpha << 24) | (255 << 16) | (255 << 8) | 255;
+                        nativeImage.setPixelRGBA(x, y, color);
+                    }
+                }
+                dynamicTexture.upload();
+                textureManager.register(DYNAMIC_FIREBALL_TEXTURE, dynamicTexture);
+            }
+        }
+    }
+
+    @Override
     protected int getBlockLightLevel(Prime_Fireball_Entity entity, BlockPos pos) {
         return 15;
     }
 
+    @Override
     public void render(Prime_Fireball_Entity entityIn, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
+        net.minecraft.client.renderer.texture.TextureManager textureManager = Minecraft.getInstance().getTextureManager();
+        registerDynamicFireballTexture(textureManager);
+
         matrixStackIn.pushPose();
         float f = this.rotLerp(entityIn.yRotO, entityIn.getYRot(), partialTicks);
         float f1 = Mth.lerp(partialTicks, entityIn.xRotO, entityIn.getXRot());
@@ -47,27 +81,43 @@ public class Prime_Fireball_Renderer extends EntityRenderer<Prime_Fireball_Entit
         matrixStackIn.mulPose(Axis.XP.rotationDegrees(Mth.cos(f2 * 0.1F) * 180.0F));
         matrixStackIn.mulPose(Axis.ZP.rotationDegrees(Mth.sin(f2 * 0.15F) * 360.0F));
         this.model.setupAnim(entityIn, 0.0F, 0.0F, 0.0F, f, f1);
-        VertexConsumer VertexConsumer = bufferIn.getBuffer(this.model.renderType(this.getTextureLocation(entityIn)));
-        this.model.renderToBuffer(matrixStackIn, VertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+
+        float red = 0.25F;
+        float green = 0.55F;
+        float blue = 1.0F;
+
+        Entity owner = entityIn.getOwner();
+        if (owner instanceof Ignis_PrimeEntity boss && boss.getBossPhase() >= 2) {
+            red = 1.0F;
+            green = 0.92F;
+            blue = 1.0F;
+        }
+
+        VertexConsumer VertexConsumer = bufferIn.getBuffer(RenderType.entityTranslucentEmissive(this.getTextureLocation(entityIn)));
+        this.model.renderToBuffer(matrixStackIn, VertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);
         matrixStackIn.popPose();
+
         if (entityIn.hasTrail()) {
             double x = Mth.lerp((double) partialTicks, entityIn.xOld, entityIn.getX());
             double y = Mth.lerp((double) partialTicks, entityIn.yOld, entityIn.getY());
             double z = Mth.lerp((double) partialTicks, entityIn.zOld, entityIn.getZ());
+
             float ran = 0.04F;
-            float r = 0.8901961F + this.random.nextFloat() * ran;
-            float g = 0.25882354F + this.random.nextFloat() * ran;
-            float b = 0.9607843F + this.random.nextFloat() * ran;
+            float trailR = red + this.random.nextFloat() * ran;
+            float trailG = green + this.random.nextFloat() * ran;
+            float trailB = blue + this.random.nextFloat() * ran;
+
             matrixStackIn.pushPose();
             matrixStackIn.translate(-x, -y, -z);
-            this.renderTrail(entityIn, partialTicks, matrixStackIn, bufferIn, r, g, b, 1.0F, packedLightIn);
+            this.renderTrail(entityIn, partialTicks, matrixStackIn, bufferIn, trailR, trailG, trailB, 1.0F, packedLightIn);
             matrixStackIn.popPose();
         }
         super.render(entityIn, entityYaw, partialTicks, matrixStackIn, bufferIn, packedLightIn);
     }
 
+    @Override
     public ResourceLocation getTextureLocation(Prime_Fireball_Entity entity) {
-        return IGNIS_FIRE_BALL;
+        return DYNAMIC_FIREBALL_TEXTURE;
     }
 
     private void renderTrail(Prime_Fireball_Entity entityIn, float partialTicks, PoseStack poseStack, MultiBufferSource bufferIn, float trailR, float trailG, float trailB, float trailA, int packedLightIn) {
@@ -92,7 +142,6 @@ public class Prime_Fireball_Renderer extends EntityRenderer<Prime_Fireball_Entit
             this.addVertex(vertexconsumer, matrix4f, matrix3f, drawFrom, topAngleVec, trailR, trailG, trailB, u1, 0.0F, packedLightIn);
             drawFrom = sample;
         }
-
     }
 
     private void addVertex(VertexConsumer consumer, Matrix4f matrix, Matrix3f matrix3, Vec3 pos, Vec3 offset, float r, float g, float b, float u, float v, int light) {

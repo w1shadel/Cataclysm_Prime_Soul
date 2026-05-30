@@ -464,16 +464,16 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
 
     private void updateBossPhase() {
         float healthPct = this.getHealth() / this.getMaxHealth();
-        // 第2形態へ移行
+
         if (healthPct <= 0.01F && getBossPhase() < 2) {
             setBossPhase(2);
             this.setHealth(this.getMaxHealth());
             this.phaseChangeTicks = 0;
             this.showAfterUppercutAmbush();
-            // 既存ステートをリセットして移行
+
             this.setAttackState(STATE_PHASE_CHANGE);
         }
-        // 第1形態へ移行（こちらは攻撃中でなければ行うなど調整可）
+
         else if (healthPct <= 0.5F && getBossPhase() < 1) {
             setBossPhase(1);
         }
@@ -2115,8 +2115,27 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
     private void spawnFallingBlockShockwave(int length, float arc) {
         if (this.level().isClientSide)
             return;
+
         float centerYaw = this.yBodyRot;
-        List<LivingEntity> alreadyHit = new java.util.ArrayList<>();
+        double maxDistance = length * 1.0D;
+        List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(maxDistance));
+        for (LivingEntity target : targets) {
+            if (target != this && !this.isAlliedTo(target) && target.isAlive()) {
+                double dist = this.distanceTo(target);
+                if (dist >= 1.0D && dist <= maxDistance) {
+                    float angleToTarget = (float) (Mth.atan2(target.getZ() - this.getZ(), target.getX() - this.getX()) * (180D / Math.PI)) - 90.0F;
+                    float diff = Mth.degreesDifferenceAbs(centerYaw, angleToTarget);
+                    if (diff <= arc * 0.5F) {
+                        float damage = this.scaleEnvironmentalDamage((float) (this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 1.2F));
+                        if (target.hurt(this.damageSources().mobAttack(this), damage)) {
+                            target.setDeltaMovement(target.getDeltaMovement().add(0, 0.6D, 0));
+                            target.hasImpulse = true;
+                        }
+                    }
+                }
+            }
+        }
+
         for (int d = 1; d <= length; d++) {
             float arcRad = (float) Math.toRadians(arc);
             int points = Mth.ceil(d * arcRad * 1.2f) + this.getRandom().nextInt(2);
@@ -2138,18 +2157,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
                             pz, state, 16 + this.getRandom().nextInt(15));
                     falling.push(0, 0.12D + this.getRandom().nextDouble() * 0.22D + (d * 0.008D), 0);
                     this.level().addFreshEntity(falling);
-                }
-                AABB hitBox = new AABB(px - 1.25, this.getY() - 1.0, pz - 1.25, px + 1.25, this.getY() + 3.0,
-                        pz + 1.25);
-                for (LivingEntity target : this.level().getEntitiesOfClass(LivingEntity.class, hitBox)) {
-                    if (target != this && !this.isAlliedTo(target) && !alreadyHit.contains(target)) {
-                        float damage = this.scaleEnvironmentalDamage((float) (this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 1.2F));
-                        if (target.hurt(this.damageSources().mobAttack(this), damage)) {
-                            target.setDeltaMovement(target.getDeltaMovement().add(0, 0.6D, 0));
-                            target.hasImpulse = true;
-                            alreadyHit.add(target);
-                        }
-                    }
                 }
             }
         }

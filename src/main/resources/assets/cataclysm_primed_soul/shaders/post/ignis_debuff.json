@@ -1,27 +1,27 @@
 {
-    "targets": [
-        "swap"
-    ],
-    "passes": [
+  "targets": [
+    "swap"
+  ],
+  "passes": [
+    {
+      "name": "cataclysm_primed_soul:ignis_debuff",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
+      "uniforms": [
         {
-            "name": "cataclysm_primed_soul:ignis_debuff",
-            "intarget": "minecraft:main",
-            "outtarget": "swap",
-            "uniforms": [
-                {
-                    "name": "DebuffLevel",
-                    "values": [ 0.0 ]
-                },
-                {
-                    "name": "Time",
-                    "values": [ 0.0 ]
-                }
-            ]
+          "name": "DebuffLevel",
+          "values": [ 0.0 ]
         },
         {
-            "name": "minecraft:blit",
-            "intarget": "swap",
-            "outtarget": "minecraft:main"
+          "name": "PrimeTime",
+          "values": [ 0.0 ]
         }
-    ]
+      ]
+    },
+    {
+      "name": "minecraft:blit",
+      "intarget": "swap",
+      "outtarget": "minecraft:main"
+    }
+  ]
 }

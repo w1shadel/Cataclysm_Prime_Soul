@@ -26,6 +26,7 @@ public class ClientVisuals {
     private static final ResourceLocation DEBUFF_SHADER = new ResourceLocation(Primed_Soul.MODID, "shaders/post/ignis_debuff.json");
     private static int currentDebuffLevel = 0;
     private static int tickCount = 0;
+    private static boolean ascending = true;
 
     public static void setDebuffLevel(int level) {
         currentDebuffLevel = level;
@@ -39,7 +40,19 @@ public class ClientVisuals {
             currentDebuffLevel = 0;
             return;
         }
-        tickCount++;
+
+        if (ascending) {
+            tickCount++;
+            if (tickCount >= 16000) {
+                ascending = false;
+            }
+        } else {
+            tickCount--;
+            if (tickCount <= 0) {
+                ascending = true;
+            }
+        }
+
         if (currentDebuffLevel > 0) {
             boolean bossExists = false;
             for (Entity entity : mc.level.entitiesForRendering()) {
@@ -61,23 +74,20 @@ public class ClientVisuals {
             if (mc.gameRenderer.currentEffect() != null) {
                 net.minecraft.client.renderer.PostChain effect = mc.gameRenderer.currentEffect();
                 try {
-                    java.lang.reflect.Field passesField = null;
                     for (java.lang.reflect.Field f : net.minecraft.client.renderer.PostChain.class.getDeclaredFields()) {
                         if (java.util.List.class.isAssignableFrom(f.getType())) {
-                            passesField = f;
-                            break;
-                        }
-                    }
-                    if (passesField != null) {
-                        passesField.setAccessible(true);
-                        java.util.List<?> passes = (java.util.List<?>) passesField.get(effect);
-                        for (Object p : passes) {
-                            if (p instanceof net.minecraft.client.renderer.PostPass pass) {
-                                if (pass.getEffect().getUniform("DebuffLevel") != null) {
-                                    pass.getEffect().getUniform("DebuffLevel").set((float) currentDebuffLevel);
-                                }
-                                if (pass.getEffect().getUniform("Time") != null) {
-                                    pass.getEffect().getUniform("Time").set((float) tickCount);
+                            f.setAccessible(true);
+                            java.util.List<?> list = (java.util.List<?>) f.get(effect);
+                            if (list != null) {
+                                for (Object p : list) {
+                                    if (p instanceof net.minecraft.client.renderer.PostPass pass) {
+                                        if (pass.getEffect().getUniform("DebuffLevel") != null) {
+                                            pass.getEffect().getUniform("DebuffLevel").set((float) currentDebuffLevel);
+                                        }
+                                        if (pass.getEffect().getUniform("PrimeTime") != null) {
+                                            pass.getEffect().getUniform("PrimeTime").set((float) tickCount);
+                                        }
+                                    }
                                 }
                             }
                         }

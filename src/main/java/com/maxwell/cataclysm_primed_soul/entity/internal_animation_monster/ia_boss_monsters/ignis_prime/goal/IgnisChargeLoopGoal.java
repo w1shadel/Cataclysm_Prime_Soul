@@ -30,7 +30,7 @@ public class IgnisChargeLoopGoal extends InternalAttackGoal {
                 ignis.setAttackState(ignis.getRandom().nextBoolean() ? Ignis_PrimeEntity.STATE_UPPERCUT : Ignis_PrimeEntity.STATE_JAB_1);
                 return;
             }
-            if ((target != null && ignis.distanceTo(target) <= 8.0F) || ignis.horizontalCollision || ignis.attackTicks >= 20) {
+            if (ignis.horizontalCollision || ignis.attackTicks >= 20) {
                 ignis.setAttackState(Ignis_PrimeEntity.STATE_CHARGE_SHOCKWAVE);
             }
         }
