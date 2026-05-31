@@ -6,5 +6,8 @@
   "chat.cataclysm_primed_soul.ignis_prime.ultracharge": "§6...I am......",
   "item.cataclysm_primed_soul.abyssal_ashes": "§bAshes of the Abyss",
   "tooltip.cataclysm_primed_soul.abyssal_ashes.desc": "§6 If you offer it to the Altar of Fire again, something might happen.",
-  "creative_tab.cataclysm_primed_soul.prime_tab": "Primed Souls"
+  "creative_tab.cataclysm_primed_soul.prime_tab": "Primed Souls",
+  "item.cataclysm_primed_soul.lavatein": "Lavatein",
+  "item.cataclysm_primed_soul.lavatein.desc": "A sword that gains speed with every strike, its outer layer peeling away.",
+  "item.cataclysm_primed_soul.lavatein.desc2": "Applies debuffs to the target based on the three stages of release."
 }

@@ -626,13 +626,12 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
     public int getScaledTick(int baseTick) {
         return Math.round(baseTick / this.getAttackSpeedMultiplier());
     }
-
     private float scaleDirectDamage(float damage) {
-        return damage * (this.isPrimeSecondForm() ? 0.58F : 1.15F);
+        return damage * (this.isPrimeSecondForm() ? 0.45F : 1.05F);
     }
 
     private float scaleEnvironmentalDamage(float damage) {
-        return damage * (this.isPrimeSecondForm() ? 0.55F : 1.08F);
+        return damage * (this.isPrimeSecondForm() ? 0.40F : 0.95F);
     }
     public boolean shouldRenderHurtFlash() {
         int state = this.getAttackState();
@@ -935,28 +934,23 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
         this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ULTRACHARGE_LIKEAMMO, STATE_ULTRACHARGE_LIKEAMMO, STATE_ULTRACHARGE_STRIKING, 80, 0, 100.0F));
         this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ULTRACHARGE_STRIKING, STATE_ULTRACHARGE_STRIKING, STATE_ULTRACHARGE_STRIKING_END, 80, 0, 100.0F));
         this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ULTRACHARGE_STRIKING_END, STATE_ULTRACHARGE_STRIKING_END, 0, 60, 0, 100.0F));
-        this.goalSelector.addGoal(2, new IgnisStateGoal(this, 0, STATE_ROCK_START, STATE_ROCK_LOOP, 18, 18, 15.0F) {
-            @Override
-            public boolean canUse() {
-                LivingEntity t = ignis.getTarget();
-                if (t == null || !ignis.isRockReady())
-                    return false;
-                double distance = ignis.distanceTo(t);
-                float chance = distance > 18.0D ? 0.45F : 0.25F;
-                return super.canUse() && distance >= 10.0D && distance <= 30.0D
-                        && ignis.getRandom().nextFloat() < chance;
-            }
-        });
-        this.goalSelector.addGoal(2, new IgnisStateGoal(this, 0, STATE_ROCK_START, STATE_ROCK_LOOP, 18, 18, 30.0F) {
+        this.goalSelector.addGoal(2, new IgnisStateGoal(this, 0, STATE_ROCK_START, STATE_ROCK_LOOP, 18, 18, 35.0F) {
             @Override
             public boolean canUse() {
                 LivingEntity t = ignis.getTarget();
                 if (t == null || !ignis.isRockReady()) return false;
                 double distance = ignis.distanceTo(t);
-                return super.canUse() && distance >= 8.0D && distance <= 35.0D && ignis.getRandom().nextFloat() < 0.35F;
+                return super.canUse() && distance >= 10.0D && distance <= 35.0D && ignis.getRandom().nextFloat() < 0.20F;
             }
         });
         this.goalSelector.addGoal(0, new IgnisRockLoopGoal(this));
+        this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ROCK_END, STATE_ROCK_END, 0, 21, 0, 30.0F) {
+            @Override
+            public void stop() {
+                super.stop();
+                ignis.setRockCooldown(200);
+            }
+        });
         this.goalSelector.addGoal(0, new IgnisStateGoal(this, STATE_ROCK_END, STATE_ROCK_END, 0, 21, 0, 30.0F));
         this.goalSelector.addGoal(1, new IgnisChargeGoal(this, 15.0F) {
             @Override
@@ -1266,6 +1260,16 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
                 this.setDeltaMovement(0.0D, this.getDeltaMovement().y, 0.0D);
                 break;
             case STATE_CHARGE_SHOCKWAVE:
+                if (this.attackTicks == 20) {
+                    this.playSound(SoundEvents.GENERIC_EXPLODE, 1.5F, 0.6F);
+                    LivingEntity t = this.getTarget();
+                    if (t != null) {
+                        this.breakPlayerShield(t, 60);
+                    }
+                    this.performJabDamage((float) IgnisPrimeConfig.CHARGE_SW_DAMAGE_MULT.get(), (float) IgnisPrimeConfig.CHARGE_SW_KNOCKBACK.get());
+                    this.spawnFallingBlockShockwave(18, 58.0F);
+                    this.setChargeCooldown(100);
+                }
                 handleShockwaveAction();
                 break;
             case STATE_UPPERCUT:
@@ -1358,6 +1362,12 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
             case STATE_POWER_SLAM:
                 if (this.attackTicks == getScaledTick(38)) {
                     this.playSound(SoundEvents.GENERIC_EXPLODE, 1.5F, 0.6F);
+                    List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(7.0D, 3.0D, 7.0D));
+                    for (LivingEntity t : targets) {
+                        if (t != this && !this.isAlliedTo(t)) {
+                            this.breakPlayerShield(t, 60);
+                        }
+                    }
                     this.performAreaDamage((float) IgnisPrimeConfig.POWER_SLAM_DAMAGE_MULT.get(), (float) IgnisPrimeConfig.POWER_SLAM_KNOCKBACK.get(), 7.0D, 3.0D, 0.0D, 0.5D);
                     this.spawnFallingBlockShockwave(7, 360.0F);
                     this.spawnFlameStrike(this.getX(), this.getZ(), this.getY() - 1, this.getY() + 1, 0, 40, 10, 0,
@@ -1809,9 +1819,10 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
                 if (this.attackTicks == 6) {
                     this.playSound(SoundEvents.PLAYER_ATTACK_STRONG, 2.0F, 0.8F);
                     this.playSound(SoundEvents.GENERIC_EXPLODE, 1.5F, 1.1F);
-
+                    if (target != null) {
+                        this.breakPlayerShield(target, 40);
+                    }
                     boolean hit = this.performForwardArcDamage((float) IgnisPrimeConfig.DASH_UPPER_DAMAGE_MULT.get(), 4.5F, 120.0F, (float) IgnisPrimeConfig.DASH_UPPER_KNOCKBACK.get(), 0.05D);
-
                     float yaw = this.getYRot() * ((float) Math.PI / 180F);
                     this.setDeltaMovement(this.getDeltaMovement().add(-Mth.sin(yaw) * 0.3D, 0.0D, Mth.cos(yaw) * 0.3D));
                     this.hasImpulse = true;
@@ -2038,23 +2049,23 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
         double dist = this.distanceTo(target);
 
         switch (phase) {
-            case 0 -> { 
-                for (int i = 1; i <= 6; i++) {
-                    double px = this.getX() + dir.x * (i * 3.5D);
-                    double pz = this.getZ() + dir.z * (i * 3.5D);
+            case 0 -> {
+                for (int i = 1; i <= 5; i++) {
+                    double px = this.getX() + dir.x * (i * 4.0D);
+                    double pz = this.getZ() + dir.z * (i * 4.0D);
                     spawnFlameStrike(px, pz, this.getY() - 1, this.getY() + 1, yaw, 25, 0, i * 2, 1.5F, true);
                 }
             }
-            case 1 -> { 
-                spawnPrimeFlameArc(9, dist + 1.5D, 100.0F, 2.0F, 5);
+            case 1 -> {
+                spawnPrimeFlameArc(5, dist + 1.5D, 90.0F, 1.5F, 5);
             }
-            case 2 -> { 
+            case 2 -> {
                 double bX = target.getX() + dir.x * 5.0D;
                 double bZ = target.getZ() + dir.z * 5.0D;
-                spawnFlameStrike(bX, bZ, target.getY() - 1, target.getY() + 1, yaw, 50, 5, 0, 3.5F, true);
-                spawnPrimeFlameArc(6, dist, 150.0F, 2.2F, 0);
+                spawnFlameStrike(bX, bZ, target.getY() - 1, target.getY() + 1, yaw, 50, 5, 0, 2.5F, true);
+                spawnPrimeFlameArc(4, dist, 120.0F, 1.5F, 0);
                 if (isPrimeSecondForm()) {
-                    spawnPrimeFireballVolley(target, 4, 3, 1.5D, 20.0F);
+                    spawnPrimeFireballVolley(target, 2, 4, 1.5D, 20.0F);
                 }
             }
         }
@@ -2239,15 +2250,17 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
     }
 
     public void performUppercutDamage(float damageMultiplier) {
-        boolean damageSuccess = this.performForwardArcDamage(damageMultiplier, 4.75F, 120.0F, 0.55F, 1.8D);
         LivingEntity target = this.getTarget();
+        if (target != null) {
+            this.breakPlayerShield(target, 40);
+        }
+        boolean damageSuccess = this.performForwardArcDamage(damageMultiplier, 4.75F, 120.0F, 0.55F, 1.8D);
         if (target != null && this.distanceTo(target) <= 4.75F + this.getBbWidth() && this.isInFrontArc(target, 120.0F)) {
             this.uppercutHit = true;
         } else {
             this.uppercutHit = damageSuccess;
         }
     }
-
     public void performOverheadDamage() {
         if (this.level().isClientSide)
             return;
@@ -2590,5 +2603,13 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
             }
         }
     }
-
+    private void breakPlayerShield(LivingEntity target, int ticks) {
+        if (target instanceof Player player) {
+            if (player.isBlocking()) {
+                player.getCooldowns().addCooldown(player.getUseItem().getItem(), ticks);
+                player.stopUsingItem();
+                this.level().broadcastEntityEvent(player, (byte) 30);
+            }
+        }
+    }
 }

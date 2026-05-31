@@ -72,7 +72,7 @@ void main() {
         float f2 = fbm(fireUV2);
 
         float blend = sin(t * 0.3) * 0.5 + 0.5;
-        float fireNoise = fbm(mix(fireUV1, fireUV2, blend));
+        float fireNoise = mix(f1, f2, blend);
 
         float fireIntensity = smoothstep(0.3, 0.8, fireNoise * edgeMask * 1.4);
 

@@ -3,6 +3,7 @@ package com.maxwell.cataclysm_primed_soul.client;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavior;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
+import com.maxwell.cataclysm_primed_soul.item.LavateinItem;
 import com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -63,7 +64,8 @@ public class ClientVisuals {
                     }
                 }
             }
-            if (!bossExists) {
+            boolean holdingLaevateinn = mc.player.getMainHandItem().getItem() instanceof LavateinItem;
+            if (!bossExists && !holdingLaevateinn) {
                 currentDebuffLevel = 0;
             }
         }

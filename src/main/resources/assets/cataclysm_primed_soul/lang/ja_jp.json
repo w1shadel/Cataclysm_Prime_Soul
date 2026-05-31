@@ -6,5 +6,8 @@
   "chat.cataclysm_primed_soul.ignis_prime.ultracharge": "§6...私は......",
   "item.cataclysm_primed_soul.abyssal_ashes": "§b深淵の灰",
   "tooltip.cataclysm_primed_soul.abyssal_ashes.desc": "§6再び炎の祭壇に捧げれば、何かが起こるかもしれない。",
-  "creative_tab.cataclysm_primed_soul.prime_tab": "Primed Souls"
+  "creative_tab.cataclysm_primed_soul.prime_tab": "Primed Souls",
+  "item.cataclysm_primed_soul.lavatein": "ラーヴァテイン",
+  "item.cataclysm_primed_soul.lavatein.desc": "攻撃すればするたび、外装が剥がれて加速していく剣。",
+  "item.cataclysm_primed_soul.lavatein.desc2": "解放段階3つに応じて、対象にデバフを付与する。"
 }
