@@ -1,0 +1,40 @@
+{
+  "parent": "cataclysm_primed_soul:root",
+  "criteria": {
+    "killed_ignis_prime": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "cataclysm_primed_soul:ignis_prime"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:player_killed_entity"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.cataclysm_primed_soul.defeat_ignis_prime.desc"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "cataclysm_primed_soul:abyssal_ashes"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.cataclysm_primed_soul.defeat_ignis_prime.title"
+    }
+  },
+  "requirements": [
+    [
+      "killed_ignis_prime"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -20,7 +20,7 @@
       "translate": "advancement.cataclysm_primed_soul.root.desc"
     },
     "frame": "task",
-    "hidden": false,
+    "hidden": true,
     "icon": {
       "item": "cataclysm_primed_soul:abyssal_ashes"
     },

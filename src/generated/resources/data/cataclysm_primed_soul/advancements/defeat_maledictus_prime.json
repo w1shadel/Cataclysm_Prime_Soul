@@ -1,7 +1,7 @@
 {
   "parent": "cataclysm_primed_soul:root",
   "criteria": {
-    "killed_prime": {
+    "killed_maledictus_prime": {
       "conditions": {
         "entity": [
           {
@@ -19,21 +19,21 @@
   "display": {
     "announce_to_chat": true,
     "description": {
-      "translate": "advancement.cataclysm_primed_soul.defeat_prime.desc"
+      "translate": "advancement.cataclysm_primed_soul.defeat_maledictus_prime.desc"
     },
     "frame": "challenge",
-    "hidden": false,
+    "hidden": true,
     "icon": {
       "item": "cataclysm_primed_soul:abyssal_ashes"
     },
     "show_toast": true,
     "title": {
-      "translate": "advancement.cataclysm_primed_soul.defeat_prime.title"
+      "translate": "advancement.cataclysm_primed_soul.defeat_maledictus_prime.title"
     }
   },
   "requirements": [
     [
-      "killed_prime"
+      "killed_maledictus_prime"
     ]
   ],
   "sends_telemetry_event": true

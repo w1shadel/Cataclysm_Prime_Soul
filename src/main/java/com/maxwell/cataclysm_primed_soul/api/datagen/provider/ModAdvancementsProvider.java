@@ -14,6 +14,7 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ForgeAdvancementProvider;
 
 import java.util.function.Consumer;
+
 @SuppressWarnings("removal")
 public class ModAdvancementsProvider implements ForgeAdvancementProvider.AdvancementGenerator {
 
@@ -28,24 +29,42 @@ public class ModAdvancementsProvider implements ForgeAdvancementProvider.Advance
                         FrameType.TASK,
                         true,
                         true,
-                        false
+                        true
                 )
                 .addCriterion("has_abyssal_ashes", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.ABYSSAL_ASHES.get()))
-                .save(writer, new ResourceLocation(Primed_Soul.MODID, "root"), existingFileHelper);
+                .build(new ResourceLocation(Primed_Soul.MODID, "root"));
+        writer.accept(rootAdvancement);
 
-        Advancement defeatPrime = Advancement.Builder.advancement()
+        Advancement defeatIgnisPrime = Advancement.Builder.advancement()
                 .parent(rootAdvancement)
                 .display(
                         new ItemStack(ModItems.ABYSSAL_ASHES.get()),
-                        Component.translatable("advancement.cataclysm_primed_soul.defeat_prime.title"),
-                        Component.translatable("advancement.cataclysm_primed_soul.defeat_prime.desc"),
+                        Component.translatable("advancement.cataclysm_primed_soul.defeat_ignis_prime.title"),
+                        Component.translatable("advancement.cataclysm_primed_soul.defeat_ignis_prime.desc"),
                         null,
                         FrameType.CHALLENGE,
                         true,
                         true,
-                        false
+                        true
                 )
-                .addCriterion("killed_prime", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(ModEntities.IGNIS_PRIME.get()))))
-                .save(writer, new ResourceLocation(Primed_Soul.MODID, "defeat_prime"), existingFileHelper);
+                .addCriterion("killed_ignis_prime", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(ModEntities.IGNIS_PRIME.get()))))
+                .build(new ResourceLocation(Primed_Soul.MODID, "defeat_ignis_prime"));
+        writer.accept(defeatIgnisPrime);
+
+        Advancement defeatMaledicusPrime = Advancement.Builder.advancement()
+                .parent(rootAdvancement)
+                .display(
+                        new ItemStack(ModItems.ABYSSAL_ASHES.get()),
+                        Component.translatable("advancement.cataclysm_primed_soul.defeat_maledictus_prime.title"),
+                        Component.translatable("advancement.cataclysm_primed_soul.defeat_maledictus_prime.desc"),
+                        null,
+                        FrameType.CHALLENGE,
+                        true,
+                        true,
+                        true
+                )
+                .addCriterion("killed_maledictus_prime", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(ModEntities.IGNIS_PRIME.get()))))
+                .build(new ResourceLocation(Primed_Soul.MODID, "defeat_maledictus_prime"));
+        writer.accept(defeatMaledicusPrime);
     }
 }
