@@ -31,10 +31,7 @@ public class Primed_Soul {
             ModItems.ITEMS.getEntries().forEach(item -> event.accept(item.get()));
         }
     }
-
     private void commonSetup(final net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            com.maxwell.cataclysm_primed_soul.network.ModMessages.register();
-        });
+        event.enqueueWork(ModMessages::register);
     }
 }

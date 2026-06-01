@@ -1,0 +1,17 @@
+{
+  "advancement.cataclysm_primed_soul.defeat_prime.desc": "黒炎を統べる者、『イグニス・プライム』を討伐する。",
+  "advancement.cataclysm_primed_soul.defeat_prime.title": "極限のソウルを屠る者",
+  "advancement.cataclysm_primed_soul.root.desc": "禁忌の儀式の触媒である『深淵の灰』を入手する。",
+  "advancement.cataclysm_primed_soul.root.title": "燻る残り火",
+  "chat.cataclysm_primed_soul.ignis_prime.appear": "周囲の熱気が上昇していく...",
+  "chat.cataclysm_primed_soul.ignis_prime.half_hp": "熱気が逃げ場のない圧力へと変わり、装備は溶け出す。",
+  "chat.cataclysm_primed_soul.ignis_prime.phase_2": "純白のソウルが視界を染め上げる。あらゆる加護は灰に消えた...",
+  "chat.cataclysm_primed_soul.ignis_prime.ultracharge": "§6...私は......",
+  "creative_tab.cataclysm_primed_soul.prime_tab": "Primed Souls",
+  "entity.cataclysm_primed_soul.ignis_prime": "イグニス・プライム",
+  "item.cataclysm_primed_soul.abyssal_ashes": "§b深淵の灰",
+  "item.cataclysm_primed_soul.lavatein": "ラーヴァテイン",
+  "item.cataclysm_primed_soul.lavatein.desc": "攻撃すればするたび、外装が剥がれて加速していく剣。",
+  "item.cataclysm_primed_soul.lavatein.desc2": "解放段階3つに応じて、対象にデバフを付与する。",
+  "tooltip.cataclysm_primed_soul.abyssal_ashes.desc": "§6再び炎の祭壇に捧げれば、何かが起こるかもしれない。"
+}

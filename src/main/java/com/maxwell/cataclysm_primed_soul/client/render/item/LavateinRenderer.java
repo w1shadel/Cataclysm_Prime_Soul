@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
+@SuppressWarnings("removal")
 public class LavateinRenderer extends BlockEntityWithoutLevelRenderer {
     private static final ResourceLocation TEXTURE_STAGE0 = new ResourceLocation(Primed_Soul.MODID, "textures/item/levatein.png");
 

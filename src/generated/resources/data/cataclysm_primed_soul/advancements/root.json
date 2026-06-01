@@ -1,0 +1,38 @@
+{
+  "criteria": {
+    "has_abyssal_ashes": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "cataclysm_primed_soul:abyssal_ashes"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "background": "minecraft:textures/block/netherrack.png",
+    "description": {
+      "translate": "advancement.cataclysm_primed_soul.root.desc"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "cataclysm_primed_soul:abyssal_ashes"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.cataclysm_primed_soul.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_abyssal_ashes"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

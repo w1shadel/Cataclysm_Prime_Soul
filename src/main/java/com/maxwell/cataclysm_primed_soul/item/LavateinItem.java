@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.List;
 
-public class LavateinItem extends SwordItem {
+public class LavateinItem extends SwordItem implements ISpecialModel{
     private static final UUID ATTACK_SPEED_MODIFIER_UUID = UUID.fromString("fa23c4d5-6789-012a-345b-6c7d8e9f012a");
     private static final UUID DAMAGE_MODIFIER_UUID = UUID.fromString("fa23c4d5-6789-012a-345b-6c7d8e9f012b");
     private static final UUID DEBUFF_ARMOR_UUID = UUID.fromString("fa23c4d5-6789-012a-345b-6c7d8e9f012c");
