@@ -1,4 +1,4 @@
-package com.maxwell.cataclysm_primed_soul.client.animation;
+package com.maxwell.cataclysm_primed_soul.client.animation.entity;
 
 import net.minecraft.client.animation.AnimationChannel;
 import net.minecraft.client.animation.AnimationDefinition;
