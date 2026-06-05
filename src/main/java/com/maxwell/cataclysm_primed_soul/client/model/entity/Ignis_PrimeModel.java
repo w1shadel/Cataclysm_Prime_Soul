@@ -173,6 +173,10 @@ public class Ignis_PrimeModel extends HierarchicalModel<Ignis_PrimeEntity> {
         return Hand_pos;
     }
 
+    public ModelPart getCore_pos() {
+        return Core;
+    }
+
     public void setupAnim(Ignis_PrimeEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
         this.animateHeadLookTarget(netHeadYaw, headPitch);

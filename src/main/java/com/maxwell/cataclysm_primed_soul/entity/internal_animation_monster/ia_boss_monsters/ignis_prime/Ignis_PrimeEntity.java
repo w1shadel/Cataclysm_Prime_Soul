@@ -5,7 +5,7 @@ import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonste
 import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
 import com.github.L_Ender.cataclysm.entity.etc.CMBossInfoServer;
 import com.github.L_Ender.cataclysm.entity.etc.IHoldEntity;
-import com.maxwell.cataclysm_primed_soul.config.IgnisPrimeConfig;
+import com.maxwell.cataclysm_primed_soul.api.config.IgnisPrimeConfig;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.goal.*;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.FlameStrikeSpawner;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.Prime_Fireball_Entity;
@@ -34,7 +34,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -191,7 +190,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
                 .add(Attributes.FOLLOW_RANGE, TARGETING_RANGE)
                 .add(Attributes.MOVEMENT_SPEED, 0.35D)
                 .add(Attributes.ATTACK_DAMAGE, 20.0D)
-                .add(Attributes.ARMOR, 20.0D)
+                .add(Attributes.ARMOR, 12.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
     }
 
@@ -535,6 +534,29 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
             return false;
         }
         boolean isGenericKill = source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY);
+
+        if (!isGenericKill && this.getAttackState() == 0 && source.getEntity() instanceof LivingEntity attacker) {
+            if (this.random.nextFloat() < 0.15F && this.dashCooldown <= 0) {
+                double angle = this.getYRot() * (Math.PI / 180.0D) + (this.random.nextBoolean() ? Math.PI / 2.0D : -Math.PI / 2.0D);
+                double dx = -Math.sin(angle) * 3.5D;
+                double dz = Math.cos(angle) * 3.5D;
+                this.teleportTo(this.getX() + dx, this.getY(), this.getZ() + dz);
+                this.lookAt(attacker, 360.0F, 360.0F);
+                this.yBodyRot = this.getYRot();
+                this.yRotO = this.getYRot();
+                this.setDeltaMovement(Vec3.ZERO);
+                this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.5F);
+                if (this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                    serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.PORTAL, this.getX(), this.getY() + 1.0D, this.getZ(), 15, 0.3D, 0.3D, 0.3D, 0.1D);
+                    serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME, this.getX(), this.getY() + 0.5D, this.getZ(), 10, 0.2D, 0.2D, 0.2D, 0.05D);
+                }
+                this.setAttackState(STATE_DASH_UPPER);
+                this.setDashCooldown(60);
+                this.clearHurtFlash();
+                return false;
+            }
+        }
+
         this.recentDamageTaken += amount;
         if (source.getEntity() != null && source.getEntity() == this.getTarget()) {
             this.ticksSinceLastHurt = 0;
@@ -573,8 +595,8 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
                 return false;
             }
         }
-        if (!isGenericKill && amount > 35.0F) {
-            amount = 35.0F + (amount - 35.0F) * 0.10F;
+        if (!isGenericKill && amount > 45.0F) {
+            amount = 45.0F + (amount - 45.0F) * 0.20F;
         }
         boolean hurt = super.hurt(source, amount);
         if (hurt) {

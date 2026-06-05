@@ -1,6 +1,6 @@
 package com.maxwell.cataclysm_primed_soul;
 
-import com.maxwell.cataclysm_primed_soul.config.ModConfig;
+import com.maxwell.cataclysm_primed_soul.api.config.ModConfig;
 import com.maxwell.cataclysm_primed_soul.init.ModEntities;
 import com.maxwell.cataclysm_primed_soul.init.ModItems;
 import com.maxwell.cataclysm_primed_soul.init.ModTabs;

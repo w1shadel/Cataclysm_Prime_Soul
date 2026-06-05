@@ -1,7 +1,7 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.goal;
 
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.AI.InternalAttackGoal;
-import com.maxwell.cataclysm_primed_soul.config.IgnisPrimeConfig;
+import com.maxwell.cataclysm_primed_soul.api.config.IgnisPrimeConfig;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
 
 public class IgnisJabGoal extends InternalAttackGoal {

@@ -100,7 +100,39 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         } else {
             shadowHistory.remove(entityIn.getUUID());
         }
+        if (entityIn.deathTime > 0) {
+            float f1 = (float)entityIn.deathTime / 145.0F;
+            float f2 = 0.0F;
+            if (f1 > 0.8F) {
+                f2 = (f1 - 0.8F) / 0.2F;
+            }
 
+            net.minecraft.util.RandomSource randomsource = net.minecraft.util.RandomSource.create(432L);
+            VertexConsumer vertexconsumer2 = bufferIn.getBuffer(RenderType.lightning());
+            matrixStackIn.pushPose();
+
+            net.minecraft.world.phys.Vec3 corePos = getCorePosition(entityIn, partialTicks, renderPosX, renderPosY, renderPosZ);
+            matrixStackIn.translate(corePos.x - renderPosX, corePos.y - renderPosY, corePos.z - renderPosZ);
+
+            for(int i = 0; (float)i < (f1 + f1 * f1) / 2.0F * 60.0F; ++i) {
+                matrixStackIn.mulPose(com.mojang.math.Axis.XP.rotationDegrees(randomsource.nextFloat() * 360.0F));
+                matrixStackIn.mulPose(com.mojang.math.Axis.YP.rotationDegrees(randomsource.nextFloat() * 360.0F));
+                matrixStackIn.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(randomsource.nextFloat() * 360.0F));
+                matrixStackIn.mulPose(com.mojang.math.Axis.XP.rotationDegrees(randomsource.nextFloat() * 360.0F + f1 * 360.0F));
+                float f3 = randomsource.nextFloat() * 20.0F + 5.0F + f2 * 10.0F;
+                float f4 = randomsource.nextFloat() * 2.0F + 1.0F + f2 * 2.0F;
+                Matrix4f matrix4f = matrixStackIn.last().pose();
+                int j = (int)(255.0F * (1.0F - f2));
+
+                vertexconsumer2.vertex(matrix4f, 0.0F, 0.0F, 0.0F).color(255, 255, 255, j).endVertex();
+                vertexconsumer2.vertex(matrix4f, -0.866F * f4, f3, -0.5F * f4).color(0, 180, 255, 0).endVertex();
+                vertexconsumer2.vertex(matrix4f, 0.866F * f4, f3, -0.5F * f4).color(0, 180, 255, 0).endVertex();
+                vertexconsumer2.vertex(matrix4f, 0.0F, f3, 1.0F * f4).color(0, 180, 255, 0).endVertex();
+                vertexconsumer2.vertex(matrix4f, -0.866F * f4, f3, -0.5F * f4).color(0, 180, 255, 0).endVertex();
+            }
+
+            matrixStackIn.popPose();
+        }
         int originalHurtTime = entityIn.hurtTime;
         entityIn.hurtTime = entityIn.shouldRenderHurtFlash() ? Math.max(1, entityIn.getHurtFlashTicks()) : 0;
         try {
@@ -269,6 +301,7 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         PoseStack poseStack = createModelPose(entity, partialTicks);
         this.getModel().getBoddies().translateAndRotate(poseStack);
         this.getModel().getBody_Upper().translateAndRotate(poseStack);
+        this.getModel().getCore_pos().translateAndRotate(poseStack);
         return toWorldPosition(poseStack, entityX, entityY, entityZ);
     }
 }

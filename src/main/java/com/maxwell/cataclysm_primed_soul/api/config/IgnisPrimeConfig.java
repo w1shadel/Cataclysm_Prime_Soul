@@ -1,4 +1,4 @@
-package com.maxwell.cataclysm_primed_soul.config;
+package com.maxwell.cataclysm_primed_soul.api.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -133,7 +133,7 @@ public class IgnisPrimeConfig {
         builder.push("general");
         MAX_HEALTH = new ConfigFloat(builder.defineInRange("maxHealth", 600.0, 1.0, 1_000_000.0));
         ATTACK_DAMAGE = new ConfigFloat(builder.defineInRange("attackDamage", 20.0, 1.0, 10_000.0));
-        ARMOR = new ConfigFloat(builder.defineInRange("armor", 20.0, 0.0, 100.0));
+        ARMOR = new ConfigFloat(builder.defineInRange("armor", 12.0, 0.0, 100.0));
         MOVEMENT_SPEED = new ConfigFloat(builder.defineInRange("movementSpeed", 0.35, 0.01, 10.0));
         KNOCKBACK_RESISTANCE = new ConfigFloat(builder.defineInRange("knockbackResistance", 1.0, 0.0, 1.0));
         TARGETING_RANGE = new ConfigFloat(builder.defineInRange("targetingRange", 100.0, 10.0, 1000.0));

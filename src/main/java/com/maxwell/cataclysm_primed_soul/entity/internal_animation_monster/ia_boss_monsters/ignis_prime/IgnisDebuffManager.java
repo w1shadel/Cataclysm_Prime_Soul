@@ -1,7 +1,7 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime;
 
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
-import com.maxwell.cataclysm_primed_soul.config.IgnisPrimeConfig;
+import com.maxwell.cataclysm_primed_soul.api.config.IgnisPrimeConfig;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;

@@ -1,4 +1,4 @@
-package com.maxwell.cataclysm_primed_soul.config;
+package com.maxwell.cataclysm_primed_soul.api.config;
 
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
