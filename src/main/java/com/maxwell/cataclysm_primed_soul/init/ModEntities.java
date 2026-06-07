@@ -49,5 +49,6 @@ public class ModEntities {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(IGNIS_PRIME.get(), Ignis_PrimeEntity.createAttributes().build());
+        event.put(MALEDICTUS_PRIME.get(), Maledictus_PrimeEntity.createAttributes().build());
     }
 }
