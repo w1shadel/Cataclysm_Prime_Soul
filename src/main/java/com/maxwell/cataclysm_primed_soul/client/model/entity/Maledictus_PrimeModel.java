@@ -1,6 +1,6 @@
-package com.maxwell.cataclysm_primed_soul.client.model.entity;// Made with Blockbench 5.1.4
-// Exported for Minecraft version 1.17 or later with Mojang mappings
-// Paste this class into your mod and generate all required imports
+package com.maxwell.cataclysm_primed_soul.client.model.entity;
+
+
 
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.client.animation.entity.Maledictus_PrimeAnimation;
@@ -13,7 +13,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 
 @SuppressWarnings("removal")
 public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEntity> {
@@ -281,51 +280,48 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
     public ModelPart getLeftHand() {
         return LeftHand;
     }
-	@Override
-	public void setupAnim(Maledictus_PrimeEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		this.root().getAllParts().forEach(ModelPart::resetPose);
-		this.setupWeaponVisibility(entity);
-		this.animateHeadLookTarget(netHeadYaw, headPitch);
-        this.animate(entity.getAnimationState("walk"), Maledictus_PrimeAnimation.WALK, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("idle"), Maledictus_PrimeAnimation.IDLE, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("jab_1"), Maledictus_PrimeAnimation.ATTACK_JAB_1, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("jab_2"), Maledictus_PrimeAnimation.ATTACK_JAB_2, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("jab_3"), Maledictus_PrimeAnimation.ATTACK_JAB_3, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("charge"), Maledictus_PrimeAnimation.ATTACK_CHARGE, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("counter_start"), Maledictus_PrimeAnimation.ATTACK_COUNTER_START, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("counter_success"), Maledictus_PrimeAnimation.ATTACK_COUNTER_SUCCESS, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("counter_fail"), Maledictus_PrimeAnimation.ATTACK_COUNTER_FAIL, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("shockwave_start"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_START, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("shockwave_end"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_END, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("grab_start"), Maledictus_PrimeAnimation.ATTACK_GRAB_START, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("grab_success"), Maledictus_PrimeAnimation.ATTACK_GRAB_SUCCESS, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("grab_fail"), Maledictus_PrimeAnimation.ATTACK_GRAB_FAIL, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("phantom_spear_charge"), Maledictus_PrimeAnimation.ATTACK_PHANTOM_SPEAR_CHARGE, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("phantom_mace_crush"), Maledictus_PrimeAnimation.ATTACK_PHANTOM_MACE_CRUSH, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("phantom_bow_snipe"), Maledictus_PrimeAnimation.ATTACK_PHANTOM_BOW_SNIPE, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("ex_jab_1"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_1, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("ex_jab_2"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_2, ageInTicks, 1.0F);
-		this.animate(entity.getAnimationState("far_start"), Maledictus_PrimeAnimation.ATTACK_FAR_START, ageInTicks, 1.0F);
+    @Override
+    public void setupAnim(Maledictus_PrimeEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        this.root().getAllParts().forEach(ModelPart::resetPose);
+        this.setupWeaponVisibility(entity);
+        this.animateHeadLookTarget(netHeadYaw, headPitch);
 
-		float walk = Math.min(limbSwingAmount, 1.0F);
-		this.LeftLeg.xRot += Mth.cos(limbSwing * 0.6662F) * 0.7F * walk;
-		this.RightLeg.xRot += Mth.cos(limbSwing * 0.6662F + (float) Math.PI) * 0.7F * walk;
-		this.LeftArm.xRot += Mth.cos(limbSwing * 0.6662F + (float) Math.PI) * 0.35F * walk;
-		this.RightArm.xRot += Mth.cos(limbSwing * 0.6662F) * 0.35F * walk;
-	}
+
+        this.animate(entity.getAnimationState("idle"), Maledictus_PrimeAnimation.IDLE, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("jab_1"), Maledictus_PrimeAnimation.ATTACK_JAB_1, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("jab_2"), Maledictus_PrimeAnimation.ATTACK_JAB_2, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("jab_3"), Maledictus_PrimeAnimation.ATTACK_JAB_3, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("charge"), Maledictus_PrimeAnimation.ATTACK_CHARGE, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("counter_start"), Maledictus_PrimeAnimation.ATTACK_COUNTER_START, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("counter_success"), Maledictus_PrimeAnimation.ATTACK_COUNTER_SUCCESS, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("counter_fail"), Maledictus_PrimeAnimation.ATTACK_COUNTER_FAIL, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("shockwave_start"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_START, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("shockwave_end"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_END, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("grab_start"), Maledictus_PrimeAnimation.ATTACK_GRAB_START, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("grab_success"), Maledictus_PrimeAnimation.ATTACK_GRAB_SUCCESS, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("grab_fail"), Maledictus_PrimeAnimation.ATTACK_GRAB_FAIL, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("head_break"), Maledictus_PrimeAnimation.ATTACK_HEAD_BREAKER, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("ex_jab_1"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_1, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("ex_jab_2"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_2, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("ex_jab_3"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_3, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("far_start"), Maledictus_PrimeAnimation.ATTACK_FAR_START, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("backstep"), Maledictus_PrimeAnimation.BACKSTEP, ageInTicks, 1.0F);
+
+        boolean isAttacking = entity.getAttackState() != 0;
+        if (!isAttacking) {
+            this.animate(entity.getAnimationState("walk"), Maledictus_PrimeAnimation.WALK, ageInTicks, 1.0F);
+        }
+    }
 
 	private void setupWeaponVisibility(Maledictus_PrimeEntity entity) {
 		int attackState = entity.getAttackState();
-		boolean spear = attackState == Maledictus_PrimeEntity.ATTACK_PHANTOM_SPEAR_CHARGE;
-		boolean mace = attackState == Maledictus_PrimeEntity.ATTACK_PHANTOM_MACE_CRUSH;
-		boolean bow = attackState == Maledictus_PrimeEntity.ATTACK_PHANTOM_BOW_SNIPE;
 		boolean thrownSword = attackState == Maledictus_PrimeEntity.ATTACK_FAR_START && entity.attackTicks >= 25;
 
-		this.Broken_Halbard.visible = spear;
-		this.Broken_MaceRight.visible = mace;
-		this.Broken_Mace_Left.visible = mace;
-		this.Broken_Bow.visible = bow;
-		this.Sword.visible = !spear && !mace && !bow && !thrownSword;
+		this.Broken_Halbard.visible = false;
+		this.Broken_MaceRight.visible = false;
+		this.Broken_Mace_Left.visible = false;
+		this.Broken_Bow.visible = false;
+		this.Sword.visible = !thrownSword;
 	}
 
 	private void animateHeadLookTarget(float yRot, float xRot) {

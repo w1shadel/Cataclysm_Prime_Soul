@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
-
+@SuppressWarnings("removal")
 public class AmethystBlessRecipeBuilder {
     private final Item ingredient;
     private final Item result;

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
-
+@SuppressWarnings("removal")
 public class WeaponFusionRecipeBuilder {
     private final Item base;
     private final Item addition;

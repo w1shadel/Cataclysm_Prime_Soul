@@ -1,9 +1,13 @@
 package com.maxwell.cataclysm_primed_soul.item;
 
+import com.maxwell.cataclysm_primed_soul.Primed_Soul;
+import com.maxwell.cataclysm_primed_soul.api.item.IShaderItem;
+import com.maxwell.cataclysm_primed_soul.api.item.ISpecialModel;
 import com.maxwell.cataclysm_primed_soul.client.render.item.LavateinRenderer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -24,12 +28,13 @@ import net.minecraft.sounds.SoundEvents;
 import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.List;
-
-public class LavateinItem extends SwordItem implements ISpecialModel{
+@SuppressWarnings("removal")
+public class LavateinItem extends SwordItem implements ISpecialModel, IShaderItem {
     private static final UUID ATTACK_SPEED_MODIFIER_UUID = UUID.fromString("fa23c4d5-6789-012a-345b-6c7d8e9f012a");
     private static final UUID DAMAGE_MODIFIER_UUID = UUID.fromString("fa23c4d5-6789-012a-345b-6c7d8e9f012b");
     private static final UUID DEBUFF_ARMOR_UUID = UUID.fromString("fa23c4d5-6789-012a-345b-6c7d8e9f012c");
     private static final UUID DEBUFF_TOUGHNESS_UUID = UUID.fromString("fa23c4d5-6789-012a-345b-6c7d8e9f012d");
+    private static final ResourceLocation SHADER = new ResourceLocation(Primed_Soul.MODID, "shaders/post/ignis_debuff.json");
 
     public LavateinItem(Tier tier, int attackDamageIn, float attackSpeedIn, Properties properties) {
         super(tier, attackDamageIn, attackSpeedIn, properties);
@@ -198,5 +203,16 @@ public class LavateinItem extends SwordItem implements ISpecialModel{
     public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         tooltip.add(Component.translatable("item.cataclysm_primed_soul.lavatein.desc").withStyle(ChatFormatting.DARK_GREEN));
         tooltip.add(Component.translatable("item.cataclysm_primed_soul.lavatein.desc2").withStyle(ChatFormatting.DARK_GREEN));
+    }
+
+    @Override
+    public ResourceLocation getDebuffShader(ItemStack stack) {
+        return SHADER;
+    }
+
+    @Override
+    public int getDebuffLevel(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        return tag != null ? tag.getInt("Stage") : 0;
     }
 }

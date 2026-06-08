@@ -5,7 +5,9 @@ import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonste
 import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
 import com.github.L_Ender.cataclysm.entity.etc.CMBossInfoServer;
 import com.github.L_Ender.cataclysm.entity.etc.IHoldEntity;
+import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.api.config.IgnisPrimeConfig;
+import com.maxwell.cataclysm_primed_soul.api.entity.IShaderBoss;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.goal.*;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.FlameStrikeSpawner;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.Prime_Fireball_Entity;
@@ -14,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -37,8 +40,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-
-public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
+@SuppressWarnings("removal")
+public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IShaderBoss {
     private static final double TARGETING_RANGE = 100.0D;
     public static final int STATE_CHARGE_START = 1;
     public static final int STATE_UPPERCUT = 2;
@@ -162,7 +165,25 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity {
     private Vec3 ultrachargeLaunchVelocity = Vec3.ZERO;
     private boolean harmlessJumpAttack = false;
     private int ultCooldown = 0;
+    private static final ResourceLocation SHADER = new ResourceLocation(Primed_Soul.MODID, "shaders/post/ignis_debuff.json");
 
+    @Override
+    public ResourceLocation getDebuffShader() {
+        return SHADER;
+    }
+
+    @Override
+    public int getDebuffLevel() {
+        float hpPct = this.getHealth() / this.getMaxHealth();
+        if (this.getBossPhase() >= 2) return 3;
+        if (hpPct <= 0.5F) return 2;
+        return 1;
+    }
+
+    @Override
+    public double getDebuffRangeSq() {
+        return 80.0D * 80.0D; 
+    }
     public Ignis_PrimeEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         this.bossEvent = new CMBossInfoServer(this.getDisplayName(), BossEvent.BossBarColor.YELLOW, true, 99);

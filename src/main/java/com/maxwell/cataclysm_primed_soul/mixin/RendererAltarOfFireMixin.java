@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
+@SuppressWarnings("removal")
 @Mixin(value = RendererAltar_of_Fire.class, remap = false)
 public abstract class RendererAltarOfFireMixin {
 

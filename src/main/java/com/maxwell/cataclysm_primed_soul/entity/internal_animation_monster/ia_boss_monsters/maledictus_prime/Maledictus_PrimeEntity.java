@@ -1,15 +1,25 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime;
 
+import com.github.L_Ender.cataclysm.client.particle.RingParticle;
+import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavior;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.AI.InternalMoveGoal;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.IABossMonsters.IABoss_monster;
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.entity.etc.CMBossInfoServer;
+import com.github.L_Ender.cataclysm.entity.etc.IHoldEntity;
+import com.github.L_Ender.cataclysm.init.ModParticle;
+import com.github.L_Ender.cataclysm.init.ModSounds;
+import com.maxwell.cataclysm_primed_soul.Primed_Soul;
+import com.maxwell.cataclysm_primed_soul.api.entity.IShaderBoss;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.goal.MaledictusAttackGoal;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.goal.MaledictusBackstepGoal;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.goal.MaledictusStateGoal;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
@@ -29,7 +39,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class Maledictus_PrimeEntity extends IABoss_monster {
+@SuppressWarnings("removal")
+public class Maledictus_PrimeEntity extends IABoss_monster implements IHoldEntity, IShaderBoss {
     public static final int ATTACK_JAB_1 = 1;
     public static final int ATTACK_JAB_2 = 2;
     public static final int ATTACK_JAB_3 = 3;
@@ -42,12 +53,13 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
     public static final int ATTACK_GRAB_START = 10;
     public static final int ATTACK_GRAB_SUCCESS = 11;
     public static final int ATTACK_GRAB_FAIL = 12;
-    public static final int ATTACK_PHANTOM_SPEAR_CHARGE = 13;
-    public static final int ATTACK_PHANTOM_MACE_CRUSH = 14;
-    public static final int ATTACK_PHANTOM_BOW_SNIPE = 15;
+    public static final int ATTACK_HEAD_BREAK = 15;
     public static final int ATTACK_EX_JAB_1 = 16;
     public static final int ATTACK_EX_JAB_2 = 17;
-    public static final int ATTACK_FAR_START = 18;
+    public static final int ATTACK_EX_JAB_3 = 18;
+    public static final int ATTACK_FAR_START = 19;
+    public static final int BACKSTEP = 80;
+    public static final int BACKSTEP_BEFORE_CHARGE  = 81;
 
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState walkAnimationState = new AnimationState();
@@ -63,17 +75,27 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
     public final AnimationState grabStartAnimationState = new AnimationState();
     public final AnimationState grabSuccessAnimationState = new AnimationState();
     public final AnimationState grabFailAnimationState = new AnimationState();
-    public final AnimationState phantomSpearChargeAnimationState = new AnimationState();
-    public final AnimationState phantomMaceCrushAnimationState = new AnimationState();
-    public final AnimationState phantomBowSnipeAnimationState = new AnimationState();
+    public final AnimationState headbreakAnimationState = new AnimationState();
     public final AnimationState exJab1AnimationState = new AnimationState();
     public final AnimationState exJab2AnimationState = new AnimationState();
+    public final AnimationState exJab3AnimationState = new AnimationState();
     public final AnimationState farStartAnimationState = new AnimationState();
+    public final AnimationState backstepAnimationState = new AnimationState();
 
     private final CMBossInfoServer bossEvent;
-    private int attackCooldown;
+
+    private int jabCooldown;
+    private int chargeCooldown;
+    private int counterCooldown;
+    private int shockwaveCooldown;
+    private int grabCooldown;
+    private int exJabCooldown;
+    private int farCooldown;
+    private int phantomCooldown;
+    private int backstepCooldown;
     private boolean counterGuarding;
     private boolean shockwaveJumped;
+    private boolean chargeAfterBackstep;
     private Entity grabbedEntity;
     private Vec3 thrownSwordPos;
     private Vec3 thrownSwordMotion;
@@ -95,6 +117,25 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
                 .add(Attributes.ARMOR, 12.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
     }
+    private static final ResourceLocation SHADER = new ResourceLocation(Primed_Soul.MODID, "shaders/post/maledictus_debuff.json");
+
+    @Override
+    public ResourceLocation getDebuffShader() {
+        return SHADER;
+    }
+
+    @Override
+    public int getDebuffLevel() {
+        float hpPct = this.getHealth() / this.getMaxHealth();
+        if (hpPct <= 0.5F) return 3;
+        if (hpPct <= 0.75F) return 2;
+        return 1;
+    }
+
+    @Override
+    public double getDebuffRangeSq() {
+        return 64.0D * 64.0D;
+    }
 
     @Override
     protected void registerGoals() {
@@ -111,9 +152,6 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
         this.goalSelector.addGoal(0, new MaledictusStateGoal(this, ATTACK_GRAB_START));
         this.goalSelector.addGoal(0, new MaledictusStateGoal(this, ATTACK_GRAB_SUCCESS));
         this.goalSelector.addGoal(0, new MaledictusStateGoal(this, ATTACK_GRAB_FAIL));
-        this.goalSelector.addGoal(0, new MaledictusStateGoal(this, ATTACK_PHANTOM_SPEAR_CHARGE));
-        this.goalSelector.addGoal(0, new MaledictusStateGoal(this, ATTACK_PHANTOM_MACE_CRUSH));
-        this.goalSelector.addGoal(0, new MaledictusStateGoal(this, ATTACK_PHANTOM_BOW_SNIPE));
         this.goalSelector.addGoal(0, new MaledictusStateGoal(this, ATTACK_EX_JAB_1));
         this.goalSelector.addGoal(0, new MaledictusStateGoal(this, ATTACK_EX_JAB_2));
         this.goalSelector.addGoal(0, new MaledictusStateGoal(this, ATTACK_FAR_START));
@@ -124,17 +162,27 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
-    public boolean isAttackReady() {
-        return this.attackCooldown <= 0;
-    }
+    public boolean isJabReady()      { return this.jabCooldown <= 0; }
+    public boolean isChargeReady()    { return this.chargeCooldown <= 0; }
+    public boolean isCounterReady()   { return this.counterCooldown <= 0; }
+    public boolean isShockwaveReady() { return this.shockwaveCooldown <= 0; }
+    public boolean isGrabReady()      { return this.grabCooldown <= 0; }
+    public boolean isExJabReady()     { return this.exJabCooldown <= 0; }
+    public boolean isFarReady()       { return this.farCooldown <= 0; }
+    public boolean isPhantomReady()   { return this.phantomCooldown <= 0; }
+    public boolean isBackstepReady()  { return this.backstepCooldown <= 0;}
+
+    public void setPhantomCooldown(int cd) { this.phantomCooldown = cd; }
 
     @Override
     public void tick() {
         super.tick();
         if (this.level().isClientSide()) {
             int attackState = this.getAttackState();
-            this.idleAnimationState.animateWhen(this.isAlive() && attackState == 0, this.tickCount);
-            this.walkAnimationState.animateWhen(this.isAlive(), this.tickCount);
+            boolean canPlayIdleWalk = this.getAttackState() == 0 && this.isAlive();
+            boolean isMoving = this.walkAnimation.isMoving();
+            this.idleAnimationState.animateWhen(!isMoving && canPlayIdleWalk, this.tickCount);
+            this.walkAnimationState.animateWhen(isMoving && canPlayIdleWalk, this.tickCount);
             this.jab1AnimationState.animateWhen(this.isAlive() && attackState == ATTACK_JAB_1, this.tickCount);
             this.jab2AnimationState.animateWhen(this.isAlive() && attackState == ATTACK_JAB_2, this.tickCount);
             this.jab3AnimationState.animateWhen(this.isAlive() && attackState == ATTACK_JAB_3, this.tickCount);
@@ -147,36 +195,99 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
             this.grabStartAnimationState.animateWhen(this.isAlive() && attackState == ATTACK_GRAB_START, this.tickCount);
             this.grabSuccessAnimationState.animateWhen(this.isAlive() && attackState == ATTACK_GRAB_SUCCESS, this.tickCount);
             this.grabFailAnimationState.animateWhen(this.isAlive() && attackState == ATTACK_GRAB_FAIL, this.tickCount);
-            this.phantomSpearChargeAnimationState.animateWhen(
-                    this.isAlive() && attackState == ATTACK_PHANTOM_SPEAR_CHARGE,
-                    this.tickCount
-            );
-            this.phantomMaceCrushAnimationState.animateWhen(
-                    this.isAlive() && attackState == ATTACK_PHANTOM_MACE_CRUSH,
-                    this.tickCount
-            );
-            this.phantomBowSnipeAnimationState.animateWhen(
-                    this.isAlive() && attackState == ATTACK_PHANTOM_BOW_SNIPE,
-                    this.tickCount
-            );
+            this.headbreakAnimationState.animateWhen(this.isAlive() && attackState == ATTACK_HEAD_BREAK, this.tickCount);
             this.exJab1AnimationState.animateWhen(this.isAlive() && attackState == ATTACK_EX_JAB_1, this.tickCount);
             this.exJab2AnimationState.animateWhen(this.isAlive() && attackState == ATTACK_EX_JAB_2, this.tickCount);
+            this.exJab3AnimationState.animateWhen(this.isAlive() && attackState == ATTACK_EX_JAB_3, this.tickCount);
             this.farStartAnimationState.animateWhen(this.isAlive() && attackState == ATTACK_FAR_START, this.tickCount);
-        } else {
-            if (this.attackCooldown > 0) {
-                this.attackCooldown--;
+            this.backstepAnimationState.animateWhen(this.isAlive() && (attackState == BACKSTEP || attackState == BACKSTEP_BEFORE_CHARGE), this.tickCount);
+
+            if (this.isAlive()) {
+                if (attackState == ATTACK_CHARGE) {
+                    if (this.attackTicks >= seconds(0.58F) && this.attackTicks < seconds(1.5F)) {
+                        double x = this.getX();
+                        double y = this.getY() + (this.getBbHeight() / 2.0F);
+                        double z = this.getZ();
+                        float rotYaw = (float) Math.toRadians(-this.getYRot());
+                        float rotYaw2 = (float) Math.toRadians(-this.getYRot() + 180.0F);
+                        float pitch = (float) Math.toRadians(-this.getXRot());
+                        this.level().addParticle(new RingParticle.RingData(rotYaw, pitch, 40, 0.337F, 0.925F, 0.8F, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK), x, y, z, 0.0D, 0.0D, 0.0D);
+                        this.level().addParticle(new RingParticle.RingData(rotYaw2, pitch, 40, 0.337F, 0.925F, 0.8F, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK), x, y, z, 0.0D, 0.0D, 0.0D);
+                        if (this.tickCount % 2 == 0) {
+                            this.level().addParticle((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(), this.getRandomX(0.8D), this.getY() + 0.5D, this.getRandomZ(0.8D), 0.0D, 0.05D, 0.0D);
+                        }
+                    }
+                }
+                if (attackState == ATTACK_COUNTER_SUCCESS && this.attackTicks == seconds(0.92F)) {
+                    this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 40, 0.337F, 0.925F, 0.8F, 1.0F, 65.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                            this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
+                }
+                if (attackState == ATTACK_SHOCKWAVE_START && this.attackTicks == seconds(1.0F)) {
+                    float rotYaw = (float) Math.toRadians(-this.getYRot());
+                    this.level().addParticle(new RingParticle.RingData(rotYaw, ((float) Math.PI / 2F), 30, 0.337F, 0.925F, 0.8F, 1.0F, 45.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                            this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
+                }
+                if (attackState == ATTACK_SHOCKWAVE_END && this.attackTicks == seconds(0.21F)) {
+                    this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 45, 0.337F, 0.925F, 0.8F, 1.0F, 75.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                            this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
+                    this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 55, 0.337F, 0.925F, 0.8F, 0.5F, 95.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                            this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
+                }
+                if (attackState == ATTACK_GRAB_SUCCESS && this.attackTicks == seconds(3.0F)) {
+                    this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 50, 0.337F, 0.925F, 0.8F, 1.0F, 85.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                            this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
+                }
+                if (attackState == ATTACK_EX_JAB_2 && this.attackTicks == seconds(1.25F)) {
+                    this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 40, 0.337F, 0.925F, 0.8F, 1.0F, 65.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                            this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
+                }
             }
+        } else {
+            if (this.jabCooldown > 0)       this.jabCooldown--;
+            if (this.chargeCooldown > 0)    this.chargeCooldown--;
+            if (this.counterCooldown > 0)   this.counterCooldown--;
+            if (this.shockwaveCooldown > 0) this.shockwaveCooldown--;
+            if (this.grabCooldown > 0)      this.grabCooldown--;
+            if (this.exJabCooldown > 0)     this.exJabCooldown--;
+            if (this.farCooldown > 0)       this.farCooldown--;
+            if (this.phantomCooldown > 0)   this.phantomCooldown--;
+            if (this.backstepCooldown > 0)  this.backstepCooldown--;
             this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
             this.tickAttackState();
+
+            int attackState = this.getAttackState();
+            if (attackState != 0) {
+                if (attackState != ATTACK_CHARGE
+                        && attackState != ATTACK_SHOCKWAVE_START
+                        && attackState != ATTACK_GRAB_START
+                        && attackState != BACKSTEP
+                        && attackState != BACKSTEP_BEFORE_CHARGE) {
+                    this.getNavigation().stop();
+                    this.setDeltaMovement(0.0D, this.getDeltaMovement().y, 0.0D);
+                }
+
+                LivingEntity target = this.getTarget();
+                if (target != null && target.isAlive()) {
+                    if (attackState != ATTACK_CHARGE) {
+                        this.getLookControl().setLookAt(target, 90.0F, 90.0F);
+                        this.lookAt(target, 90.0F, 90.0F);
+                        this.yBodyRot = this.getYRot();
+                        this.yHeadRot = this.getYRot();
+                        this.yRotO = this.getYRot();
+                        this.yBodyRotO = this.getYRot();
+                    } else {
+                        this.getLookControl().setLookAt(target, 10.0F, 90.0F);
+                    }
+                }
+            }
         }
     }
-
     public AnimationState getAnimationState(String name) {
         if ("idle".equals(name)) {
             return this.idleAnimationState;
-        }else if ("walk".equals(name)) {
+        } else if ("walk".equals(name)) {
             return this.walkAnimationState;
-        }else if ("jab_1".equals(name)) {
+        } else if ("jab_1".equals(name)) {
             return this.jab1AnimationState;
         } else if ("jab_2".equals(name)) {
             return this.jab2AnimationState;
@@ -200,24 +311,28 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
             return this.grabSuccessAnimationState;
         } else if ("grab_fail".equals(name)) {
             return this.grabFailAnimationState;
-        } else if ("phantom_spear_charge".equals(name)) {
-            return this.phantomSpearChargeAnimationState;
-        } else if ("phantom_mace_crush".equals(name)) {
-            return this.phantomMaceCrushAnimationState;
-        } else if ("phantom_bow_snipe".equals(name)) {
-            return this.phantomBowSnipeAnimationState;
+        } else if ("head_break".equals(name)) {
+            return this.headbreakAnimationState;
         } else if ("ex_jab_1".equals(name)) {
             return this.exJab1AnimationState;
         } else if ("ex_jab_2".equals(name)) {
             return this.exJab2AnimationState;
+        } else if ("ex_jab_3".equals(name)) {
+            return this.exJab3AnimationState;
         } else if ("far_start".equals(name)) {
             return this.farStartAnimationState;
+        } else if ("backstep".equals(name)) {
+            return this.backstepAnimationState;
         }
         return new AnimationState();
     }
 
     @Override
     public void setAttackState(int state) {
+        if (!this.level().isClientSide() && state == ATTACK_CHARGE && this.getAttackState() == 0) {
+            this.setAttackState(BACKSTEP_BEFORE_CHARGE);
+            return;
+        }
         super.setAttackState(state);
         this.attackTicks = 0;
         this.counterGuarding = false;
@@ -230,20 +345,6 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
             this.grabbedEntity = null;
         }
     }
-
-    @Override
-    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
-        if (!this.level().isClientSide()
-                && this.counterGuarding
-                && this.getAttackState() == ATTACK_COUNTER_START
-                && source.getEntity() != null
-                && source.getEntity() != this) {
-            this.setAttackState(ATTACK_COUNTER_SUCCESS);
-            return false;
-        }
-        return super.hurt(source, amount);
-    }
-
     @Override
     public void positionRider(Entity passenger, Entity.MoveFunction moveFunction) {
         if (passenger == this.grabbedEntity && this.getAttackState() == ATTACK_GRAB_SUCCESS) {
@@ -269,50 +370,70 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
                         this.setAttackState(ATTACK_JAB_2);
                     }
                 } else if (this.attackTicks >= seconds(1.58F)) {
-                    this.finishAttack(25);
+                    this.jabCooldown = 25;
+                    this.setAttackState(0);
                 }
             }
             case ATTACK_JAB_2 -> {
-                if (this.attackTicks == seconds(0.54F)) {
+                if (this.attackTicks == seconds(0.79F)) {
                     this.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.5F, 0.7F);
                     ScreenShake_Entity.ScreenShake(this.level(), this.position(), 12.0F, 0.1F, 0, 6);
                     this.performForwardArcDamage(0.9F, 3.4F, 110.0F, 0.35F, 0.1D, 0.0D);
+                } else if (this.attackTicks >= seconds(0.92F)) {
                     this.setAttackState(ATTACK_JAB_3);
                 }
             }
             case ATTACK_JAB_3 -> {
                 if (this.attackTicks == seconds(0.96F)) {
+                    this.playSound((SoundEvent) ModSounds.PHANTOM_SPEAR.get(), 1.5F, 1.0F);
                     this.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.8F, 0.5F);
                     ScreenShake_Entity.ScreenShake(this.level(), this.position(), 20.0F, 0.2F, 0, 12);
+
                     if (this.level() instanceof ServerLevel serverLevel) {
                         serverLevel.sendParticles(ParticleTypes.SWEEP_ATTACK, this.getX(), this.getY() + 1.0D, this.getZ(), 3, 0.5D, 0.5D, 0.5D, 0.0D);
+                        float yaw = this.yBodyRot * ((float) Math.PI / 180F);
+                        double fx = -Mth.sin(yaw);
+                        double fz = Mth.cos(yaw);
+                        serverLevel.sendParticles((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(),
+                                this.getX() + fx * 1.5D, this.getY() + 1.0D, this.getZ() + fz * 1.5D,
+                                10, 0.8D, 0.4D, 0.8D, 0.05D);
                     }
                     this.performForwardArcDamage(1.25F, 3.8F, 120.0F, 0.65F, 0.2D, 0.05D);
                 } else if (this.attackTicks >= seconds(1.83F)) {
-                    this.finishAttack(45);
+                    this.jabCooldown = 45;
+                    this.setAttackState(0);
                 }
             }
             case ATTACK_CHARGE -> {
-                if (this.attackTicks >= seconds(1.83F) && this.attackTicks <= seconds(2.75F)) {
+                if (this.attackTicks == seconds(0.58F)) {
+                    this.playSound((SoundEvent) ModSounds.MALEDICTUS_JUMP.get(), 1.0F, 1.0F);
+                    this.playSound((SoundEvent) ModSounds.MALEDICTUS_SHORT_ROAR.get(), 1.0F, 1.0F);
+                    this.playSound((SoundEvent) ModSounds.PHANTOM_SPEAR.get(), 1.2F, 0.9F);
+                }
+
+                if (this.attackTicks >= seconds(0.58F) && this.attackTicks < seconds(1.5F)) {
                     this.chargeForward(1.15D);
                     this.performForwardArcDamage(0.7F, 3.2F, 100.0F, 0.45F, 0.25D, 0.0D);
-                    if (this.attackTicks % 2 == 0 && this.level() instanceof ServerLevel serverLevel) {
-                        serverLevel.sendParticles(ParticleTypes.POOF, this.getX(), this.getY() + 0.1D, this.getZ(), 4, 0.3D, 0.1D, 0.3D, 0.05D);
-                    }
-                } else {
+                } else if (this.attackTicks >= seconds(1.5F) && this.attackTicks < seconds(2.13F)) {
                     this.setDeltaMovement(this.getDeltaMovement().multiply(0.65D, 1.0D, 0.65D));
+                } else if (this.attackTicks >= seconds(2.13F)) {
+                    this.setDeltaMovement(0.0D, this.getDeltaMovement().y, 0.0D);
                 }
-                if (this.attackTicks == seconds(2.80F)) {
+
+                if (this.attackTicks == seconds(2.13F)) {
                     this.playSound(SoundEvents.GENERIC_EXPLODE, 1.2F, 0.7F);
                     ScreenShake_Entity.ScreenShake(this.level(), this.position(), 25.0F, 0.3F, 0, 15);
                     if (this.level() instanceof ServerLevel serverLevel) {
                         serverLevel.sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY() + 0.5D, this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
                     }
                 }
+
                 if (this.attackTicks >= seconds(3.04F)) {
-                    this.finishAttack(55);
+                    this.chargeCooldown = 55;
+                    this.setAttackState(0);
                 }
             }
+
             case ATTACK_COUNTER_START -> {
                 if (this.attackTicks == seconds(1.0F)) {
                     this.counterGuarding = true;
@@ -325,25 +446,40 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
                     this.playSound(SoundEvents.ANVIL_LAND, 1.5F, 0.5F);
                     this.playSound(SoundEvents.LIGHTNING_BOLT_THUNDER, 1.0F, 0.8F);
                     ScreenShake_Entity.ScreenShake(this.level(), this.position(), 40.0F, 0.4F, 0, 20);
+
                     if (this.level() instanceof ServerLevel serverLevel) {
                         serverLevel.sendParticles(ParticleTypes.CRIT, this.getX(), this.getY() + 1.2D, this.getZ(), 25, 0.8D, 0.8D, 0.8D, 0.2D);
                         serverLevel.sendParticles(ParticleTypes.FLASH, this.getX(), this.getY() + 1.2D, this.getZ(), 2, 0.2D, 0.2D, 0.2D, 0.0D);
+
+                        serverLevel.sendParticles((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(), this.getX(), this.getY() + 1.0D, this.getZ(), 25, 1.2D, 0.4D, 1.2D, 0.1D);
                     }
                     this.performForwardArcDamage(1.8F, 4.0F, 130.0F, 1.0F, 0.45D, 0.15D);
                 } else if (this.attackTicks >= seconds(1.54F)) {
-                    this.finishAttack(50);
+                    this.counterCooldown = 50;
+                    this.setAttackState(0);
                 }
             }
             case ATTACK_COUNTER_FAIL -> {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.15D, 1.0D, 0.15D));
                 if (this.attackTicks >= seconds(1.0F)) {
-                    this.finishAttack(70);
+                    this.counterCooldown = 70;
+                    this.setAttackState(0);
                 }
             }
             case ATTACK_SHOCKWAVE_START -> {
                 if (!this.shockwaveJumped && this.attackTicks >= seconds(1.0F)) {
                     this.shockwaveJumped = true;
-                    this.setDeltaMovement(this.getDeltaMovement().x, 0.95D, this.getDeltaMovement().z);
+                    LivingEntity target = this.getTarget();
+                    Vec3 horizontal = Vec3.ZERO;
+                    if (target != null) {
+                        Vec3 toTarget = target.position().subtract(this.position());
+                        if (toTarget.horizontalDistanceSqr() > 1.0E-4D) {
+                            horizontal = new Vec3(toTarget.x, 0.0D, toTarget.z).normalize().scale(0.8D);
+                        }
+                        this.lookAt(target, 45.0F, 45.0F);
+                        this.yBodyRot = this.getYRot();
+                    }
+                    this.setDeltaMovement(horizontal.x, 1.4D, horizontal.z);
                     this.hasImpulse = true;
                 }
                 if (this.shockwaveJumped && this.onGround() && this.attackTicks > seconds(1.1F)) {
@@ -361,7 +497,8 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
                     }
                     this.performPointBlankShockwave();
                 } else if (this.attackTicks >= seconds(1.37F)) {
-                    this.finishAttack(55);
+                    this.shockwaveCooldown = 55;
+                    this.setAttackState(0);
                 }
             }
             case ATTACK_GRAB_START -> {
@@ -416,40 +553,75 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
                     this.grabbedEntity.stopRiding();
                     this.grabbedEntity = null;
                 } else if (this.attackTicks >= seconds(4.25F)) {
-                    this.finishAttack(70);
+                    this.grabCooldown = 70;
+                    this.setAttackState(0);
                 }
             }
             case ATTACK_GRAB_FAIL -> {
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.1D, 1.0D, 0.1D));
                 if (this.attackTicks >= seconds(1.0F)) {
-                    this.finishAttack(80);
+                    this.grabCooldown = 80;
+                    this.setAttackState(0);
                 }
             }
             case ATTACK_EX_JAB_1 -> {
-                if (this.attackTicks == seconds(1.54F)) {
-                    this.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.5F, 0.5F);
+                if (this.attackTicks == seconds(1.63F)) {
+                    this.playSound((SoundEvent) ModSounds.PHANTOM_SPEAR.get(), 1.5F, 1.0F);
+                    this.playSound(SoundEvents.TRIDENT_HIT, 1.2F, 0.8F);
                     ScreenShake_Entity.ScreenShake(this.level(), this.position(), 15.0F, 0.15F, 0, 10);
-                    if (this.performForwardArcDamage(1.25F, 3.6F, 120.0F, 0.55F, 0.15D, 0.0D)) {
-                        this.setAttackState(ATTACK_EX_JAB_2);
+
+                    if (this.level() instanceof ServerLevel serverLevel) {
+                        serverLevel.sendParticles((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(), this.getX(), this.getY() + 0.1D, this.getZ(), 15, 0.5D, 0.2D, 0.5D, 0.05D);
+                        serverLevel.sendParticles(ParticleTypes.SOUL, this.getX(), this.getY() + 0.1D, this.getZ(), 8, 0.5D, 0.2D, 0.5D, 0.05D);
                     }
-                } else if (this.attackTicks >= seconds(2.04F)) {
-                    this.finishAttack(45);
+                    this.performForwardArcDamage(1.25F, 3.6F, 120.0F, 0.55F, 0.15D, 0.0D);
+                } else if (this.attackTicks >= seconds(1.75F)) {
+                    this.setAttackState(ATTACK_EX_JAB_2);
                 }
             }
             case ATTACK_EX_JAB_2 -> {
                 if (this.attackTicks == seconds(0.13F)) {
+                    this.playSound((SoundEvent) ModSounds.AXE_SWING.get(), 1.2F, 1.3F);
                     this.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.5F, 0.8F);
                     this.performForwardArcDamage(0.8F, 3.5F, 120.0F, 0.45F, 0.1D, 0.0D);
                 }
-                if (this.attackTicks == seconds(1.42F)) {
+                if (this.attackTicks == seconds(1.25F)) {
+                    this.playSound(SoundEvents.GENERIC_EXPLODE, 1.5F, 0.7F);
                     this.playSound(SoundEvents.ANVIL_LAND, 1.5F, 0.6F);
                     ScreenShake_Entity.ScreenShake(this.level(), this.position(), 30.0F, 0.3F, 0, 18);
+
                     if (this.level() instanceof ServerLevel serverLevel) {
                         serverLevel.sendParticles(ParticleTypes.CRIT, this.getX(), this.getY() + 1.2D, this.getZ(), 15, 0.6D, 0.6D, 0.6D, 0.1D);
+                        serverLevel.sendParticles((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(), this.getX(), this.getY() + 0.1D, this.getZ(), 30, 2.0D, 0.2D, 2.0D, 0.1D);
                     }
-                    this.performForwardArcDamage(2.2F, 4.2F, 130.0F, 1.15F, 0.35D, 0.2D);
-                } else if (this.attackTicks >= seconds(2.45F)) {
-                    this.finishAttack(65);
+                    this.performForwardArcDamage(2.2F, 4.2F, 130.0F, 1.8F, 0.65D, 0.3D);
+                } else if (this.attackTicks >= seconds(1.58F)) {
+                    this.setAttackState(ATTACK_EX_JAB_3);
+                }
+            }
+
+            case ATTACK_EX_JAB_3 -> {
+                if (this.attackTicks == 1) {
+                    LivingEntity target = this.getTarget();
+                    if (target != null) {
+                        Vec3 inFront = target.position().subtract(Vec3.directionFromRotation(0.0F, target.getYRot()).normalize().scale(1.2D));
+                        this.teleportTo(inFront.x, target.getY(), inFront.z);
+                        this.lookAt(target, 360.0F, 360.0F);
+                        this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.2F, 0.55F);
+                        if (this.level() instanceof ServerLevel serverLevel) {
+                            serverLevel.sendParticles((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(), inFront.x, target.getY() + 1.0D, inFront.z, 12, 0.5D, 0.5D, 0.5D, 0.05D);
+                        }
+                    }
+                }
+                if (this.attackTicks == seconds(0.67F)) {
+                    this.playSound((SoundEvent) ModSounds.PHANTOM_SPEAR.get(), 1.5F, 1.0F);
+                    this.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.8F, 0.5F);
+                    ScreenShake_Entity.ScreenShake(this.level(), this.position(), 25.0F, 0.35F, 0, 15);
+                    this.performForwardArcDamage(2.8F, 4.0F, 120.0F, 0.8F, 0.3D, 0.1D);
+                } else if (this.attackTicks >= seconds(2.5F)) {
+                    this.jabCooldown = 65;
+                    this.exJabCooldown = 65;
+                    this.setAttackState(0);
                 }
             }
             case ATTACK_FAR_START -> {
@@ -458,21 +630,64 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
                     this.throwSword();
                 }
                 this.tickThrownSword();
-                if (this.attackTicks >= seconds(3.16F)) {
-                    this.finishAttack(70);
+                if (this.attackTicks >= seconds(2.5F)) {
+                    this.farCooldown = 70;
+                    this.setAttackState(0);
                 }
             }
-            case ATTACK_PHANTOM_SPEAR_CHARGE, ATTACK_PHANTOM_MACE_CRUSH, ATTACK_PHANTOM_BOW_SNIPE -> {
-                if (this.attackTicks >= 70) {
-                    this.finishAttack(45);
+            case BACKSTEP -> {
+                if (this.attackTicks < seconds(0.5F)) {
+                    this.chargeForward(-1.1D);
+                } else {
+                    this.setDeltaMovement(this.getDeltaMovement().multiply(0.75D, 1.0D, 0.75D));
+                }
+                if (this.attackTicks >= seconds(0.75F)) {
+                    this.backstepCooldown = 160;
+                    this.setAttackState(0);
                 }
             }
-            default -> this.finishAttack(30);
+            case BACKSTEP_BEFORE_CHARGE -> {
+                if (this.attackTicks < seconds(0.5F)) {
+                    this.chargeForward(-1.1D);
+                } else {
+                    this.setDeltaMovement(this.getDeltaMovement().multiply(0.75D, 1.0D, 0.75D));
+                }
+                if (this.attackTicks >= seconds(0.75F)) {
+                    this.backstepCooldown = 160;
+                    this.setAttackState(ATTACK_CHARGE);
+                }
+            }
+
+            default -> this.finishAttackByState(state);
         }
     }
 
-    private void finishAttack(int cooldown) {
-        this.attackCooldown = cooldown;
+
+    private void finishAttackByState(int state) {
+        this.finishAttack(30);
+    }
+
+    private void finishAttack(int jabCd, int chargeCd, int counterCd, int shockwaveCd,
+                              int grabCd, int exJabCd, int farCd) {
+        if (jabCd > 0)       this.jabCooldown       = Math.max(this.jabCooldown,       jabCd);
+        if (chargeCd > 0)    this.chargeCooldown    = Math.max(this.chargeCooldown,    chargeCd);
+        if (counterCd > 0)   this.counterCooldown   = Math.max(this.counterCooldown,   counterCd);
+        if (shockwaveCd > 0) this.shockwaveCooldown = Math.max(this.shockwaveCooldown, shockwaveCd);
+        if (grabCd > 0)      this.grabCooldown      = Math.max(this.grabCooldown,      grabCd);
+        if (exJabCd > 0)     this.exJabCooldown     = Math.max(this.exJabCooldown,     exJabCd);
+        if (farCd > 0)       this.farCooldown       = Math.max(this.farCooldown,       farCd);
+        this.setAttackState(0);
+    }
+
+
+    private void finishAttack(int allCd) {
+        this.jabCooldown       = Math.max(this.jabCooldown,       allCd);
+        this.chargeCooldown    = Math.max(this.chargeCooldown,    allCd);
+        this.counterCooldown   = Math.max(this.counterCooldown,   allCd);
+        this.shockwaveCooldown = Math.max(this.shockwaveCooldown, allCd);
+        this.grabCooldown      = Math.max(this.grabCooldown,      allCd);
+        this.exJabCooldown     = Math.max(this.exJabCooldown,     allCd);
+        this.farCooldown       = Math.max(this.farCooldown,       allCd);
         this.setAttackState(0);
     }
 
@@ -565,6 +780,16 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
         for (LivingEntity target : targets) {
             if (this.canDamageTarget(target) && target.hurt(this.damageSources().mobAttack(this), this.getAttackDamage(1.2F))) {
                 Vec3 inFront = target.position().subtract(Vec3.directionFromRotation(0.0F, target.getYRot()).normalize().scale(1.2D));
+
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(), this.getX(), this.getY() + 1.0D, this.getZ(), 12, 0.5D, 0.5D, 0.5D, 0.05D);
+                    serverLevel.sendParticles(ParticleTypes.FLASH, this.getX(), this.getY() + 1.0D, this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+
+                    serverLevel.sendParticles((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(), inFront.x, target.getY() + 1.0D, inFront.z, 12, 0.5D, 0.5D, 0.5D, 0.05D);
+                    serverLevel.sendParticles(ParticleTypes.FLASH, inFront.x, target.getY() + 1.0D, inFront.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                }
+                this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.2F, 0.55F);
+
                 this.teleportTo(inFront.x, target.getY(), inFront.z);
                 this.lookAt(target, 360.0F, 360.0F);
                 this.setAttackState(this.getRandom().nextBoolean() ? ATTACK_JAB_1 : ATTACK_EX_JAB_1);
@@ -593,23 +818,23 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
         if (this.getAttackState() == ATTACK_GRAB_SUCCESS) {
             int ticks = this.attackTicks;
             if (ticks <= 12) {
-                // 振り下ろし（徐々に下がる）
+
                 double progress = ticks / 12.0D;
                 heightOffset = 1.7D - (1.375D * progress);
             } else if (ticks <= 29) {
-                // 地面に叩きつけ中
+
                 heightOffset = 0.325D;
             } else if (ticks <= 32) {
-                // 持ち上げ（30〜32 ticks）
+
                 double progress = (ticks - 29) / 3.0D;
                 heightOffset = 0.325D + (0.5625D * progress);
                 forwardOffset = 1.1D + (2.25D * progress);
             } else if (ticks <= 59) {
-                // 持ち上げた状態をキープ
+
                 heightOffset = 0.8875D;
                 forwardOffset = 3.35D;
             } else if (ticks <= 62) {
-                // 再度叩きつけ（60〜62 ticks）
+
                 double progress = (ticks - 59) / 3.0D;
                 heightOffset = 0.8875D - (0.8125D * progress);
                 forwardOffset = 3.35D - (1.0625D * progress);
@@ -664,5 +889,34 @@ public class Maledictus_PrimeEntity extends IABoss_monster {
     public void stopSeenByPlayer(ServerPlayer player) {
         super.stopSeenByPlayer(player);
         this.bossEvent.removePlayer(player);
+    }
+    @Override
+    public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
+
+        if (source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+            return super.hurt(source, amount);
+        }
+
+        if (!this.level().isClientSide()
+                && this.counterGuarding
+                && this.getAttackState() == ATTACK_COUNTER_START
+                && source.getEntity() != null
+                && source.getEntity() != this) {
+            this.setAttackState(ATTACK_COUNTER_SUCCESS);
+            return false;
+        }
+
+        float cappedAmount = Math.min(amount, this.DamageCap());
+        return super.hurt(source, cappedAmount);
+    }
+
+    @Override
+    public float DamageCap() {
+        return 20.0F;
+    }
+
+    @Override
+    public int DamageTime() {
+        return 10;
     }
 }

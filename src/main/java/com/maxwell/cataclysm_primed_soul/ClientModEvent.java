@@ -2,8 +2,10 @@ package com.maxwell.cataclysm_primed_soul;
 
 import com.github.L_Ender.cataclysm.client.gui.CustomBossBar;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Ignis_PrimeModel;
+import com.maxwell.cataclysm_primed_soul.client.model.entity.MaledictusPhantomModel;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Maledictus_PrimeModel;
 import com.maxwell.cataclysm_primed_soul.client.render.entity.Ignis_PrimeRenderer;
+import com.maxwell.cataclysm_primed_soul.client.render.entity.MaledictusPhantomRenderer;
 import com.maxwell.cataclysm_primed_soul.client.render.entity.Maledictus_PrimeRenderer;
 import com.maxwell.cataclysm_primed_soul.client.render.entity.Prime_Fireball_Renderer;
 import com.maxwell.cataclysm_primed_soul.client.render.entity.Prime_Flame_Strike_Renderer;
@@ -38,6 +40,7 @@ public class ClientModEvent {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.IGNIS_PRIME.get(), Ignis_PrimeRenderer::new);
         event.registerEntityRenderer(ModEntities.MALEDICTUS_PRIME.get(), Maledictus_PrimeRenderer::new);
+        event.registerEntityRenderer(ModEntities.MALEDICTUS_PHANTOM.get(), MaledictusPhantomRenderer::new);
         event.registerEntityRenderer(ModEntities.PRIME_FLAME_STRIKE.get(), Prime_Flame_Strike_Renderer::new);
         event.registerEntityRenderer(ModEntities.PRIME_FIREBALL.get(), Prime_Fireball_Renderer::new);
     }
@@ -46,5 +49,6 @@ public class ClientModEvent {
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(Ignis_PrimeModel.LAYER_LOCATION, Ignis_PrimeModel::createBodyLayer);
         event.registerLayerDefinition(Maledictus_PrimeModel.LAYER_LOCATION, Maledictus_PrimeModel::createBodyLayer);
+        event.registerLayerDefinition(MaledictusPhantomModel.LAYER_LOCATION, Maledictus_PrimeModel::createBodyLayer);
     }
 }

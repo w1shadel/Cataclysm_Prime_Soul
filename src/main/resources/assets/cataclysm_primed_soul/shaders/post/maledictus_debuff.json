@@ -1,0 +1,27 @@
+{
+  "targets": [
+    "swap"
+  ],
+  "passes": [
+    {
+      "name": "cataclysm_primed_soul:maledictus_debuff",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
+      "uniforms": [
+        {
+          "name": "DebuffLevel",
+          "values": [ 0.0 ]
+        },
+        {
+          "name": "PrimeTime",
+          "values": [ 0.0 ]
+        }
+      ]
+    },
+    {
+      "name": "minecraft:blit",
+      "intarget": "swap",
+      "outtarget": "minecraft:main"
+    }
+  ]
+}

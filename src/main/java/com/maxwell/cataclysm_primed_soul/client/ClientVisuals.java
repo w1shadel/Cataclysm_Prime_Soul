@@ -3,9 +3,12 @@ package com.maxwell.cataclysm_primed_soul.client;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavior;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
-import com.maxwell.cataclysm_primed_soul.item.LavateinItem;
+import com.maxwell.cataclysm_primed_soul.api.entity.IShaderBoss;
+import com.maxwell.cataclysm_primed_soul.api.item.IShaderItem;
 import com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.PostPass;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -13,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -24,7 +28,8 @@ import net.minecraftforge.fml.common.Mod;
 @SuppressWarnings("removal")
 @Mod.EventBusSubscriber(modid = Primed_Soul.MODID, value = Dist.CLIENT)
 public class ClientVisuals {
-    private static final ResourceLocation DEBUFF_SHADER = new ResourceLocation(Primed_Soul.MODID, "shaders/post/ignis_debuff.json");
+
+    private static ResourceLocation activeShaderPath = null;
     private static int currentDebuffLevel = 0;
     private static int tickCount = 0;
     private static boolean ascending = true;
@@ -39,50 +44,62 @@ public class ClientVisuals {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) {
             currentDebuffLevel = 0;
+            activeShaderPath = null;
             return;
         }
 
         if (ascending) {
             tickCount++;
-            if (tickCount >= 16000) {
-                ascending = false;
-            }
+            if (tickCount >= 16000) ascending = false;
         } else {
             tickCount--;
-            if (tickCount <= 0) {
-                ascending = true;
-            }
+            if (tickCount <= 0) ascending = true;
         }
 
-        if (currentDebuffLevel > 0) {
-            boolean bossExists = false;
-            for (Entity entity : mc.level.entitiesForRendering()) {
-                if (entity instanceof com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity boss) {
-                    if (boss.isAlive() && mc.player.distanceToSqr(boss) <= 80 * 80) {
-                        bossExists = true;
-                        break;
+        ResourceLocation nextShaderPath = null;
+        int maxLevelFound = 0;
+
+        for (Entity entity : mc.level.entitiesForRendering()) {
+            if (entity instanceof IShaderBoss shaderBoss) {
+                if (shaderBoss.shouldApplyDebuff(mc.player)) {
+                    int bossLevel = shaderBoss.getDebuffLevel();
+
+                    if (bossLevel > maxLevelFound) {
+                        maxLevelFound = bossLevel;
+                        nextShaderPath = shaderBoss.getDebuffShader();
                     }
                 }
             }
-            boolean holdingLaevateinn = mc.player.getMainHandItem().getItem() instanceof LavateinItem;
-            if (!bossExists && !holdingLaevateinn) {
-                currentDebuffLevel = 0;
+        }
+
+        ItemStack mainHandStack = mc.player.getMainHandItem();
+        if (mainHandStack.getItem() instanceof IShaderItem shaderItem) {
+            int itemLevel = shaderItem.getDebuffLevel(mainHandStack);
+            if (itemLevel > maxLevelFound) {
+                maxLevelFound = itemLevel;
+                nextShaderPath = shaderItem.getDebuffShader(mainHandStack);
             }
         }
-        if (currentDebuffLevel > 0) {
-            if (mc.gameRenderer.currentEffect() == null || !mc.gameRenderer.currentEffect().getName().equals(DEBUFF_SHADER.toString())) {
-                mc.gameRenderer.loadEffect(DEBUFF_SHADER);
+
+        currentDebuffLevel = maxLevelFound;
+
+        if (currentDebuffLevel > 0 && nextShaderPath != null) {
+
+            if (mc.gameRenderer.currentEffect() == null || !mc.gameRenderer.currentEffect().getName().equals(nextShaderPath.toString())) {
+                mc.gameRenderer.loadEffect(nextShaderPath);
+                activeShaderPath = nextShaderPath;
             }
+
             if (mc.gameRenderer.currentEffect() != null) {
-                net.minecraft.client.renderer.PostChain effect = mc.gameRenderer.currentEffect();
+                PostChain effect = mc.gameRenderer.currentEffect();
                 try {
-                    for (java.lang.reflect.Field f : net.minecraft.client.renderer.PostChain.class.getDeclaredFields()) {
+                    for (java.lang.reflect.Field f : PostChain.class.getDeclaredFields()) {
                         if (java.util.List.class.isAssignableFrom(f.getType())) {
                             f.setAccessible(true);
                             java.util.List<?> list = (java.util.List<?>) f.get(effect);
                             if (list != null) {
                                 for (Object p : list) {
-                                    if (p instanceof net.minecraft.client.renderer.PostPass pass) {
+                                    if (p instanceof PostPass pass) {
                                         if (pass.getEffect().getUniform("DebuffLevel") != null) {
                                             pass.getEffect().getUniform("DebuffLevel").set((float) currentDebuffLevel);
                                         }
@@ -99,8 +116,10 @@ public class ClientVisuals {
                 }
             }
         } else {
-            if (mc.gameRenderer.currentEffect() != null && mc.gameRenderer.currentEffect().getName().equals(DEBUFF_SHADER.toString())) {
+
+            if (mc.gameRenderer.currentEffect() != null && activeShaderPath != null && mc.gameRenderer.currentEffect().getName().equals(activeShaderPath.toString())) {
                 mc.gameRenderer.shutdownEffect();
+                activeShaderPath = null;
             }
         }
     }
@@ -112,24 +131,12 @@ public class ClientVisuals {
         if (!(entity instanceof LivingEntity boss)) return;
         try {
             switch (msg.getEffectType()) {
-                case 0:
-                    spawnUppercutVisuals(boss);
-                    break;
-                case 1:
-                    spawnPowerSlamVisuals(boss);
-                    break;
-                case 2:
-                    spawnChargeVisuals(boss);
-                    break;
-                case 3:
-                    spawnPhaseChangeVisuals(boss);
-                    break;
-                case 4:
-                    spawnGuardSuccessVisuals(boss);
-                    break;
-                case 5:
-                    spawnGuardPrimedVisuals(boss);
-                    break;
+                case 0: spawnUppercutVisuals(boss); break;
+                case 1: spawnPowerSlamVisuals(boss); break;
+                case 2: spawnChargeVisuals(boss); break;
+                case 3: spawnPhaseChangeVisuals(boss); break;
+                case 4: spawnGuardSuccessVisuals(boss); break;
+                case 5: spawnGuardPrimedVisuals(boss); break;
             }
         } catch (Exception e) {
             System.err.println("[Ignis Visual Effect] Error executing client visuals: " + e.getMessage());
