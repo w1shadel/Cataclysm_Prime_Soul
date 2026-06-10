@@ -1,8 +1,8 @@
 package com.maxwell.cataclysm_primed_soul.api.datagen.provider;
 
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
-import com.maxwell.cataclysm_primed_soul.init.ModItems;
 import com.maxwell.cataclysm_primed_soul.api.item.ISpecialModel;
+import com.maxwell.cataclysm_primed_soul.init.ModItems;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.client.model.generators.ItemModelProvider;

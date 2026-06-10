@@ -40,9 +40,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+
 @SuppressWarnings("removal")
 public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IShaderBoss {
-    private static final double TARGETING_RANGE = 100.0D;
     public static final int STATE_CHARGE_START = 1;
     public static final int STATE_UPPERCUT = 2;
     public static final int STATE_JAB_1 = 3;
@@ -82,6 +82,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     public static final int STATE_JUMP_END = 45;
     public static final int STATE_DASH_ATTACK_COMBO = 46;
     public static final int STATE_PHASE_CHANGE = 99;
+    private static final double TARGETING_RANGE = 100.0D;
     private static final EntityDataAccessor<Integer> PHASE = SynchedEntityData.defineId(Ignis_PrimeEntity.class,
             EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> SPEED_MULTIPLIER = SynchedEntityData
@@ -90,6 +91,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             .defineId(Ignis_PrimeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> HURT_FLASH_TICKS = SynchedEntityData
             .defineId(Ignis_PrimeEntity.class, EntityDataSerializers.INT);
+    private static final ResourceLocation SHADER = new ResourceLocation(Primed_Soul.MODID, "shaders/post/ignis_debuff.json");
     private final CMBossInfoServer bossEvent;
     public AnimationState idleAnimationState = new AnimationState();
     public AnimationState spawnAnimationState = new AnimationState();
@@ -165,31 +167,12 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     private Vec3 ultrachargeLaunchVelocity = Vec3.ZERO;
     private boolean harmlessJumpAttack = false;
     private int ultCooldown = 0;
-    private static final ResourceLocation SHADER = new ResourceLocation(Primed_Soul.MODID, "shaders/post/ignis_debuff.json");
 
-    @Override
-    public ResourceLocation getDebuffShader() {
-        return SHADER;
-    }
-
-    @Override
-    public int getDebuffLevel() {
-        float hpPct = this.getHealth() / this.getMaxHealth();
-        if (this.getBossPhase() >= 2) return 3;
-        if (hpPct <= 0.5F) return 2;
-        return 1;
-    }
-
-    @Override
-    public double getDebuffRangeSq() {
-        return 80.0D * 80.0D; 
-    }
     public Ignis_PrimeEntity(EntityType<? extends Monster> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         this.bossEvent = new CMBossInfoServer(this.getDisplayName(), BossEvent.BossBarColor.YELLOW, true, 99);
         this.xpReward = IgnisPrimeConfig.XP_REWARD.get();
         this.setMaxUpStep(2.0F);
-
         if (!pLevel.isClientSide()) {
             java.util.Objects.requireNonNull(this.getAttribute(Attributes.MAX_HEALTH))
                     .setBaseValue(IgnisPrimeConfig.MAX_HEALTH.get());
@@ -216,6 +199,24 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     }
 
     @Override
+    public ResourceLocation getDebuffShader() {
+        return SHADER;
+    }
+
+    @Override
+    public int getDebuffLevel() {
+        float hpPct = this.getHealth() / this.getMaxHealth();
+        if (this.getBossPhase() >= 2) return 3;
+        if (hpPct <= 0.5F) return 2;
+        return 1;
+    }
+
+    @Override
+    public double getDebuffRangeSq() {
+        return 80.0D * 80.0D;
+    }
+
+    @Override
     public void die(DamageSource source) {
         super.die(source);
         this.showAfterUppercutAmbush();
@@ -230,6 +231,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             IgnisDebuffManager.unregisterBoss(this);
         }
     }
+
     @Override
     public void setHealth(float health) {
         if (this.getBossPhase() < 2 && health <= 1.0F) {
@@ -238,6 +240,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
         }
         super.setHealth(health);
     }
+
     @Override
     public void remove(Entity.RemovalReason reason) {
         super.remove(reason);
@@ -250,6 +253,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             IgnisDebuffManager.unregisterBoss(this);
         }
     }
+
     @Override
     protected void tickDeath() {
         ++this.deathTime;
@@ -409,9 +413,9 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             return this.catch_successAnimationState;
         } else if (input == "catch_fail") {
             return this.catch_failAnimationState;
-        }else if (input == "dash") {
+        } else if (input == "dash") {
             return this.dashAnimationState;
-        }else if (input == "dash_upper") {
+        } else if (input == "dash_upper") {
             return this.dash_upperAnimationState;
         } else if (input == "jab_attack_ex_one") {
             return this.jab_attack_ex_oneAnimationState;
@@ -431,11 +435,11 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             return this.ultracharge_striking_AnimationState;
         } else if (input == "ultracharge_striking_end") {
             return this.ultracharge_striking_end_AnimationState;
-        }else if (input == "jump_attack_start") {
+        } else if (input == "jump_attack_start") {
             return this.jump_attack_start_AnimationState;
-        }else if (input == "jump_attack_fall_loop") {
+        } else if (input == "jump_attack_fall_loop") {
             return this.jump_attack_fall_loop_AnimationState;
-        }else if (input == "jump_attack_end") {
+        } else if (input == "jump_attack_end") {
             return this.jump_attack_end_AnimationState;
         }
         return new AnimationState();
@@ -484,17 +488,13 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
 
     private void updateBossPhase() {
         float healthPct = this.getHealth() / this.getMaxHealth();
-
         if (healthPct <= 0.01F && getBossPhase() < 2) {
             setBossPhase(2);
             this.setHealth(this.getMaxHealth());
             this.phaseChangeTicks = 0;
             this.showAfterUppercutAmbush();
-
             this.setAttackState(STATE_PHASE_CHANGE);
-        }
-
-        else if (healthPct <= 0.5F && getBossPhase() < 1) {
+        } else if (healthPct <= 0.5F && getBossPhase() < 1) {
             setBossPhase(1);
         }
         applyPhaseBalance();
@@ -519,6 +519,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
         if (entity == this.getCaughtEntity()) return false;
         return super.canBePushedByEntity(entity);
     }
+
     @Override
     public void positionRider(Entity passenger, Entity.MoveFunction moveFunc) {
         if (this.hasPassenger(passenger)) {
@@ -533,6 +534,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             moveFunc.accept(passenger, this.getX() + offsetX, this.getY() + height, this.getZ() + offsetZ);
         }
     }
+
     @Override
     public boolean hurt(DamageSource source, float amount) {
         int state = this.getAttackState();
@@ -555,7 +557,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             return false;
         }
         boolean isGenericKill = source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY);
-
         if (!isGenericKill && this.getAttackState() == 0 && source.getEntity() instanceof LivingEntity attacker) {
             if (this.random.nextFloat() < 0.15F && this.dashCooldown <= 0) {
                 double angle = this.getYRot() * (Math.PI / 180.0D) + (this.random.nextBoolean() ? Math.PI / 2.0D : -Math.PI / 2.0D);
@@ -577,7 +578,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 return false;
             }
         }
-
         this.recentDamageTaken += amount;
         if (source.getEntity() != null && source.getEntity() == this.getTarget()) {
             this.ticksSinceLastHurt = 0;
@@ -596,8 +596,8 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 }
                 this.guardDamageTaken += amount;
                 float maxDurability = (this.getTarget() instanceof net.minecraft.world.entity.player.Player)
-                        ?  IgnisPrimeConfig.GUARD_MAX_DAMAGE_PLAYER.get()
-                        :  IgnisPrimeConfig.GUARD_MAX_DAMAGE_NON_PLAYER.get();
+                        ? IgnisPrimeConfig.GUARD_MAX_DAMAGE_PLAYER.get()
+                        : IgnisPrimeConfig.GUARD_MAX_DAMAGE_NON_PLAYER.get();
                 if (this.guardAxeHits >= IgnisPrimeConfig.GUARD_MAX_AXE_HITS.get() || this.guardDamageTaken >= maxDurability) {
                     this.setAttackState(STATE_GUARD_BREAK);
                     this.isGuarding = false;
@@ -669,6 +669,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     public int getScaledTick(int baseTick) {
         return Math.round(baseTick / this.getAttackSpeedMultiplier());
     }
+
     private float scaleDirectDamage(float damage) {
         return damage * (this.isPrimeSecondForm() ? 0.45F : 1.05F);
     }
@@ -676,6 +677,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     private float scaleEnvironmentalDamage(float damage) {
         return damage * (this.isPrimeSecondForm() ? 0.40F : 0.95F);
     }
+
     public boolean shouldRenderHurtFlash() {
         int state = this.getAttackState();
         if (state == STATE_PHASE_CHANGE || state == STATE_DEATH) {
@@ -738,7 +740,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                     target = null;
                 }
             }
-
             int currentAttackState = this.getAttackState();
             if (currentAttackState != STATE_CATCH_START && currentAttackState != STATE_CATCH_SUCCESS && this.caughtEntity != null) {
                 this.caughtEntity.stopRiding();
@@ -751,7 +752,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                     passenger.setShiftKeyDown(false);
                 }
             }
-
             if (!this.hasSentAppearMessage) {
                 this.hasSentAppearMessage = true;
                 IgnisDebuffManager.registerBoss(this);
@@ -798,14 +798,14 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 }
             }
             this.lastAttackState = currentAttackState;
-            if (this.uppercutAmbushHidden && 
-                currentAttackState != STATE_UPPERCUT && 
-                currentAttackState != STATE_UPPERCUT_HORIZONTAL && 
-                currentAttackState != STATE_UPPERCUT_VERTICAL && 
-                currentAttackState != STATE_ULTRACHARGE && 
-                currentAttackState != STATE_ULTRACHARGE_LIKEAMMO && 
-                currentAttackState != STATE_ULTRACHARGE_STRIKING &&
-                currentAttackState != STATE_ULTRACHARGE_STRIKING_END) {
+            if (this.uppercutAmbushHidden &&
+                    currentAttackState != STATE_UPPERCUT &&
+                    currentAttackState != STATE_UPPERCUT_HORIZONTAL &&
+                    currentAttackState != STATE_UPPERCUT_VERTICAL &&
+                    currentAttackState != STATE_ULTRACHARGE &&
+                    currentAttackState != STATE_ULTRACHARGE_LIKEAMMO &&
+                    currentAttackState != STATE_ULTRACHARGE_STRIKING &&
+                    currentAttackState != STATE_ULTRACHARGE_STRIKING_END) {
                 this.showAfterUppercutAmbush();
             }
         }
@@ -863,6 +863,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             }
         }
     }
+
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if (ATTACK_STATE.equals(key)) {
@@ -904,7 +905,8 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 case STATE_DASH -> this.dashAnimationState.start(this.tickCount);
                 case STATE_DASH_UPPER -> this.dash_upperAnimationState.start(this.tickCount);
                 case STATE_GUARD_COUNTER -> this.guard_counterAnimationState.start(this.tickCount);
-                case STATE_ULTRACHARGE_STRIKING_END -> this.ultracharge_striking_end_AnimationState.start(this.tickCount);
+                case STATE_ULTRACHARGE_STRIKING_END ->
+                        this.ultracharge_striking_end_AnimationState.start(this.tickCount);
                 case STATE_JUMP_START -> this.jump_attack_start_AnimationState.start(this.tickCount);
                 case STATE_JUMP_FALL_LOOP -> this.jump_attack_fall_loop_AnimationState.start(this.tickCount);
                 case STATE_JUMP_END -> this.jump_attack_end_AnimationState.start(this.tickCount);
@@ -1019,7 +1021,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 return super.canUse();
             }
         });
-
         this.goalSelector.addGoal(3, new IgnisJabGoal(this, 0, 3, 4, 22, 15, 4.5F) {
             @Override
             public boolean canUse() {
@@ -1039,7 +1040,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 this.ignis.getNavigation().stop();
             }
         });
-
         this.goalSelector.addGoal(0, new IgnisJabGoal(this, STATE_JAB_1, STATE_JAB_1, STATE_JAB_2, 22, 15, 4.5F) {
             @Override
             public void stop() {
@@ -1054,7 +1054,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 this.ignis.getNavigation().stop();
             }
         });
-
         this.goalSelector.addGoal(0, new IgnisJabGoal(this, 4, 4, 5, 20, 12, 4.5F) {
             @Override
             public void stop() {
@@ -1069,7 +1068,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 this.ignis.getNavigation().stop();
             }
         });
-
         this.goalSelector.addGoal(0, new IgnisJabGoal(this, 5, 5, 0, 29, 15, 5.0F) {
             @Override
             public void stop() {
@@ -1234,7 +1232,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
         }
         LivingEntity target = this.getTarget();
         int state = this.getAttackState();
-
         if (!this.level().isClientSide() && state != 0) {
             int maxAllowedTicks = 150;
             switch (state) {
@@ -1273,7 +1270,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 state = 0;
             }
         }
-
         switch (state) {
             case STATE_PHASE_CHANGE:
                 handlePhaseChangeAction();
@@ -1330,7 +1326,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 if (this.uppercutHit && this.attackTicks >= getScaledTick(33)) {
                     this.hideForUppercutAmbush();
                 }
-
                 if (!this.level().isClientSide() && this.attackTicks >= getScaledTick(40)) {
                     if (this.wasUppercutHit() && target != null && target.isAlive()) {
                         int nextCombo = this.random.nextBoolean() ? STATE_UPPERCUT_HORIZONTAL : STATE_UPPERCUT_VERTICAL;
@@ -1543,7 +1538,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                     this.caughtEntity.fallDistance = 0;
                     this.caughtEntity.setDeltaMovement(Vec3.ZERO);
                     this.caughtEntity.invulnerableTime = 20;
-
                     if (this.isPrimeSecondForm() && (this.attackTicks == 32 || this.attackTicks == 51 || this.attackTicks == 61)) {
                         spawnForwardPrimeFlameStrike(1.5D, 2.2F, 0);
                     }
@@ -1798,7 +1792,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                     this.lookAt(target, 45.0F, 45.0F);
                     this.yBodyRot = this.getYRot();
                 }
-
                 if (target != null && this.attackTicks >= 10 && this.attackTicks < 16) {
                     double targetYawRad = Math.toRadians(target.getYRot());
                     double ox = Math.sin(targetYawRad) * 1.5D;
@@ -1817,12 +1810,9 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                         double destX = target.getX() + offsetX;
                         double destY = targetY;
                         double destZ = target.getZ() + offsetZ;
-
                         if (this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
-
                             serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.PORTAL, this.getX(), this.getY() + 1.5D, this.getZ(), 30, 0.5D, 0.5D, 0.5D, 0.2D);
                             serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME, this.getX(), this.getY() + 1.0D, this.getZ(), 20, 0.4D, 0.4D, 0.4D, 0.1D);
-
                             Vec3 from = this.position().add(0, 1.0, 0);
                             Vec3 to = new Vec3(destX, destY + 1.0, destZ);
                             Vec3 trajectory = to.subtract(from);
@@ -1835,7 +1825,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                                 double pz = from.z + trajectory.z * ratio;
                                 serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME, px, py, pz, 1, 0, 0, 0, 0);
                             }
-
                             serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.PORTAL, destX, destY + 1.5D, destZ, 30, 0.5D, 0.5D, 0.5D, 0.2D);
                             serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME, destX, destY + 1.0D, destZ, 20, 0.4D, 0.4D, 0.4D, 0.1D);
                         }
@@ -1869,7 +1858,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                     float yaw = this.getYRot() * ((float) Math.PI / 180F);
                     this.setDeltaMovement(this.getDeltaMovement().add(-Mth.sin(yaw) * 0.3D, 0.0D, Mth.cos(yaw) * 0.3D));
                     this.hasImpulse = true;
-
                     if (target != null && this.distanceTo(target) <= 4.5F + this.getBbWidth() && this.isInFrontArc(target, 120.0F)) {
                         target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, IgnisPrimeConfig.DASH_UPPER_SLOWDOWN_TICKS.get(), IgnisPrimeConfig.DASH_UPPER_SLOWDOWN_LEVEL.get(), false, false));
                         this.dashUpperHit = true;
@@ -1881,7 +1869,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                         com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity.ScreenShake(this.level(), this.position(), 25.0F, 0.25F, 0, 15);
                     }
                 }
-
                 if (!this.level().isClientSide() && this.attackTicks >= getScaledTick(25)) {
                     this.setAttackState(STATE_JAB_1);
                 }
@@ -1940,6 +1927,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
         }
 
     }
+
     private void handlePhaseChangeAction() {
         this.getNavigation().stop();
         this.setDeltaMovement(0.0D, this.getDeltaMovement().y, 0.0D);
@@ -2079,18 +2067,16 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             this.rockProjectileHit = true;
         }
     }
+
     public void performTectonicWave(int phase, LivingEntity target) {
         if (this.level().isClientSide || target == null) return;
-
         float pitch = 0.6F + (phase * 0.2F);
         this.playSound(SoundEvents.GENERIC_EXPLODE, 2.0F, pitch);
         this.playSound(SoundEvents.LIGHTNING_BOLT_IMPACT, 1.5F, pitch + 0.4F);
         com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity.ScreenShake(this.level(), this.position(), 20.0F + (phase * 10.0F), 0.25F, 0, 15);
-
         Vec3 dir = target.position().subtract(this.position()).normalize();
         float yaw = (float) (Mth.atan2(dir.z, dir.x) * (180D / Math.PI)) - 90.0F;
         double dist = this.distanceTo(target);
-
         switch (phase) {
             case 0 -> {
                 for (int i = 1; i <= 5; i++) {
@@ -2113,6 +2099,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             }
         }
     }
+
     public boolean isRockReady() {
         return this.rockCooldown <= 0;
     }
@@ -2169,7 +2156,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     private void spawnFallingBlockShockwave(int length, float arc) {
         if (this.level().isClientSide)
             return;
-
         float centerYaw = this.yBodyRot;
         double maxDistance = length * 1.0D;
         List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(maxDistance));
@@ -2189,7 +2175,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                 }
             }
         }
-
         for (int d = 1; d <= length; d++) {
             float arcRad = (float) Math.toRadians(arc);
             int points = Mth.ceil(d * arcRad * 1.2f) + this.getRandom().nextInt(2);
@@ -2225,7 +2210,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
         double destX = target.getX() + offsetX;
         double destY = targetY;
         double destZ = target.getZ() + offsetZ;
-
         if (this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             Vec3 from = this.position().add(0, 1.0, 0);
             Vec3 to = new Vec3(destX, destY + 1.0, destZ);
@@ -2246,7 +2230,6 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.PORTAL, destX, destY + 1.5D, destZ, 20, 0.3D, 0.5D, 0.3D, 0.1D);
             serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL_FIRE_FLAME, destX, destY + 1.0D, destZ, 15, 0.3D, 0.3D, 0.3D, 0.05D);
         }
-
         this.moveTo(destX, destY, destZ);
         this.lookAt(target, 360f, 360f);
         this.yBodyRot = this.getYRot();
@@ -2255,6 +2238,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.2F);
         }
     }
+
     public boolean wasUppercutHit() {
         return this.uppercutHit;
     }
@@ -2304,6 +2288,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             this.uppercutHit = damageSuccess;
         }
     }
+
     public void performOverheadDamage() {
         if (this.level().isClientSide)
             return;
@@ -2369,12 +2354,12 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     }
 
     private boolean performForwardArcDamage(float damageMultiplier, float range, float arcAngle, float knockback,
-                                             double knockbackY) {
+                                            double knockbackY) {
         return this.performForwardArcDamage(damageMultiplier, range, arcAngle, knockback, 0.0D, knockbackY);
     }
 
     private boolean performForwardArcDamage(float damageMultiplier, float range, float arc, float knockback,
-                                             double forwardPush, double verticalImpulse) {
+                                            double forwardPush, double verticalImpulse) {
         if (this.level().isClientSide)
             return false;
         boolean hit = false;
@@ -2646,6 +2631,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             }
         }
     }
+
     private void breakPlayerShield(LivingEntity target, int ticks) {
         if (target instanceof Player player) {
             if (player.isBlocking()) {

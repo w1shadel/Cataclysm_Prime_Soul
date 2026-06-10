@@ -18,10 +18,12 @@ public abstract class ModLanguageProvider extends LanguageProvider {
         @Override
         protected void addTranslations() {
             this.add(ModItems.ABYSSAL_ASHES.get(), "§bAbyssal Ashes");
-            this.add("tooltip.cataclysm_primed_soul.abyssal_ashes.desc","§6 If you offer it to the Altar of Fire again, something might happen.");
-            this.add(ModItems.LAVATEIN.get(),"Lavatein");
-            this.add("item.cataclysm_primed_soul.lavatein.desc","A sword that gains speed with every strike, its outer layer peeling away.");
-            this.add("item.cataclysm_primed_soul.lavatein.desc2","Applies debuffs to the target based on the three stages of release.");
+            this.add("tooltip.cataclysm_primed_soul.abyssal_ashes.desc", "§6 If you offer it to the Altar of Fire again, something might happen.");
+            this.add(ModItems.LAVATEIN.get(), "Lavatein");
+            this.add("item.cataclysm_primed_soul.lavatein.desc", "A sword that gains speed with every strike, its outer layer peeling away.");
+            this.add("item.cataclysm_primed_soul.lavatein.desc2", "Applies debuffs to the target based on the three stages of release.");
+            this.add(ModItems.RUSTED_KNIGHT_SWORD.get(), "Unknown Sword");
+            this.add("tooltip.cataclysm_primed_soul.rusted_knight_sword.desc", "§3You must offer a sacrifice at the tombstone of the king who became a great sinner—one of the relics of a king from ancient times.");
             this.add("creative_tab.cataclysm_primed_soul.prime_tab", "Cataclysm: Primed Soul");
             this.add("advancement.cataclysm_primed_soul.root.title", "Cataclysm: Primed Souls");
             this.add("advancement.cataclysm_primed_soul.root.desc", "The First Step, The Last Step");
@@ -45,10 +47,12 @@ public abstract class ModLanguageProvider extends LanguageProvider {
         @Override
         protected void addTranslations() {
             this.add(ModItems.ABYSSAL_ASHES.get(), "§b深淵の灰");
-            this.add("tooltip.cataclysm_primed_soul.abyssal_ashes.desc","§6再び炎の祭壇に捧げれば、何かが起こるかもしれない。");
-            this.add(ModItems.LAVATEIN.get(),"ラーヴァテイン");
-            this.add("item.cataclysm_primed_soul.lavatein.desc","攻撃すればするたび、外装が剥がれて加速していく剣。");
-            this.add("item.cataclysm_primed_soul.lavatein.desc2","解放段階3つに応じて、対象にデバフを付与する。");
+            this.add("tooltip.cataclysm_primed_soul.abyssal_ashes.desc", "§6再び炎の祭壇に捧げれば、何かが起こるかもしれない。");
+            this.add(ModItems.LAVATEIN.get(), "ラーヴァテイン");
+            this.add("item.cataclysm_primed_soul.lavatein.desc", "攻撃すればするたび、外装が剥がれて加速していく剣。");
+            this.add("item.cataclysm_primed_soul.lavatein.desc2", "解放段階3つに応じて、対象にデバフを付与する。");
+            this.add(ModItems.RUSTED_KNIGHT_SWORD.get(), "謎の剣");
+            this.add("tooltip.cataclysm_primed_soul.rusted_knight_sword.desc", "§3古の時代の王の遺品の一つ、大罪人となった王の墓石に手向ける必要がある。");
             this.add("creative_tab.cataclysm_primed_soul.prime_tab", "Primed Souls");
             this.add("advancement.cataclysm_primed_soul.root.title", "Cataclysm: Primed Souls");
             this.add("advancement.cataclysm_primed_soul.root.desc", "最初の一歩、最後の一歩");

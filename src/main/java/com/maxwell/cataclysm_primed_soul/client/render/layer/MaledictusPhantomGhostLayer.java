@@ -30,13 +30,10 @@ public class MaledictusPhantomGhostLayer extends RenderLayer<MaledictusPhantomEn
         if (entity.isInvisible()) {
             return;
         }
-
         VertexConsumer consumer = buffer.getBuffer(CMRenderTypes.getGhost(GHOST_TEXTURE));
-
         float pulse = 0.45F + 0.12F * (float) Math.sin((entity.tickCount + partialTicks) * 0.15F);
         float alpha = computeAlpha(entity, partialTicks);
-        float finalAlpha = pulse * (alpha / 0.55F); 
-
+        float finalAlpha = pulse * (alpha / 0.55F);
         this.getParentModel().renderToBuffer(
                 poseStack,
                 consumer,
@@ -52,8 +49,8 @@ public class MaledictusPhantomGhostLayer extends RenderLayer<MaledictusPhantomEn
     private float computeAlpha(MaledictusPhantomEntity entity, float partialTick) {
         int maxLife = switch (entity.getPhantomType()) {
             case MaledictusPhantomEntity.TYPE_MACE -> 35;
-            case MaledictusPhantomEntity.TYPE_BOW  -> 58;
-            default                                -> 50;
+            case MaledictusPhantomEntity.TYPE_BOW -> 58;
+            default -> 50;
         };
         float age = entity.tickCount + partialTick;
         float alpha = 0.55F;

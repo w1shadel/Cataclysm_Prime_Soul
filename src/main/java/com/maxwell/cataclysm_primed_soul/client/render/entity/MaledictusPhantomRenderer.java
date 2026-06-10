@@ -15,7 +15,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @SuppressWarnings("removal")
 @OnlyIn(Dist.CLIENT)
 public class MaledictusPhantomRenderer extends MobRenderer<MaledictusPhantomEntity, MaledictusPhantomModel> {
-
     private static final ResourceLocation ARMOR_TEXTURE = new ResourceLocation(
             Primed_Soul.MODID,
             "textures/entity/maledictus_prime/maledictus_prime_armor.png"
@@ -34,7 +33,6 @@ public class MaledictusPhantomRenderer extends MobRenderer<MaledictusPhantomEnti
 
     @Override
     protected void scale(MaledictusPhantomEntity entity, PoseStack poseStack, float partialTick) {
-
         float s = 0.96F;
         poseStack.scale(s, s, s);
     }

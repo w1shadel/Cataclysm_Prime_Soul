@@ -15,5 +15,7 @@
   "item.cataclysm_primed_soul.lavatein": "Lavatein",
   "item.cataclysm_primed_soul.lavatein.desc": "A sword that gains speed with every strike, its outer layer peeling away.",
   "item.cataclysm_primed_soul.lavatein.desc2": "Applies debuffs to the target based on the three stages of release.",
-  "tooltip.cataclysm_primed_soul.abyssal_ashes.desc": "§6 If you offer it to the Altar of Fire again, something might happen."
+  "item.cataclysm_primed_soul.rusted_knight_sword": "Unknown Sword",
+  "tooltip.cataclysm_primed_soul.abyssal_ashes.desc": "§6 If you offer it to the Altar of Fire again, something might happen.",
+  "tooltip.cataclysm_primed_soul.rusted_knight_sword.desc": "§3You must offer a sacrifice at the tombstone of the king who became a great sinner—one of the relics of a king from ancient times."
 }

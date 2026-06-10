@@ -139,6 +139,7 @@ public class IgnisDebuffManager {
             toughnessAttr.addTransientModifier(new AttributeModifier(DEBUFF_TOUGHNESS_UUID, "Ignis Toughness Debuff", toughnessMod, AttributeModifier.Operation.MULTIPLY_TOTAL));
         }
     }
+
     private static void removeAttributeModifiers(LivingEntity entity) {
         AttributeInstance armorAttr = entity.getAttribute(Attributes.ARMOR);
         if (armorAttr != null) {

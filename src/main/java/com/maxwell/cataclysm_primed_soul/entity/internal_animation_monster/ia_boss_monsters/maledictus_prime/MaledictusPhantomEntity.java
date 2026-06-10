@@ -5,7 +5,6 @@ import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavio
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModParticle;
 import com.github.L_Ender.cataclysm.init.ModSounds;
-import com.maxwell.cataclysm_primed_soul.init.ModEntities;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -31,22 +30,23 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class MaledictusPhantomEntity extends Mob {
-
     public static final int TYPE_SPEAR = 0;
-    public static final int TYPE_MACE  = 1;
-    public static final int TYPE_BOW   = 2;
-
+    public static final int TYPE_MACE = 1;
+    public static final int TYPE_BOW = 2;
     private static final int LIFE_SPEAR = 60;
-    private static final int LIFE_MACE  = 40;
-    private static final int LIFE_BOW   = 70;
-
+    private static final int LIFE_MACE = 40;
+    private static final int LIFE_BOW = 70;
     private static final EntityDataAccessor<Integer> PHANTOM_TYPE =
             SynchedEntityData.defineId(MaledictusPhantomEntity.class, EntityDataSerializers.INT);
 
-    public final AnimationState phantomSpearChargeAnimationState = new AnimationState();
-    public final AnimationState phantomMaceCrushAnimationState  = new AnimationState();
-    public final AnimationState phantomBowSnipeAnimationState    = new AnimationState();
+    private static final int SPEAR_CHARGE_START = 22;
 
+    private static final int MACE_HIT_TICK = 25;
+
+    private static final int BOW_SHOT_TICK = 46;
+    public final AnimationState phantomSpearChargeAnimationState = new AnimationState();
+    public final AnimationState phantomMaceCrushAnimationState = new AnimationState();
+    public final AnimationState phantomBowSnipeAnimationState = new AnimationState();
     private int lifeTicks;
     private boolean damageDealt;
     private float summonerYRot;
@@ -83,9 +83,9 @@ public class MaledictusPhantomEntity extends Mob {
     public void setPhantomType(int type) {
         this.entityData.set(PHANTOM_TYPE, type);
         this.lifeTicks = switch (type) {
-            case TYPE_MACE  -> LIFE_MACE;
-            case TYPE_BOW   -> LIFE_BOW;
-            default         -> LIFE_SPEAR;
+            case TYPE_MACE -> LIFE_MACE;
+            case TYPE_BOW -> LIFE_BOW;
+            default -> LIFE_SPEAR;
         };
     }
 
@@ -96,13 +96,13 @@ public class MaledictusPhantomEntity extends Mob {
         this.yBodyRotO = yRot;
     }
 
-    public void setSummoner(@Nullable LivingEntity summoner) {
-        this.summoner = summoner;
-    }
-
     @Nullable
     public LivingEntity getSummoner() {
         return this.summoner;
+    }
+
+    public void setSummoner(@Nullable LivingEntity summoner) {
+        this.summoner = summoner;
     }
 
     @Override
@@ -111,21 +111,18 @@ public class MaledictusPhantomEntity extends Mob {
         this.cachedTarget = target;
     }
 
-    // --- 【新規機能①】プレイヤーをターゲットに取れない場合の、動的な代替ターゲットAIシステム ---
     @Nullable
     public LivingEntity getPhantomTarget() {
-        // 1. すでに有効な攻撃対象（プレイヤー等）を捕捉しているならそれを使う
+
         if (this.cachedTarget != null && this.canPhantomHit(this.cachedTarget)) {
             return this.cachedTarget;
         }
 
-        // 2. 召喚者（マレディクタス・プライム）が敵対しているターゲットを引き継ぐ
         if (this.summoner instanceof Mob mobSummoner && mobSummoner.getTarget() != null && this.canPhantomHit(mobSummoner.getTarget())) {
             this.cachedTarget = mobSummoner.getTarget();
             return this.cachedTarget;
         }
 
-        // 3. どちらもターゲットできない場合、周囲32メートル以内の最も近い「攻撃可能」なLivingEntityを自動検索
         if (!this.level().isClientSide()) {
             List<LivingEntity> nearby = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(32.0D));
             double nearestDist = Double.MAX_VALUE;
@@ -150,9 +147,7 @@ public class MaledictusPhantomEntity extends Mob {
     @Override
     public void tick() {
         super.tick();
-
         this.tickPhantomAttack();
-
         if (this.level().isClientSide()) {
             int type = this.getPhantomType();
             this.phantomSpearChargeAnimationState.animateWhen(this.isAlive() && type == TYPE_SPEAR, this.tickCount);
@@ -170,26 +165,20 @@ public class MaledictusPhantomEntity extends Mob {
         int type = this.getPhantomType();
         switch (type) {
             case TYPE_SPEAR -> this.tickSpear();
-            case TYPE_MACE  -> this.tickMace();
-            case TYPE_BOW   -> this.tickBow();
+            case TYPE_MACE -> this.tickMace();
+            case TYPE_BOW -> this.tickBow();
         }
     }
 
-    // --- ① 槍（ハルバード）突進 ---
-    private static final int SPEAR_CHARGE_START = 22;
-
     private void tickSpear() {
         int elapsed = this.tickCount;
-
         if (elapsed == SPEAR_CHARGE_START) {
             this.playSound((SoundEvent) ModSounds.PHANTOM_SPEAR.get(), 1.0F, 1.0F);
-
             LivingEntity target = this.getPhantomTarget();
             if (target != null) {
                 float angle = (float) (Mth.atan2(target.getZ() - this.getZ(), target.getX() - this.getX()) * (180D / Math.PI)) - 90.0F;
                 this.setSummonerYRot(angle);
             }
-
             if (this.level().isClientSide()) {
                 float rotYaw = (float) Math.toRadians(-this.getYRot());
                 float pitch = (float) Math.toRadians(-this.getXRot());
@@ -197,17 +186,14 @@ public class MaledictusPhantomEntity extends Mob {
                         this.getX(), this.getY() + (this.getBbHeight() / 2.0F), this.getZ(), 0.0D, 0.0D, 0.0D);
             }
         }
-
         if (elapsed >= SPEAR_CHARGE_START) {
             float yaw = this.summonerYRot * ((float) Math.PI / 180F);
             this.setDeltaMovement(-Mth.sin(yaw) * 1.2D, 0.0D, Mth.cos(yaw) * 1.2D);
             this.hasImpulse = true;
-
             if (!this.level().isClientSide() && elapsed % 4 == 0) {
                 this.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.2F, 0.8F);
                 this.performPhantomForwardArc(1.2F, 3.8F, 90.0F, 0.5F, 0.2D, 0.0D);
             }
-
             if (this.level().isClientSide()) {
                 double x = this.getX();
                 double y = this.getY() + (this.getBbHeight() / 2.0F);
@@ -215,10 +201,8 @@ public class MaledictusPhantomEntity extends Mob {
                 float rotYaw = (float) Math.toRadians(-this.getYRot());
                 float rotYaw2 = (float) Math.toRadians(-this.getYRot() + 180.0F);
                 float pitch = (float) Math.toRadians(-this.getXRot());
-
                 this.level().addParticle(new RingParticle.RingData(rotYaw, pitch, 40, 0.337F, 0.925F, 0.8F, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK), x, y, z, 0.0D, 0.0D, 0.0D);
                 this.level().addParticle(new RingParticle.RingData(rotYaw2, pitch, 40, 0.337F, 0.925F, 0.8F, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK), x, y, z, 0.0D, 0.0D, 0.0D);
-
                 if (elapsed % 2 == 0) {
                     this.level().addParticle((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(),
                             this.getRandomX(0.8D), this.getY() + 0.5D, this.getRandomZ(0.8D),
@@ -230,25 +214,19 @@ public class MaledictusPhantomEntity extends Mob {
         }
     }
 
-    // --- ② メイス叩きつけ（可視化予兆サークル） ---
-    private static final int MACE_HIT_TICK = 25;
-
     private void tickMace() {
         int elapsed = this.tickCount;
-
         if (elapsed < MACE_HIT_TICK) {
             if (this.level().isClientSide()) {
                 double maxRadius = 4.8D;
                 double progress = (double) elapsed / (double) MACE_HIT_TICK;
                 double currentRadius = progress * maxRadius;
-
                 int particleDensity = 4;
                 for (int i = 0; i < particleDensity; i++) {
                     double angle = this.random.nextFloat() * 2.0F * Math.PI;
                     double px = this.getX() + Math.cos(angle) * currentRadius;
                     double py = this.getY() + 0.1D;
                     double pz = this.getZ() + Math.sin(angle) * currentRadius;
-
                     this.level().addParticle((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(),
                             px, py, pz, 0.0D, 0.02D, 0.0D);
                     if (this.random.nextBoolean()) {
@@ -258,12 +236,10 @@ public class MaledictusPhantomEntity extends Mob {
                 }
             }
         }
-
         if (elapsed == MACE_HIT_TICK) {
             this.playSound((SoundEvent) ModSounds.MALEDICTUS_MACE_SWING.get(), 1.2F, 0.8F);
             this.playSound(SoundEvents.GENERIC_EXPLODE, 1.5F, 0.6F);
             ScreenShake_Entity.ScreenShake(this.level(), this.position(), 35.0F, 0.3F, 0, 18);
-
             if (this.level().isClientSide()) {
                 this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 40, 0.337F, 0.925F, 0.8F, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
                         this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
@@ -273,7 +249,6 @@ public class MaledictusPhantomEntity extends Mob {
                 serverLevel.sendParticles(ParticleTypes.EXPLOSION_EMITTER, this.getX(), this.getY() + 0.2D, this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
                 serverLevel.sendParticles(ParticleTypes.SWEEP_ATTACK, this.getX(), this.getY() + 0.8D, this.getZ(), 12, 1.5D, 0.3D, 1.5D, 0.0D);
             }
-
             if (!this.level().isClientSide()) {
                 this.performPhantomArea(1.8F, 1.2F, 4.8D, 3.0D, 0.2D, 0.45D);
                 this.damageDealt = true;
@@ -281,34 +256,26 @@ public class MaledictusPhantomEntity extends Mob {
         }
     }
 
-    // --- ③ 弓スナイプ ---
-    private static final int BOW_SHOT_TICK = 46;
-
     private void tickBow() {
         int elapsed = this.tickCount;
-
         if (elapsed == BOW_SHOT_TICK - 15) {
             this.playSound((SoundEvent) ModSounds.MALEDICTUS_BOW_PULL.get(), 1.2F, 1.0F);
         }
-
         if (elapsed < BOW_SHOT_TICK && this.level() instanceof ServerLevel serverLevel) {
             if (elapsed % 3 == 0) {
                 serverLevel.sendParticles(ParticleTypes.SOUL, this.getX(), this.getY() + 1.8D, this.getZ(), 1, 0.1D, 0.1D, 0.1D, 0.0D);
             }
         }
-
         if (elapsed == BOW_SHOT_TICK) {
             this.playSound(SoundEvents.CROSSBOW_SHOOT, 1.2F, 0.8F);
             this.playSound(SoundEvents.ARROW_SHOOT, 1.0F, 1.2F);
             ScreenShake_Entity.ScreenShake(this.level(), this.position(), 10.0F, 0.1F, 0, 5);
-
             if (this.level().isClientSide()) {
                 float rotYaw = (float) Math.toRadians(-this.getYRot());
                 float pitch = (float) Math.toRadians(-this.getXRot());
                 this.level().addParticle(new RingParticle.RingData(rotYaw, pitch, 25, 0.337F, 0.925F, 0.8F, 1.0F, 35.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
                         this.getX(), this.getY() + 1.8D, this.getZ(), 0.0D, 0.0D, 0.0D);
             }
-
             if (!this.level().isClientSide()) {
                 this.fireBowProjectile();
                 this.damageDealt = true;
@@ -317,22 +284,19 @@ public class MaledictusPhantomEntity extends Mob {
     }
 
     private void fireBowProjectile() {
-        // 【修正】代替ターゲットを自動検索するゲッターを経由
+
         LivingEntity target = this.getPhantomTarget();
         if (target == null || !target.isAlive()) return;
-
         Vec3 start = this.getEyePosition();
         Vec3 direction = target.getEyePosition().subtract(start).normalize();
         double speed = 1.8D;
         Vec3 pos = start;
-
         for (int i = 0; i < 60; i++) {
-            // 【修正】代替ターゲットの方向を追跡する弱ホーミング
+
             if (target.isAlive()) {
                 Vec3 toTarget = target.getEyePosition().subtract(pos).normalize();
                 direction = direction.scale(0.85D).add(toTarget.scale(0.15D)).normalize();
             }
-
             Vec3 next = pos.add(direction.scale(speed));
             if (this.level() instanceof ServerLevel serverLevel) {
                 serverLevel.sendParticles(ParticleTypes.SOUL, next.x, next.y, next.z, 1, 0.05D, 0.05D, 0.05D, 0.0D);
@@ -350,7 +314,6 @@ public class MaledictusPhantomEntity extends Mob {
                 }
             }
             pos = next;
-
             if (pos.distanceToSqr(start) > 2500.0D) break;
         }
     }

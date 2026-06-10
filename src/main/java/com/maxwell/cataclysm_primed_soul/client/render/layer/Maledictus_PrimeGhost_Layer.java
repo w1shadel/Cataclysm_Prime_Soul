@@ -7,7 +7,6 @@ import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_bo
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -31,7 +30,6 @@ public class Maledictus_PrimeGhost_Layer extends RenderLayer<Maledictus_PrimeEnt
         if (entity.isInvisible()) {
             return;
         }
-
         VertexConsumer consumer = buffer.getBuffer(CMRenderTypes.getGhost(GHOST_TEXTURE));
         float pulse = 0.72F + 0.12F * (float) Math.sin((entity.tickCount + partialTicks) * 0.12F);
         this.getParentModel().renderToBuffer(

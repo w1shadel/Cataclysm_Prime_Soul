@@ -1,6 +1,5 @@
 package com.maxwell.cataclysm_primed_soul.api.datagen.provider;
 
-
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.init.ModEntities;
 import net.minecraft.core.HolderLookup;
@@ -14,6 +13,7 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
+
 @SuppressWarnings("removal")
 public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
     private static final TagKey<EntityType<?>> FORGE_BOSSES = TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation("forge", "bosses"));

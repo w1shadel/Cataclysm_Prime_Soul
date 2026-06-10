@@ -15,5 +15,7 @@
   "item.cataclysm_primed_soul.lavatein": "ラーヴァテイン",
   "item.cataclysm_primed_soul.lavatein.desc": "攻撃すればするたび、外装が剥がれて加速していく剣。",
   "item.cataclysm_primed_soul.lavatein.desc2": "解放段階3つに応じて、対象にデバフを付与する。",
-  "tooltip.cataclysm_primed_soul.abyssal_ashes.desc": "§6再び炎の祭壇に捧げれば、何かが起こるかもしれない。"
+  "item.cataclysm_primed_soul.rusted_knight_sword": "謎の剣",
+  "tooltip.cataclysm_primed_soul.abyssal_ashes.desc": "§6再び炎の祭壇に捧げれば、何かが起こるかもしれない。",
+  "tooltip.cataclysm_primed_soul.rusted_knight_sword.desc": "§3古の時代の王の遺品の一つ、大罪人となった王の墓石に手向ける必要がある。"
 }

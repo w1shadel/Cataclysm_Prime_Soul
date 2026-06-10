@@ -31,18 +31,12 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
     private static final ResourceLocation HAND_TRAIL_TEXTURE = new ResourceLocation("cataclysm", "textures/particle/storm.png");
     private static final int HAND_TRAIL_SAMPLES = 20;
     private static final double MIN_SAMPLE_DISTANCE = 0.05;
+    private static final int MAX_SHADOWS = 5;
     private final java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> leftHandTrails = new java.util.HashMap<>();
     private final java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> rightHandTrails = new java.util.HashMap<>();
-    private static final int MAX_SHADOWS = 5; 
     private final java.util.Map<java.util.UUID, Deque<ShadowPose>> shadowHistory = new java.util.HashMap<>();
     private final java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> coreTrails = new java.util.HashMap<>();
 
-    private static class ShadowPose {
-        final net.minecraft.world.phys.Vec3 pos;
-        final float yaw;
-        final int tick;
-        ShadowPose(net.minecraft.world.phys.Vec3 p, float y, int t) { this.pos = p; this.yaw = y; this.tick = t; }
-    }
     public Ignis_PrimeRenderer(EntityRendererProvider.Context renderManagerIn) {
         super(renderManagerIn, new Ignis_PrimeModel(renderManagerIn.bakeLayer(Ignis_PrimeModel.LAYER_LOCATION)), 1.0F);
         for (int i = 0; i < 7; ++i) {
@@ -72,14 +66,12 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         int attackState = entityIn.getAttackState();
         boolean shouldShowTrail = attackState != 0 && attackState != 6 && attackState != 99 && (attackState < 21 || attackState > 24);
         boolean isHighSpeed = attackState == 34 || attackState == 35 || entityIn.getDeltaMovement().lengthSqr() > 0.1D;
-
         if (isHighSpeed && !entityIn.isInvisible()) {
             Deque<ShadowPose> shadows = shadowHistory.computeIfAbsent(entityIn.getUUID(), id -> new ArrayDeque<>());
-            if (entityIn.tickCount % 2 == 0) { 
+            if (entityIn.tickCount % 2 == 0) {
                 shadows.addFirst(new ShadowPose(new net.minecraft.world.phys.Vec3(renderPosX, renderPosY, renderPosZ), entityYaw, entityIn.tickCount));
                 if (shadows.size() > MAX_SHADOWS) shadows.removeLast();
             }
-
             int i = 0;
             for (ShadowPose shadow : shadows) {
                 float shadowAlpha = 0.3F - (i * 0.05F);
@@ -90,7 +82,6 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
                     float s = 1.3F;
                     matrixStackIn.scale(-s, -s, s);
                     matrixStackIn.translate(0.0F, -1.501F, 0.0F);
-
                     VertexConsumer shadowVc = bufferIn.getBuffer(RenderType.entityTranslucent(TEXTURES[0]));
                     this.model.renderToBuffer(matrixStackIn, shadowVc, packedLightIn, OverlayTexture.NO_OVERLAY, 1.0F, 0.4F, 0.8F, shadowAlpha);
                     matrixStackIn.popPose();
@@ -101,20 +92,17 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
             shadowHistory.remove(entityIn.getUUID());
         }
         if (entityIn.deathTime > 0) {
-            float f1 = (float)entityIn.deathTime / 145.0F;
+            float f1 = (float) entityIn.deathTime / 145.0F;
             float f2 = 0.0F;
             if (f1 > 0.8F) {
                 f2 = (f1 - 0.8F) / 0.2F;
             }
-
             net.minecraft.util.RandomSource randomsource = net.minecraft.util.RandomSource.create(432L);
             VertexConsumer vertexconsumer2 = bufferIn.getBuffer(RenderType.lightning());
             matrixStackIn.pushPose();
-
             net.minecraft.world.phys.Vec3 corePos = getCorePosition(entityIn, partialTicks, renderPosX, renderPosY, renderPosZ);
             matrixStackIn.translate(corePos.x - renderPosX, corePos.y - renderPosY, corePos.z - renderPosZ);
-
-            for(int i = 0; (float)i < (f1 + f1 * f1) / 2.0F * 60.0F; ++i) {
+            for (int i = 0; (float) i < (f1 + f1 * f1) / 2.0F * 60.0F; ++i) {
                 matrixStackIn.mulPose(com.mojang.math.Axis.XP.rotationDegrees(randomsource.nextFloat() * 360.0F));
                 matrixStackIn.mulPose(com.mojang.math.Axis.YP.rotationDegrees(randomsource.nextFloat() * 360.0F));
                 matrixStackIn.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(randomsource.nextFloat() * 360.0F));
@@ -122,15 +110,13 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
                 float f3 = randomsource.nextFloat() * 20.0F + 5.0F + f2 * 10.0F;
                 float f4 = randomsource.nextFloat() * 2.0F + 1.0F + f2 * 2.0F;
                 Matrix4f matrix4f = matrixStackIn.last().pose();
-                int j = (int)(255.0F * (1.0F - f2));
-
+                int j = (int) (255.0F * (1.0F - f2));
                 vertexconsumer2.vertex(matrix4f, 0.0F, 0.0F, 0.0F).color(255, 255, 255, j).endVertex();
                 vertexconsumer2.vertex(matrix4f, -0.866F * f4, f3, -0.5F * f4).color(0, 180, 255, 0).endVertex();
                 vertexconsumer2.vertex(matrix4f, 0.866F * f4, f3, -0.5F * f4).color(0, 180, 255, 0).endVertex();
                 vertexconsumer2.vertex(matrix4f, 0.0F, f3, 1.0F * f4).color(0, 180, 255, 0).endVertex();
                 vertexconsumer2.vertex(matrix4f, -0.866F * f4, f3, -0.5F * f4).color(0, 180, 255, 0).endVertex();
             }
-
             matrixStackIn.popPose();
         }
         int originalHurtTime = entityIn.hurtTime;
@@ -140,23 +126,18 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         } finally {
             entityIn.hurtTime = originalHurtTime;
         }
-
         boolean isUltimate = attackState >= 33 && attackState <= 36;
         if (isUltimate || attackState != 0) {
             net.minecraft.world.phys.Vec3 corePos = getCorePosition(entityIn, partialTicks, renderPosX, renderPosY, renderPosZ);
             net.minecraft.world.phys.Vec3 rightHandPos = getRightHandPosition(entityIn, partialTicks, renderPosX, renderPosY, renderPosZ);
             net.minecraft.world.phys.Vec3 leftHandPos = getLeftHandPosition(entityIn, partialTicks, renderPosX, renderPosY, renderPosZ);
-
             if (isUltimate) {
-
                 updateTrailPoints(entityIn.getUUID(), corePos, coreTrails);
                 renderHandTrail(entityIn, entityIn.getUUID(), coreTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 1.0F, 0.2F, 0.5F);
             }
-
             updateTrailPoints(entityIn.getUUID(), rightHandPos, rightHandTrails);
             updateTrailPoints(entityIn.getUUID(), leftHandPos, leftHandTrails);
-
-            float pulse = isUltimate ? (float)Math.sin(entityIn.tickCount * 0.5F) * 0.2F + 1.0F : 1.0F;
+            float pulse = isUltimate ? (float) Math.sin(entityIn.tickCount * 0.5F) * 0.2F + 1.0F : 1.0F;
             renderHandTrail(entityIn, entityIn.getUUID(), rightHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 1.0F, 0.4F * pulse, 1.0F);
             renderHandTrail(entityIn, entityIn.getUUID(), leftHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 0.4F * pulse, 0.8F, 1.0F);
         }
@@ -279,6 +260,7 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         this.getModel().getHand_pos().translateAndRotate(poseStack);
         return toWorldPosition(poseStack, entityX, entityY, entityZ);
     }
+
     private PoseStack createModelPose(Ignis_PrimeEntity entity, float partialTicks) {
         PoseStack poseStack = new PoseStack();
         float yaw = net.minecraft.util.Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
@@ -297,11 +279,24 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         localPos.mul(poseStack.last().pose());
         return new net.minecraft.world.phys.Vec3(entityX + localPos.x(), entityY + localPos.y(), entityZ + localPos.z());
     }
+
     private net.minecraft.world.phys.Vec3 getCorePosition(Ignis_PrimeEntity entity, float partialTicks, double entityX, double entityY, double entityZ) {
         PoseStack poseStack = createModelPose(entity, partialTicks);
         this.getModel().getBoddies().translateAndRotate(poseStack);
         this.getModel().getBody_Upper().translateAndRotate(poseStack);
         this.getModel().getCore_pos().translateAndRotate(poseStack);
         return toWorldPosition(poseStack, entityX, entityY, entityZ);
+    }
+
+    private static class ShadowPose {
+        final net.minecraft.world.phys.Vec3 pos;
+        final float yaw;
+        final int tick;
+
+        ShadowPose(net.minecraft.world.phys.Vec3 p, float y, int t) {
+            this.pos = p;
+            this.yaw = y;
+            this.tick = t;
+        }
     }
 }

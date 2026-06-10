@@ -4,8 +4,9 @@ import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.Prime_Fireball_Entity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.Prime_Flame_Strike_Entity;
-import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.Maledictus_PrimeEntity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.MaledictusPhantomEntity;
+import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.Maledictus_PrimeEntity;
+import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.sub.Maledictus_PrimeSwordEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
@@ -52,6 +53,13 @@ public class ModEntities {
                     .clientTrackingRange(10)
                     .setShouldReceiveVelocityUpdates(true)
                     .build("maledictus_phantom"));
+    public static final RegistryObject<EntityType<Maledictus_PrimeSwordEntity>> MALEDICTUS_PRIME_SWORD = ENTITY_TYPES.register("prime_sword",
+            () -> EntityType.Builder.<Maledictus_PrimeSwordEntity>of(Maledictus_PrimeSwordEntity::new, MobCategory.MISC)
+                    .sized(0.6F, 0.6F)
+                    .setUpdateInterval(1)
+                    .setTrackingRange(20)
+                    .setShouldReceiveVelocityUpdates(true)
+                    .build("prime_sword"));
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {

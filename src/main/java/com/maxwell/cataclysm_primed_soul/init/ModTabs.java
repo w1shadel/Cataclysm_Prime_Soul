@@ -11,7 +11,6 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class ModTabs {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Primed_Soul.MODID);
-
     public static final RegistryObject<CreativeModeTab> PRIME_TAB = CREATIVE_TABS.register("prime_tab", () ->
             CreativeModeTab.builder()
                     .title(Component.translatable("creative_tab.cataclysm_primed_soul.prime_tab"))

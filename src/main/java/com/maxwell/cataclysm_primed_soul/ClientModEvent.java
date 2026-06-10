@@ -4,11 +4,8 @@ import com.github.L_Ender.cataclysm.client.gui.CustomBossBar;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Ignis_PrimeModel;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.MaledictusPhantomModel;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Maledictus_PrimeModel;
-import com.maxwell.cataclysm_primed_soul.client.render.entity.Ignis_PrimeRenderer;
-import com.maxwell.cataclysm_primed_soul.client.render.entity.MaledictusPhantomRenderer;
-import com.maxwell.cataclysm_primed_soul.client.render.entity.Maledictus_PrimeRenderer;
-import com.maxwell.cataclysm_primed_soul.client.render.entity.Prime_Fireball_Renderer;
-import com.maxwell.cataclysm_primed_soul.client.render.entity.Prime_Flame_Strike_Renderer;
+import com.maxwell.cataclysm_primed_soul.client.model.entity.Maledictus_PrimeSwordEntityModel;
+import com.maxwell.cataclysm_primed_soul.client.render.entity.*;
 import com.maxwell.cataclysm_primed_soul.init.ModEntities;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
@@ -43,6 +40,7 @@ public class ClientModEvent {
         event.registerEntityRenderer(ModEntities.MALEDICTUS_PHANTOM.get(), MaledictusPhantomRenderer::new);
         event.registerEntityRenderer(ModEntities.PRIME_FLAME_STRIKE.get(), Prime_Flame_Strike_Renderer::new);
         event.registerEntityRenderer(ModEntities.PRIME_FIREBALL.get(), Prime_Fireball_Renderer::new);
+        event.registerEntityRenderer(ModEntities.MALEDICTUS_PRIME_SWORD.get(), Maledictus_PrimeSwordRenderer::new);
     }
 
     @SubscribeEvent
@@ -50,5 +48,6 @@ public class ClientModEvent {
         event.registerLayerDefinition(Ignis_PrimeModel.LAYER_LOCATION, Ignis_PrimeModel::createBodyLayer);
         event.registerLayerDefinition(Maledictus_PrimeModel.LAYER_LOCATION, Maledictus_PrimeModel::createBodyLayer);
         event.registerLayerDefinition(MaledictusPhantomModel.LAYER_LOCATION, Maledictus_PrimeModel::createBodyLayer);
+        event.registerLayerDefinition(Maledictus_PrimeSwordEntityModel.LAYER_LOCATION, Maledictus_PrimeSwordEntityModel::createBodyLayer);
     }
 }

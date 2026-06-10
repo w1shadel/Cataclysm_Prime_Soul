@@ -28,7 +28,6 @@ import net.minecraftforge.fml.common.Mod;
 @SuppressWarnings("removal")
 @Mod.EventBusSubscriber(modid = Primed_Soul.MODID, value = Dist.CLIENT)
 public class ClientVisuals {
-
     private static ResourceLocation activeShaderPath = null;
     private static int currentDebuffLevel = 0;
     private static int tickCount = 0;
@@ -47,7 +46,6 @@ public class ClientVisuals {
             activeShaderPath = null;
             return;
         }
-
         if (ascending) {
             tickCount++;
             if (tickCount >= 16000) ascending = false;
@@ -55,15 +53,12 @@ public class ClientVisuals {
             tickCount--;
             if (tickCount <= 0) ascending = true;
         }
-
         ResourceLocation nextShaderPath = null;
         int maxLevelFound = 0;
-
         for (Entity entity : mc.level.entitiesForRendering()) {
             if (entity instanceof IShaderBoss shaderBoss) {
                 if (shaderBoss.shouldApplyDebuff(mc.player)) {
                     int bossLevel = shaderBoss.getDebuffLevel();
-
                     if (bossLevel > maxLevelFound) {
                         maxLevelFound = bossLevel;
                         nextShaderPath = shaderBoss.getDebuffShader();
@@ -71,7 +66,6 @@ public class ClientVisuals {
                 }
             }
         }
-
         ItemStack mainHandStack = mc.player.getMainHandItem();
         if (mainHandStack.getItem() instanceof IShaderItem shaderItem) {
             int itemLevel = shaderItem.getDebuffLevel(mainHandStack);
@@ -80,16 +74,12 @@ public class ClientVisuals {
                 nextShaderPath = shaderItem.getDebuffShader(mainHandStack);
             }
         }
-
         currentDebuffLevel = maxLevelFound;
-
         if (currentDebuffLevel > 0 && nextShaderPath != null) {
-
             if (mc.gameRenderer.currentEffect() == null || !mc.gameRenderer.currentEffect().getName().equals(nextShaderPath.toString())) {
                 mc.gameRenderer.loadEffect(nextShaderPath);
                 activeShaderPath = nextShaderPath;
             }
-
             if (mc.gameRenderer.currentEffect() != null) {
                 PostChain effect = mc.gameRenderer.currentEffect();
                 try {
@@ -116,7 +106,6 @@ public class ClientVisuals {
                 }
             }
         } else {
-
             if (mc.gameRenderer.currentEffect() != null && activeShaderPath != null && mc.gameRenderer.currentEffect().getName().equals(activeShaderPath.toString())) {
                 mc.gameRenderer.shutdownEffect();
                 activeShaderPath = null;
@@ -131,12 +120,24 @@ public class ClientVisuals {
         if (!(entity instanceof LivingEntity boss)) return;
         try {
             switch (msg.getEffectType()) {
-                case 0: spawnUppercutVisuals(boss); break;
-                case 1: spawnPowerSlamVisuals(boss); break;
-                case 2: spawnChargeVisuals(boss); break;
-                case 3: spawnPhaseChangeVisuals(boss); break;
-                case 4: spawnGuardSuccessVisuals(boss); break;
-                case 5: spawnGuardPrimedVisuals(boss); break;
+                case 0:
+                    spawnUppercutVisuals(boss);
+                    break;
+                case 1:
+                    spawnPowerSlamVisuals(boss);
+                    break;
+                case 2:
+                    spawnChargeVisuals(boss);
+                    break;
+                case 3:
+                    spawnPhaseChangeVisuals(boss);
+                    break;
+                case 4:
+                    spawnGuardSuccessVisuals(boss);
+                    break;
+                case 5:
+                    spawnGuardPrimedVisuals(boss);
+                    break;
             }
         } catch (Exception e) {
             System.err.println("[Ignis Visual Effect] Error executing client visuals: " + e.getMessage());

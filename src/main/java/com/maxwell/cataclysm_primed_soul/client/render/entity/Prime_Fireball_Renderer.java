@@ -71,7 +71,6 @@ public class Prime_Fireball_Renderer extends EntityRenderer<Prime_Fireball_Entit
     public void render(Prime_Fireball_Entity entityIn, float entityYaw, float partialTicks, PoseStack matrixStackIn, MultiBufferSource bufferIn, int packedLightIn) {
         net.minecraft.client.renderer.texture.TextureManager textureManager = Minecraft.getInstance().getTextureManager();
         registerDynamicFireballTexture(textureManager);
-
         matrixStackIn.pushPose();
         float f = this.rotLerp(entityIn.yRotO, entityIn.getYRot(), partialTicks);
         float f1 = Mth.lerp(partialTicks, entityIn.xRotO, entityIn.getXRot());
@@ -81,32 +80,26 @@ public class Prime_Fireball_Renderer extends EntityRenderer<Prime_Fireball_Entit
         matrixStackIn.mulPose(Axis.XP.rotationDegrees(Mth.cos(f2 * 0.1F) * 180.0F));
         matrixStackIn.mulPose(Axis.ZP.rotationDegrees(Mth.sin(f2 * 0.15F) * 360.0F));
         this.model.setupAnim(entityIn, 0.0F, 0.0F, 0.0F, f, f1);
-
         float red = 0.25F;
         float green = 0.55F;
         float blue = 1.0F;
-
         Entity owner = entityIn.getOwner();
         if (owner instanceof Ignis_PrimeEntity boss && boss.getBossPhase() >= 2) {
             red = 1.0F;
             green = 0.92F;
             blue = 1.0F;
         }
-
         VertexConsumer VertexConsumer = bufferIn.getBuffer(RenderType.entityTranslucentEmissive(this.getTextureLocation(entityIn)));
         this.model.renderToBuffer(matrixStackIn, VertexConsumer, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);
         matrixStackIn.popPose();
-
         if (entityIn.hasTrail()) {
             double x = Mth.lerp((double) partialTicks, entityIn.xOld, entityIn.getX());
             double y = Mth.lerp((double) partialTicks, entityIn.yOld, entityIn.getY());
             double z = Mth.lerp((double) partialTicks, entityIn.zOld, entityIn.getZ());
-
             float ran = 0.04F;
             float trailR = red + this.random.nextFloat() * ran;
             float trailG = green + this.random.nextFloat() * ran;
             float trailB = blue + this.random.nextFloat() * ran;
-
             matrixStackIn.pushPose();
             matrixStackIn.translate(-x, -y, -z);
             this.renderTrail(entityIn, partialTicks, matrixStackIn, bufferIn, trailR, trailG, trailB, 1.0F, packedLightIn);

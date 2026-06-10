@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+
 @SuppressWarnings("removal")
 public class WeaponFusionRecipeBuilder {
     private final Item base;
@@ -33,11 +34,9 @@ public class WeaponFusionRecipeBuilder {
                 JsonObject baseJson = new JsonObject();
                 baseJson.addProperty("item", ForgeRegistries.ITEMS.getKey(base).toString());
                 json.add("base", baseJson);
-
                 JsonObject additionJson = new JsonObject();
                 additionJson.addProperty("item", ForgeRegistries.ITEMS.getKey(addition).toString());
                 json.add("addition", additionJson);
-
                 JsonObject resultJson = new JsonObject();
                 resultJson.addProperty("item", ForgeRegistries.ITEMS.getKey(result).toString());
                 json.add("result", resultJson);

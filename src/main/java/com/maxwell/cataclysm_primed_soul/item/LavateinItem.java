@@ -1,5 +1,7 @@
 package com.maxwell.cataclysm_primed_soul.item;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.api.item.IShaderItem;
 import com.maxwell.cataclysm_primed_soul.api.item.ISpecialModel;
@@ -8,7 +10,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -16,18 +22,13 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.ImmutableMultimap;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.sounds.SoundEvents;
 
 import javax.annotation.Nullable;
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
+
 @SuppressWarnings("removal")
 public class LavateinItem extends SwordItem implements ISpecialModel, IShaderItem {
     private static final UUID ATTACK_SPEED_MODIFIER_UUID = UUID.fromString("fa23c4d5-6789-012a-345b-6c7d8e9f012a");
@@ -45,9 +46,7 @@ public class LavateinItem extends SwordItem implements ISpecialModel, IShaderIte
         CompoundTag tag = stack.getOrCreateTag();
         int stage = tag.getInt("Stage");
         int integrity = tag.getInt("Integrity");
-
         tag.putLong("LastHitTime", attacker.level().getGameTime());
-
         if (stage < 2) {
             integrity++;
             if (integrity >= 15) {
@@ -62,7 +61,6 @@ public class LavateinItem extends SwordItem implements ISpecialModel, IShaderIte
             target.setSecondsOnFire(8);
             com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.HealBlockManager.applyHealBlock(target, 60);
         }
-
         return super.hurtEnemy(stack, target, attacker);
     }
 
@@ -72,12 +70,10 @@ public class LavateinItem extends SwordItem implements ISpecialModel, IShaderIte
         if (level.isClientSide() || !(entity instanceof LivingEntity living)) {
             return;
         }
-
         CompoundTag tag = stack.getOrCreateTag();
         int stage = tag.getInt("Stage");
         long lastHit = tag.getLong("LastHitTime");
         long currentTime = level.getGameTime();
-
         if (stage > 0 && currentTime - lastHit > 100) {
             tag.putInt("Stage", stage - 1);
             tag.putInt("Integrity", 0);
@@ -85,7 +81,6 @@ public class LavateinItem extends SwordItem implements ISpecialModel, IShaderIte
             level.playSound(null, entity.getX(), entity.getY(), entity.getZ(),
                     SoundEvents.ANVIL_LAND, net.minecraft.sounds.SoundSource.PLAYERS, 0.6F, 1.8F);
         }
-
         if (isSelected) {
             applyDebuffArea(level, living, stage);
             applyStageDebuff(living, stage);
@@ -128,6 +123,7 @@ public class LavateinItem extends SwordItem implements ISpecialModel, IShaderIte
             removeDebuffFromEntity(target);
         }
     }
+
     @Override
     public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
         consumer.accept(new net.minecraftforge.client.extensions.common.IClientItemExtensions() {
@@ -142,6 +138,7 @@ public class LavateinItem extends SwordItem implements ISpecialModel, IShaderIte
             }
         });
     }
+
     private void applyStageDebuff(LivingEntity entity, int stage) {
         removeDebuffFromEntity(entity);
         double armorMod = 0;
@@ -178,16 +175,14 @@ public class LavateinItem extends SwordItem implements ISpecialModel, IShaderIte
 
     @Override
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
-        Multimap<Attribute, AttributeModifier> modifiers = super.getAttributeModifiers(slot,stack);
+        Multimap<Attribute, AttributeModifier> modifiers = super.getAttributeModifiers(slot, stack);
         if (slot == EquipmentSlot.MAINHAND) {
             CompoundTag tag = stack.getTag();
             int stage = tag != null ? tag.getInt("Stage") : 0;
             ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
             builder.putAll(modifiers);
-
             double speedBonus = stage == 0 ? -1.2D : (stage == 1 ? 0.0D : 1.4D);
             double damageBonus = stage == 0 ? 5.0D : (stage == 1 ? 2.0D : -3.0D);
-
             builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_MODIFIER_UUID, "Laevateinn Speed Mod", speedBonus, AttributeModifier.Operation.ADDITION));
             builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(DAMAGE_MODIFIER_UUID, "Laevateinn Damage Mod", damageBonus, AttributeModifier.Operation.ADDITION));
             return builder.build();

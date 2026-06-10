@@ -1,6 +1,5 @@
 package com.maxwell.cataclysm_primed_soul.api.entity;
 
-
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 

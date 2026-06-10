@@ -62,9 +62,9 @@ void main() {
     // 【第2形態・完全分裂時（DebuffLevel 3.0）限定の重厚な演出】
     // 画面全体の彩度を落として冷たい死霊の雰囲気を強め、四隅を監獄の闇（暗闇ヴィネット）に深く沈めます
     if (DebuffLevel >= 3.0) {
-        finalColor = adjustSaturation(finalColor, 0.65); // 彩度を35%低下させ、モノクローム寄りに
+        finalColor = adjustSaturation(finalColor, 0.65);// 彩度を35%低下させ、モノクローム寄りに
         float vignette = smoothstep(1.3, 0.5, distFromCenter);
-        finalColor = mix(vec3(0.01, 0.04, 0.04), finalColor, vignette); // 周囲を不気味な暗緑色の闇に沈める
+        finalColor = mix(vec3(0.01, 0.04, 0.04), finalColor, vignette);// 周囲を不気味な暗緑色の闇に沈める
     }
 
     fragColor = vec4(finalColor, 1.0);

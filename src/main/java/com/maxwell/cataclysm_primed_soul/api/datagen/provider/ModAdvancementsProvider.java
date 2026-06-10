@@ -5,7 +5,10 @@ import com.maxwell.cataclysm_primed_soul.init.ModEntities;
 import com.maxwell.cataclysm_primed_soul.init.ModItems;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.FrameType;
-import net.minecraft.advancements.critereon.*;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.EntityTypePredicate;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +20,6 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("removal")
 public class ModAdvancementsProvider implements ForgeAdvancementProvider.AdvancementGenerator {
-
     @Override
     public void generate(HolderLookup.Provider registries, Consumer<Advancement> writer, ExistingFileHelper existingFileHelper) {
         Advancement rootAdvancement = Advancement.Builder.advancement()
@@ -34,7 +36,6 @@ public class ModAdvancementsProvider implements ForgeAdvancementProvider.Advance
                 .addCriterion("has_abyssal_ashes", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.ABYSSAL_ASHES.get()))
                 .build(new ResourceLocation(Primed_Soul.MODID, "root"));
         writer.accept(rootAdvancement);
-
         Advancement defeatIgnisPrime = Advancement.Builder.advancement()
                 .parent(rootAdvancement)
                 .display(
@@ -50,11 +51,10 @@ public class ModAdvancementsProvider implements ForgeAdvancementProvider.Advance
                 .addCriterion("killed_ignis_prime", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(ModEntities.IGNIS_PRIME.get()))))
                 .build(new ResourceLocation(Primed_Soul.MODID, "defeat_ignis_prime"));
         writer.accept(defeatIgnisPrime);
-
         Advancement defeatMaledicusPrime = Advancement.Builder.advancement()
                 .parent(rootAdvancement)
                 .display(
-                        new ItemStack(ModItems.ABYSSAL_ASHES.get()),
+                        new ItemStack(ModItems.RUSTED_KNIGHT_SWORD.get()),
                         Component.translatable("advancement.cataclysm_primed_soul.defeat_maledictus_prime.title"),
                         Component.translatable("advancement.cataclysm_primed_soul.defeat_maledictus_prime.desc"),
                         null,
@@ -63,7 +63,7 @@ public class ModAdvancementsProvider implements ForgeAdvancementProvider.Advance
                         true,
                         true
                 )
-                .addCriterion("killed_maledictus_prime", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(ModEntities.IGNIS_PRIME.get()))))
+                .addCriterion("killed_maledictus_prime", KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(ModEntities.MALEDICTUS_PRIME.get()))))
                 .build(new ResourceLocation(Primed_Soul.MODID, "defeat_maledictus_prime"));
         writer.accept(defeatMaledicusPrime);
     }

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "cataclysm_primed_soul:item/rusted_knight_sword"
+  }
+}

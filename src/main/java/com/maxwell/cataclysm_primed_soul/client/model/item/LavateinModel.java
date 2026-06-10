@@ -18,50 +18,41 @@ public class LavateinModel extends AdvancedEntityModel<Entity> {
     public LavateinModel() {
         this.texWidth = 128;
         this.texHeight = 128;
-
         this.root = new AdvancedModelBox(this);
         this.root.setRotationPoint(0.0F, 24.0F, 0.0F);
-
         this.sword_root2 = new AdvancedModelBox(this);
         this.sword_root2.setRotationPoint(0.0F, 11.4645F, 0.8586F);
         this.root.addChild(this.sword_root2);
-
         this.sword_phase1 = new AdvancedModelBox(this);
         this.sword_phase1.setRotationPoint(0.0F, 0.0F, 0.0F);
         this.sword_root2.addChild(this.sword_phase1);
         this.sword_phase1.setTextureOffset(64, 33).addBox(-1.5F, 7.5355F, -2.8586F, 3, 9, 3, 0.0F, false);
         this.sword_phase1.setTextureOffset(54, 54).addBox(-2.0F, 7.5355F, -4.8586F, 4, 2, 7, 0.0F, false);
-
         AdvancedModelBox cube_r1 = new AdvancedModelBox(this);
         cube_r1.setRotationPoint(0.0F, 6.2355F, -4.6586F);
         this.sword_phase1.addChild(cube_r1);
         this.setRotationAngle(cube_r1, 0.3927F, 0.0F, 0.0F);
         cube_r1.setTextureOffset(0, 74).addBox(-1.0F, 2.5F, -1.0F, 2, 5, 2, 0.0F, false);
-
         AdvancedModelBox cube_r2 = new AdvancedModelBox(this);
         cube_r2.setRotationPoint(0.0F, 7.2355F, 2.3414F);
         this.sword_phase1.addChild(cube_r2);
         this.setRotationAngle(cube_r2, -0.4363F, 0.0F, 0.0F);
         cube_r2.setTextureOffset(28, 52).addBox(-1.0F, -1.5F, -1.0F, 2, 8, 1, 0.0F, false);
-
         AdvancedModelBox cube_r3 = new AdvancedModelBox(this);
         cube_r3.setRotationPoint(-0.5F, 6.2855F, -0.8586F);
         this.sword_phase1.addChild(cube_r3);
         this.setRotationAngle(cube_r3, 0.0F, 3.1416F, 0.0F);
         cube_r3.setTextureOffset(64, 45).addBox(-2.0F, -27.75F, -3.0F, 3, 2, 5, 0.0F, false);
-
         AdvancedModelBox cube_r4 = new AdvancedModelBox(this);
         cube_r4.setRotationPoint(1.0F, 8.2855F, 8.1414F);
         this.sword_phase1.addChild(cube_r4);
         this.setRotationAngle(cube_r4, 0.0F, 3.1416F, 0.0F);
         cube_r4.setTextureOffset(74, 0).addBox(0.0F, -12.75F, 3.0F, 2, 3, 2, 0.0F, false);
-
         AdvancedModelBox cube_r5 = new AdvancedModelBox(this);
         cube_r5.setRotationPoint(0.5F, 8.2855F, 8.1414F);
         this.sword_phase1.addChild(cube_r5);
         this.setRotationAngle(cube_r5, 0.0F, 3.1416F, 0.0F);
         cube_r5.setTextureOffset(52, 72).addBox(-1.0F, -9.75F, 3.0F, 3, 7, 2, 0.0F, false);
-
         AdvancedModelBox cube_r6 = new AdvancedModelBox(this);
         cube_r6.setRotationPoint(0.0F, 8.2855F, -0.8586F);
         this.sword_phase1.addChild(cube_r6);
@@ -70,7 +61,6 @@ public class LavateinModel extends AdvancedEntityModel<Entity> {
         cube_r6.setTextureOffset(16, 41).addBox(-2.0F, -27.75F, 2.0F, 4, 27, 2, 0.0F, false);
         cube_r6.setTextureOffset(36, 33).addBox(-2.0F, -27.75F, -3.0F, 4, 27, 5, 0.0F, false);
         cube_r6.setTextureOffset(54, 0).addBox(-2.0F, -27.75F, -4.0F, 4, 27, 1, 0.0F, false);
-
         this.chaine = new AdvancedModelBox(this);
         this.chaine.setRotationPoint(-8.0F, -5.9645F, 8.1414F);
         this.sword_phase1.addChild(this.chaine);
@@ -120,7 +110,6 @@ public class LavateinModel extends AdvancedEntityModel<Entity> {
         this.chaine.setTextureOffset(14, 97).addBox(9.0F, -5.5F, -9.0F, 2, 2, 2, 0.0F, false);
         this.chaine.setTextureOffset(14, 97).addBox(9.0F, -4.5F, -11.0F, 2, 2, 2, 0.0F, false);
         this.chaine.setTextureOffset(14, 97).addBox(9.0F, -2.5F, -13.0F, 2, 2, 2, 0.0F, false);
-
         this.chaine2 = new AdvancedModelBox(this);
         this.chaine2.setRotationPoint(8.1918F, -3.0327F, -8.7163F);
         this.chaine.addChild(this.chaine2);
@@ -160,7 +149,6 @@ public class LavateinModel extends AdvancedEntityModel<Entity> {
         this.chaine2.setTextureOffset(14, 97).addBox(-2.9918F, 12.8327F, -1.2837F, 2, 2, 2, 0.0F, false);
         this.chaine2.setTextureOffset(14, 97).addBox(1.0082F, -2.1673F, -0.2837F, 2, 2, 2, 0.0F, false);
         this.chaine2.setTextureOffset(14, 97).addBox(1.0082F, 0.8327F, -4.2837F, 2, 2, 2, 0.0F, false);
-
         this.sword_phase2 = new AdvancedModelBox(this);
         this.sword_phase2.setRotationPoint(0.0F, 0.0F, 0.0F);
         this.sword_root2.addChild(this.sword_phase2);
@@ -170,31 +158,26 @@ public class LavateinModel extends AdvancedEntityModel<Entity> {
         this.sword_phase2.setTextureOffset(36, 0).addBox(-2.0F, -20.4645F, -3.8586F, 4, 28, 5, 0.0F, false);
         this.sword_phase2.setTextureOffset(64, 33).addBox(-1.5F, 7.5355F, -2.8586F, 3, 9, 3, 0.0F, false);
         this.sword_phase2.setTextureOffset(54, 54).addBox(-2.0F, 7.5355F, -4.8586F, 4, 2, 7, 0.0F, false);
-
         AdvancedModelBox cube_r7 = new AdvancedModelBox(this);
         cube_r7.setRotationPoint(0.0F, 6.2355F, -4.6586F);
         this.sword_phase2.addChild(cube_r7);
         this.setRotationAngle(cube_r7, 0.3927F, 0.0F, 0.0F);
         cube_r7.setTextureOffset(0, 74).addBox(-1.0F, 2.5F, -1.0F, 2, 5, 2, 0.0F, false);
-
         AdvancedModelBox cube_r8 = new AdvancedModelBox(this);
         cube_r8.setRotationPoint(0.0F, 7.2355F, 2.3414F);
         this.sword_phase2.addChild(cube_r8);
         this.setRotationAngle(cube_r8, -0.4363F, 0.0F, 0.0F);
         cube_r8.setTextureOffset(28, 52).addBox(-1.0F, -1.5F, -1.0F, 2, 8, 1, 0.0F, false);
-
         AdvancedModelBox cube_r9 = new AdvancedModelBox(this);
         cube_r9.setRotationPoint(0.0F, -0.1591F, 2.0024F);
         this.sword_phase2.addChild(cube_r9);
         this.setRotationAngle(cube_r9, 0.0175F, 0.0F, 0.0F);
         cube_r9.setTextureOffset(16, 70).addBox(-1.5F, -4.5F, -1.0F, 3, 13, 2, 0.0F, false);
-
         AdvancedModelBox cube_r10 = new AdvancedModelBox(this);
         cube_r10.setRotationPoint(-0.5F, -10.4645F, 1.5414F);
         this.sword_phase2.addChild(cube_r10);
         this.setRotationAngle(cube_r10, 0.1571F, 0.0F, 0.0F);
         cube_r10.setTextureOffset(64, 18).addBox(-1.0F, -6.0F, -2.5F, 3, 12, 3, 0.0F, false);
-
         this.sword_phase3 = new AdvancedModelBox(this);
         this.sword_phase3.setRotationPoint(0.0F, 0.0F, 0.0F);
         this.sword_root2.addChild(this.sword_phase3);

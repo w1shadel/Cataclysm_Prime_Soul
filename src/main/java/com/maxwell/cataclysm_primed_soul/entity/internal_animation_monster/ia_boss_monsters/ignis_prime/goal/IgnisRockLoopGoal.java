@@ -6,7 +6,6 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class IgnisRockLoopGoal extends InternalAttackGoal {
     public IgnisRockLoopGoal(Ignis_PrimeEntity entity) {
-
         super(entity, 16, 16, 0, 70, 0, 35.0F);
     }
 
@@ -15,7 +14,6 @@ public class IgnisRockLoopGoal extends InternalAttackGoal {
         super.tick();
         Ignis_PrimeEntity ignis = (Ignis_PrimeEntity) this.entity;
         LivingEntity target = ignis.getTarget();
-
         ignis.getNavigation().stop();
         ignis.setDeltaMovement(0.0D, ignis.getDeltaMovement().y, 0.0D);
         if (target != null) {

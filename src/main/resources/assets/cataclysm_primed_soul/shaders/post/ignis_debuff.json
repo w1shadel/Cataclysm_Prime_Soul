@@ -10,11 +10,15 @@
       "uniforms": [
         {
           "name": "DebuffLevel",
-          "values": [ 0.0 ]
+          "values": [
+            0.0
+          ]
         },
         {
           "name": "PrimeTime",
-          "values": [ 0.0 ]
+          "values": [
+            0.0
+          ]
         }
       ]
     },

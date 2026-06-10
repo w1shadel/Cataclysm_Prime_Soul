@@ -2,7 +2,6 @@ package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_b
 
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.AI.InternalAttackGoal;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
-import net.minecraft.world.entity.LivingEntity;
 
 public class IgnisDashUpperGoal extends InternalAttackGoal {
     public final Ignis_PrimeEntity ignis;

@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HealBlockManager {
     private static final Map<UUID, Integer> blockedEntities = new ConcurrentHashMap<>();
 
-    
     public static void applyHealBlock(LivingEntity entity) {
         applyHealBlock(entity, IgnisPrimeConfig.HEAL_BLOCK_DURATION_TICKS.get());
     }
@@ -39,6 +38,7 @@ public class HealBlockManager {
             }
         }
     }
+
     @SubscribeEvent
     public static void onLivingUpdate(LivingEvent.LivingTickEvent event) {
         LivingEntity entity = event.getEntity();

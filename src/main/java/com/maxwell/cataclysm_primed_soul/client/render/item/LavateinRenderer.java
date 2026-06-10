@@ -18,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 @SuppressWarnings("removal")
 public class LavateinRenderer extends BlockEntityWithoutLevelRenderer {
     private static final ResourceLocation TEXTURE_STAGE0 = new ResourceLocation(Primed_Soul.MODID, "textures/item/levatein.png");
-
     private final LavateinModel model;
 
     public LavateinRenderer() {
@@ -38,7 +37,6 @@ public class LavateinRenderer extends BlockEntityWithoutLevelRenderer {
             this.model.setupStage(stage);
             VertexConsumer consumer;
             consumer = ItemRenderer.getFoilBufferDirect(buffer, RenderType.entityCutoutNoCull(texture), true, stack.isEnchanted());
-
             this.model.renderToBuffer(poseStack, consumer, packedLight, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
             poseStack.popPose();
         }

@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.function.Consumer;
+
 @SuppressWarnings("removal")
 public class AmethystBlessRecipeBuilder {
     private final Item ingredient;
@@ -33,11 +34,9 @@ public class AmethystBlessRecipeBuilder {
                 JsonObject ingredientsJson = new JsonObject();
                 ingredientsJson.addProperty("item", ForgeRegistries.ITEMS.getKey(ingredient).toString());
                 json.add("ingredients", ingredientsJson);
-
                 JsonObject resultJson = new JsonObject();
                 resultJson.addProperty("item", ForgeRegistries.ITEMS.getKey(result).toString());
                 json.add("result", resultJson);
-
                 json.addProperty("time", time);
             }
 

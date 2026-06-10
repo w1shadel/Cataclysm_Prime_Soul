@@ -1,4 +1,4 @@
-package com.maxwell.cataclysm_primed_soul.mixin;
+package com.maxwell.cataclysm_primed_soul.mixin.client;
 
 import com.github.L_Ender.cataclysm.blockentities.AltarOfFire_Block_Entity;
 import com.github.L_Ender.cataclysm.client.render.blockentity.RendererAltar_of_Fire;
@@ -17,10 +17,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 @SuppressWarnings("removal")
 @Mixin(value = RendererAltar_of_Fire.class, remap = false)
 public abstract class RendererAltarOfFireMixin {
-
     private static final ResourceLocation PRIME_SIGIL = new ResourceLocation(Primed_Soul.MODID, "textures/entity/prime_sigil.png");
 
     @Shadow
@@ -28,14 +28,12 @@ public abstract class RendererAltarOfFireMixin {
 
     @Inject(method = "renderSigil", at = @At("HEAD"), cancellable = true)
     private void onRenderSigil(AltarOfFire_Block_Entity tileEntityIn, float delta, PoseStack matrixStackIn, MultiBufferSource bufferIn, CallbackInfo ci) {
-
         if (tileEntityIn.summoningthis) {
             ItemStack held = tileEntityIn.getItem(0);
             String itemID = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(held.getItem()).toString();
-
             if (!held.isEmpty() && itemID.equals("cataclysm_primed_soul:abyssal_ashes")) {
-                float f2 = (float)tileEntityIn.tickCount + delta;
-                float f3 = (float)Mth.clamp(tileEntityIn.summoningticks, 0, 25);
+                float f2 = (float) tileEntityIn.tickCount + delta;
+                float f3 = (float) Mth.clamp(tileEntityIn.summoningticks, 0, 25);
                 matrixStackIn.pushPose();
                 VertexConsumer ivertexbuilder = bufferIn.getBuffer(RenderType.entityTranslucentEmissive(PRIME_SIGIL));
                 matrixStackIn.translate(0.5D, 0.001D, 0.5D);

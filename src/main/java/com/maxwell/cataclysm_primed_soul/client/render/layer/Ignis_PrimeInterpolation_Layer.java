@@ -30,7 +30,6 @@ public class Ignis_PrimeInterpolation_Layer extends RenderLayer<Ignis_PrimeEntit
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, Ignis_PrimeEntity entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if (entity.isInvisible()) return;
-
         ResourceLocation[] currentTextures = BLUE_TEXTURES;
         if (entity.getBossPhase() >= 2) {
             if (entity.getAttackState() == Ignis_PrimeEntity.STATE_PHASE_CHANGE) {
@@ -41,7 +40,6 @@ public class Ignis_PrimeInterpolation_Layer extends RenderLayer<Ignis_PrimeEntit
                 currentTextures = WHITE_TEXTURES;
             }
         }
-
         float speed = 0.4f;
         int totalTextures = 7;
         int loopSteps = (totalTextures - 1) * 2;
@@ -53,10 +51,8 @@ public class Ignis_PrimeInterpolation_Layer extends RenderLayer<Ignis_PrimeEntit
         float alpha = currentStepFloat - (float) currentStep;
         int currentFrame = getPingPongFrame(currentStep, totalTextures, loopSteps);
         int nextFrame = getPingPongFrame(nextStep, totalTextures, loopSteps);
-
         ResourceLocation currentTexture = currentTextures[Mth.clamp(currentFrame, 0, 6)];
         ResourceLocation nextTexture = currentTextures[Mth.clamp(nextFrame, 0, 6)];
-
         renderSmooth(matrixStack, buffer, packedLight, entity, currentTexture, 1.0F);
         renderSmooth(matrixStack, buffer, packedLight, entity, nextTexture, alpha);
     }

@@ -19,21 +19,17 @@ public class MaledictusBackstepGoal extends Goal {
         if (this.maledictus.isPassenger() || this.maledictus.getAttackState() != 0) {
             return false;
         }
-
         if (!this.maledictus.isBackstepReady()) {
             return false;
         }
-
         LivingEntity target = this.maledictus.getTarget();
         if (target == null || !target.isAlive()) {
             return false;
         }
-
         double distanceSq = this.maledictus.distanceToSqr(target);
         if (distanceSq <= 20.25D) {
             return this.maledictus.getRandom().nextFloat() < 0.25F;
         }
-
         return false;
     }
 
