@@ -41,6 +41,7 @@ public class ClientModEvent {
         event.registerEntityRenderer(ModEntities.PRIME_FLAME_STRIKE.get(), Prime_Flame_Strike_Renderer::new);
         event.registerEntityRenderer(ModEntities.PRIME_FIREBALL.get(), Prime_Fireball_Renderer::new);
         event.registerEntityRenderer(ModEntities.MALEDICTUS_PRIME_SWORD.get(), Maledictus_PrimeSwordRenderer::new);
+        event.registerEntityRenderer(ModEntities.MALEDICTUS_PRIME_SWORD_SPIKE.get(), Maledictus_PrimeSwordSpikeRenderer::new);
     }
 
     @SubscribeEvent

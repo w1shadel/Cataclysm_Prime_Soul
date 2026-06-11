@@ -8,6 +8,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,6 +32,7 @@ public class Maledictus_PrimeSwordEntity extends Entity {
     public Maledictus_PrimeSwordEntity(EntityType<?> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         this.noCulling = true;
+        this.setNoGravity(true);
     }
 
     @Nullable
@@ -75,11 +77,24 @@ public class Maledictus_PrimeSwordEntity extends Entity {
     public void tick() {
         super.tick();
         this.lifeTicks++;
+
+        this.xo = this.getX();
+        this.yo = this.getY();
+        this.zo = this.getZ();
+        this.yRotO = this.getYRot();
+        this.xRotO = this.getXRot();
+
         Vec3 motion = this.getDeltaMovement();
+        if (motion.horizontalDistanceSqr() > 1.0E-4D) {
+            float yaw = (float) (Mth.atan2(motion.z, motion.x) * (180D / Math.PI)) - 90.0F;
+            this.setYRot(yaw);
+        }
+
         double nextX = this.getX() + motion.x;
         double nextY = this.getY() + motion.y;
         double nextZ = this.getZ() + motion.z;
         this.setPos(nextX, nextY, nextZ);
+
         if (this.level() instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.SOUL, this.getX(), this.getY(), this.getZ(), 2, 0.1D, 0.1D, 0.1D, 0.0D);
             serverLevel.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, this.getX(), this.getY(), this.getZ(), 2, 0.1D, 0.1D, 0.1D, 0.0D);

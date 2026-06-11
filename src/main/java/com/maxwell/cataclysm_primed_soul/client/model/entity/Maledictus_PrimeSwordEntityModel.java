@@ -12,7 +12,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-
+@SuppressWarnings("removal")
 public class Maledictus_PrimeSwordEntityModel extends HierarchicalModel<Maledictus_PrimeSwordEntity> {
 
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Primed_Soul.MODID, "maledictusswordentitymodel"), "main");

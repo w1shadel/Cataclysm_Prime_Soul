@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
+@SuppressWarnings("removal")
 @OnlyIn(Dist.CLIENT)
 public class Maledictus_PrimeSwordRenderer extends EntityRenderer<Maledictus_PrimeSwordEntity> {
     private static final ResourceLocation TEXTURE_ARMOR = new ResourceLocation(Primed_Soul.MODID, "textures/entity/maledictus_prime/sword_armor.png");

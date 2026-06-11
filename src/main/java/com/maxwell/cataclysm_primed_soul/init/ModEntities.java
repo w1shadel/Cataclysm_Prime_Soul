@@ -7,6 +7,7 @@ import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_bo
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.MaledictusPhantomEntity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.Maledictus_PrimeEntity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.sub.Maledictus_PrimeSwordEntity;
+import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.sub.Maledictus_PrimeSwordSpikeEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
@@ -55,11 +56,18 @@ public class ModEntities {
                     .build("maledictus_phantom"));
     public static final RegistryObject<EntityType<Maledictus_PrimeSwordEntity>> MALEDICTUS_PRIME_SWORD = ENTITY_TYPES.register("prime_sword",
             () -> EntityType.Builder.<Maledictus_PrimeSwordEntity>of(Maledictus_PrimeSwordEntity::new, MobCategory.MISC)
-                    .sized(0.6F, 0.6F)
+                    .sized(1.0F, 2.0F)
                     .setUpdateInterval(1)
                     .setTrackingRange(20)
                     .setShouldReceiveVelocityUpdates(true)
                     .build("prime_sword"));
+    public static final RegistryObject<EntityType<Maledictus_PrimeSwordSpikeEntity>> MALEDICTUS_PRIME_SWORD_SPIKE = ENTITY_TYPES.register("prime_sword_spike",
+            () -> EntityType.Builder.<Maledictus_PrimeSwordSpikeEntity>of(Maledictus_PrimeSwordSpikeEntity::new, MobCategory.MISC)
+                    .sized(0.8F, 2.0F)
+                    .setUpdateInterval(1)
+                    .setTrackingRange(20)
+                    .setShouldReceiveVelocityUpdates(true)
+                    .build("prime_sword_spike"));
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {

@@ -157,6 +157,7 @@ public class MaledictusAttackGoal extends Goal {
         double distance = this.maledictus.distanceTo(target);
         boolean isPhase2 = this.maledictus.isPhase2();
         int count = isPhase2 ? 3 : 1;
+        int mainPhantomType = MaledictusPhantomEntity.TYPE_SPEAR;
         for (int i = 0; i < count; i++) {
             int phantomType;
             if (isPhase2) {
@@ -171,6 +172,9 @@ public class MaledictusAttackGoal extends Goal {
                 } else {
                     phantomType = MaledictusPhantomEntity.TYPE_BOW;
                 }
+            }
+            if (!isPhase2) {
+                mainPhantomType = phantomType;
             }
             MaledictusPhantomEntity phantom = com.maxwell.cataclysm_primed_soul.init.ModEntities.MALEDICTUS_PHANTOM.get().create(this.maledictus.level());
             if (phantom != null) {
@@ -212,6 +216,17 @@ public class MaledictusAttackGoal extends Goal {
                 phantom.setSummoner(this.maledictus);
                 phantom.setSummonerYRot(pYaw);
                 this.maledictus.level().addFreshEntity(phantom);
+            }
+        }
+        if (isPhase2) {
+            this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START);
+        } else {
+            if (mainPhantomType == MaledictusPhantomEntity.TYPE_SPEAR) {
+                this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
+            } else if (mainPhantomType == MaledictusPhantomEntity.TYPE_MACE) {
+                this.maledictus.setAttackState(Maledictus_PrimeEntity.BACKSTEP);
+            } else if (mainPhantomType == MaledictusPhantomEntity.TYPE_BOW) {
+                this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_FAR_START);
             }
         }
         int baseCd = 60;
