@@ -12,4 +12,7 @@ public interface IDecayEntity {
     void setRemoveBypass(boolean val);
 
     void subtractTrueHP(float amount);
+
+    int getDecayHoldTicks();
+    void setDecayHoldTicks(int ticks);
 }

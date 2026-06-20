@@ -3,6 +3,7 @@ package com.maxwell.cataclysm_primed_soul.mixin;
 import com.maxwell.cataclysm_primed_soul.mixin.accessor.LivingEntityAccessor;
 import com.maxwell.cataclysm_primed_soul.network.ModMessages;
 import com.maxwell.cataclysm_primed_soul.network.packet.ClientboundDecaySyncPacket;
+import com.maxwell.cataclysm_primed_soul.util.DecayDamageUtil;
 import com.maxwell.cataclysm_primed_soul.util.IDecayEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,7 +33,7 @@ public abstract class LivingEntityMixin implements IDecayEntity {
 
     @Shadow protected boolean dead;
     @Shadow protected int deathTime;
-
+    @Unique private int decayHoldTicks;
     
     @Unique
     private boolean csp$isLoginIncomplete() {
@@ -42,7 +43,15 @@ public abstract class LivingEntityMixin implements IDecayEntity {
         }
         return self.tickCount <= 0;
     }
+    @Override
+    public int getDecayHoldTicks() {
+        return this.decayHoldTicks;
+    }
 
+    @Override
+    public void setDecayHoldTicks(int ticks) {
+        this.decayHoldTicks = ticks;
+    }
     @Override
     public float getDecayAmount() {
         return this.decayAmount;
@@ -52,7 +61,11 @@ public abstract class LivingEntityMixin implements IDecayEntity {
     public boolean isSuperInvincible() {
         return this.superInvincible;
     }
-
+    @Override
+    public void addDecayAmount(float amount) {
+        this.decayAmount = Math.max(0.0f, this.decayAmount + amount);
+        this.decayHoldTicks = 100;
+    }
     @Override
     public boolean isRemoveBypass() {
         return this.decayRemoveBypass;
@@ -79,15 +92,8 @@ public abstract class LivingEntityMixin implements IDecayEntity {
         LivingEntity self = (LivingEntity) (Object) this;
         if (this.superInvincible) return;
 
-        float newHealth = Math.max(0.0f, self.getHealth() - amount);
-        self.setHealth(newHealth);
-
-        if (newHealth <= 0.0f) {
-            if (!this.decayDeathTriggered && !self.dead) {
-                this.decayDeathTriggered = true;
-                com.maxwell.cataclysm_primed_soul.util.DecayForceKillHelper.decayForceKill(self);
-            }
-        }
+        DamageSource erosionSource = DecayDamageUtil.getErosionSource(self.level(), null);
+        self.hurt(erosionSource, amount);
     }
 
     @Override
@@ -96,16 +102,15 @@ public abstract class LivingEntityMixin implements IDecayEntity {
         this.decayAmount = Math.max(0.0f, Math.min(amount, self.getMaxHealth()));
         float cappedMax = Math.max(0.0f, self.getMaxHealth() - this.decayAmount);
         if (self.getHealth() > cappedMax) {
-            self.setHealth(cappedMax);
+            try {
+                com.maxwell.cataclysm_primed_soul.util.DecayDamageUtil.BYPASS_DECAY.set(true);
+                self.setHealth(cappedMax);
+            } finally {
+                com.maxwell.cataclysm_primed_soul.util.DecayDamageUtil.BYPASS_DECAY.remove();
+            }
         }
         csp$syncToTracking();
     }
-
-    @Override
-    public void addDecayAmount(float amount) {
-        this.setDecayAmount(this.getDecayAmount() + amount);
-    }
-
     @Unique
     private void csp$syncToTracking() {
         LivingEntity self = (LivingEntity) (Object) this;

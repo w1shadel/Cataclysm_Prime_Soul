@@ -26,13 +26,11 @@ public class DecayBytecodeGetterTransformer implements ClassFileTransformer {
         byte[] bytes = optionalBytes.orElse(new byte[0]);
         ClassNode classNode;
         boolean modified;
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-
         try {
             ClassReader classReader = new ClassReader(bytes);
             classNode = new ClassNode(Opcodes.ASM9);
             classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
-            modified = DecayGenericTransformer.transform(DecayGenericTransformer.Phase.GetBytecode, classNode, loader);
+            modified = DecayGenericTransformer.transform(DecayGenericTransformer.Phase.GetBytecode, classNode);
         } catch (Throwable t) {
             LOGGER.error("transformOptionalBytes: read/transform failed for {} ({}): {}", className, t.getClass().getName(), t.getMessage(), t);
             return optionalBytes;
@@ -70,7 +68,7 @@ public class DecayBytecodeGetterTransformer implements ClassFileTransformer {
             ClassReader cr = new ClassReader(bytes);
             ClassNode cn = new ClassNode(Opcodes.ASM9);
             cr.accept(cn, ClassReader.EXPAND_FRAMES);
-            boolean modified = DecayGenericTransformer.transform(DecayGenericTransformer.Phase.ILaunchPluginServiceBefore, cn, loader);
+            boolean modified = false;
             if (cn.methods != null) {
                 for (MethodNode mn : cn.methods) {
                     if ("getClassBytes".equals(mn.name) &&
@@ -93,7 +91,6 @@ public class DecayBytecodeGetterTransformer implements ClassFileTransformer {
                 }
             }
             if (!modified) return bytes;
-
             ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
             cn.accept(cw);
             return cw.toByteArray();

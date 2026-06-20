@@ -24,11 +24,18 @@ public class DecayForceKillHelper {
     public static void decayForceKill(LivingEntity entity) {
         if (entity.level().isClientSide()) return;
         breakBrain(entity);
-        entity.setHealth(0.0F);
-        dropAllForce(entity);
-        DamageSource erosion = DecayDamageUtil.getErosionSource(entity);
+        if (entity instanceof IDecayEntity decay) {
+            decay.setDecayAmount(entity.getMaxHealth());
+        }
+        try {
+            com.maxwell.cataclysm_primed_soul.util.DecayDamageUtil.BYPASS_DECAY.set(true);
+            entity.setHealth(0.0F);
+        } finally {
+            com.maxwell.cataclysm_primed_soul.util.DecayDamageUtil.BYPASS_DECAY.remove();
+        }
+        DamageSource erosion = DecayDamageUtil.getErosionSource(entity.level(), entity);
         entity.die(erosion);
-
+        dropAllForce(entity);
         if (!(entity instanceof Player)) {
             removeFromMemory(entity);
         }

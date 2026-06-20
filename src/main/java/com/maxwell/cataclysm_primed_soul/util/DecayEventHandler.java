@@ -8,7 +8,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -58,7 +60,55 @@ public class DecayEventHandler {
             }
         }
     }
+    @SubscribeEvent
+    public static void onItemPickup(EntityItemPickupEvent event) {
+        Player player = event.getEntity();
+        if (player instanceof ServerPlayer serverPlayer) {
 
+
+            if (serverPlayer.connection == null) {
+                event.setCanceled(true);
+            }
+        }
+    }
+    @SubscribeEvent
+    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
+        LivingEntity entity = event.getEntity();
+        if (entity.level().isClientSide()) return;
+
+        if (entity instanceof ServerPlayer player && player.connection == null) {
+            return;
+        }
+
+        if (entity instanceof IDecayEntity decay) {
+            int hold = decay.getDecayHoldTicks();
+            if (hold > 0) {
+                decay.setDecayHoldTicks(hold - 1);
+            } else {
+                float currentDecay = decay.getDecayAmount();
+                if (currentDecay > 0.0f) {
+                    float maxHealth = entity.getMaxHealth();
+                    float decreaseRate;
+                    if (entity instanceof Player) {
+                        decreaseRate = maxHealth * 0.0005F;
+                    } else {
+                        decreaseRate = maxHealth * 0.0025F;
+                    }
+                    decay.setDecayAmount(Math.max(0.0f, currentDecay - decreaseRate));
+                }
+            }
+        }
+    }
+    @SubscribeEvent
+    public static void onItemUseFinish(net.minecraftforge.event.entity.living.LivingEntityUseItemEvent.Finish event) {
+        if (event.getEntity() instanceof Player player && player instanceof IDecayEntity decay) {
+            if (!player.level().isClientSide() && event.getItem().isEdible()) {
+                float maxHealth = player.getMaxHealth();
+                float reduction = maxHealth * 0.30F;
+                decay.setDecayAmount(Math.max(0.0f, decay.getDecayAmount() - reduction));
+            }
+        }
+    }
     @SubscribeEvent
     public static void onPlayerClone(net.minecraftforge.event.entity.player.PlayerEvent.Clone event) {
         net.minecraft.world.entity.player.Player newPlayer = event.getEntity();

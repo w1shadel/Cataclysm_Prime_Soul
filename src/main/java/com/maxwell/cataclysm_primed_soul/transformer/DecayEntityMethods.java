@@ -1,5 +1,6 @@
 package com.maxwell.cataclysm_primed_soul.transformer;
 
+import com.maxwell.cataclysm_primed_soul.mixin.accessor.LivingEntityAccessor;
 import com.maxwell.cataclysm_primed_soul.util.DecayDamageUtil;
 import com.maxwell.cataclysm_primed_soul.util.IDecayEntity;
 import net.minecraft.world.entity.Entity;
@@ -10,19 +11,23 @@ public class DecayEntityMethods {
 
 
 
-
     public static boolean shouldReplaceHealthMethod(Entity entity) {
         if (entity instanceof LivingEntity living && entity instanceof IDecayEntity decay) {
-            return decay.isSuperInvincible() || decay.getDecayAmount() >= living.getMaxHealth();
+            return decay.isSuperInvincible() || decay.getDecayAmount() > 0.0F;
         }
         return false;
     }
 
     public static float replaceGetHealth(LivingEntity livingEntity) {
-        if (livingEntity instanceof IDecayEntity decay && decay.isSuperInvincible()) {
-            return livingEntity.getMaxHealth();
+        if (livingEntity instanceof IDecayEntity decay) {
+            if (decay.isSuperInvincible()) {
+                return livingEntity.getMaxHealth();
+            }
+
+            float cappedHealth = livingEntity.getMaxHealth() - decay.getDecayAmount();
+            return Math.max(-Float.MAX_VALUE, cappedHealth);
         }
-        return -Float.MAX_VALUE;
+        return livingEntity.getMaxHealth();
     }
 
     public static float getHealth(float health, LivingEntity livingEntity) {
@@ -31,13 +36,13 @@ public class DecayEntityMethods {
                 return livingEntity.getMaxHealth();
             }
             float decayAmount = decay.getDecayAmount();
-            if (decayAmount >= livingEntity.getMaxHealth()) {
-                return -Float.MAX_VALUE;
+            if (decayAmount > 0.0F) {
+                float cappedHealth = livingEntity.getMaxHealth() - decayAmount;
+                return Math.min(health, cappedHealth);
             }
         }
         return health;
     }
-
     public static boolean replaceIsDeadOrDying(Entity entity) {
         if (entity instanceof LivingEntity living && entity instanceof IDecayEntity decay) {
             if (decay.isSuperInvincible()) return false;
@@ -134,17 +139,45 @@ public class DecayEntityMethods {
 
     public static boolean handleForceDamage(LivingEntity target, net.minecraft.world.damagesource.DamageSource source, float amount) {
         if (target instanceof IDecayEntity decay && decay.isSuperInvincible()) {
-            return true;
+            return true; 
         }
+
         if (DecayDamageUtil.shouldApplyBypass(source)) {
             if (target instanceof IDecayEntity decayTarget) {
-                decayTarget.subtractTrueHP(amount);
+
+
+                decayTarget.addDecayAmount(amount);
                 return true;
             }
         }
         return false;
     }
+    public static boolean handleForceDie(LivingEntity self, net.minecraft.world.damagesource.DamageSource source) {
+        if (self instanceof IDecayEntity decay) {
 
+            if (decay.getDecayAmount() >= self.getMaxHealth() && !decay.isSuperInvincible()) {
+
+                if (!self.level().isClientSide()) {
+                    ((LivingEntityAccessor) self).setDeadFlag(true);
+                    self.deathTime = 1;
+                    ((LivingEntityAccessor) self).invokeDropAllDeathLoot(source);
+
+                    if (self instanceof ServerPlayer player) {
+                        player.awardStat(net.minecraft.stats.Stats.DEATHS);
+                        player.getCombatTracker().recheckStatus();
+                        net.minecraft.network.chat.Component deathMsg = player.getCombatTracker().getDeathMessage();
+
+                        player.connection.send(new net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket(player.getId(), deathMsg));
+                    }
+                }
+
+                self.level().broadcastEntityEvent(self, (byte) 3);
+
+                return true; 
+            }
+        }
+        return false;
+    }
     public static boolean handleForceActuallyHurt(LivingEntity target, net.minecraft.world.damagesource.DamageSource source, float amount) {
         if (target instanceof IDecayEntity decay && decay.isSuperInvincible()) {
             return true;

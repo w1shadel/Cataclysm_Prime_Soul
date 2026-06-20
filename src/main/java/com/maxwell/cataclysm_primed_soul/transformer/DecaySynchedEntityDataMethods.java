@@ -56,15 +56,13 @@ public class DecaySynchedEntityDataMethods {
 
                     if (accessor.equals(LivingEntityAccessor.getDataHealthId())) {
                         if (value instanceof Float) {
-                            return Float.valueOf(living.getMaxHealth()); 
+                            return Float.valueOf(living.getMaxHealth());
                         }
                     }
 
 
 
-                    else if (value instanceof Float) {
-                        return Float.valueOf(0.0f);
-                    }
+
                 }
             }
         } catch (Throwable ignored) {}

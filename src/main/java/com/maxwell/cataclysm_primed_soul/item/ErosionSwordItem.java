@@ -30,7 +30,7 @@ public class ErosionSwordItem extends SwordItem implements ISpecialModel {
         super(Tiers.NETHERITE, 3, -2.4F, properties);
     }
 
-    
+
     @Override
     public boolean onEntitySwing(ItemStack stack, LivingEntity attacker) {
         Level level = attacker.level();
@@ -49,6 +49,8 @@ public class ErosionSwordItem extends SwordItem implements ISpecialModel {
                     entity -> entity != attacker && entity.isAlive() && !entity.isSpectator()
             );
 
+            DamageSource erosionSource = DecayDamageUtil.getErosionSource(level , attacker);
+
             boolean hitAny = false;
             for (LivingEntity target : targets) {
                 Vec3 toTarget = target.getEyePosition(1.0F).subtract(eyePosition);
@@ -60,24 +62,11 @@ public class ErosionSwordItem extends SwordItem implements ISpecialModel {
                     if (dot > 0.5D) {
                         if (target instanceof IDecayEntity decayTarget) {
 
-                            decayTarget.subtractTrueHP(Integer.MAX_VALUE);
+                            target.hurt(erosionSource, Integer.MAX_VALUE);
 
                             if (level instanceof ServerLevel serverLevel) {
-                                serverLevel.sendParticles(
-                                        ParticleTypes.SOUL,
-                                        target.getX(),
-                                        target.getY() + (target.getBbHeight() / 2.0F),
-                                        target.getZ(),
-                                        15, 0.3D, 0.3D, 0.3D, 0.1D
-                                );
-
-                                serverLevel.sendParticles(
-                                        ParticleTypes.WITCH,
-                                        target.getX(),
-                                        target.getY() + (target.getBbHeight() / 2.0F),
-                                        target.getZ(),
-                                        10, 0.2D, 0.2D, 0.2D, 0.1D
-                                );
+                                serverLevel.sendParticles(ParticleTypes.SOUL, target.getX(), target.getY() + (target.getBbHeight() / 2.0F), target.getZ(), 15, 0.3D, 0.3D, 0.3D, 0.1D);
+                                serverLevel.sendParticles(ParticleTypes.WITCH, target.getX(), target.getY() + (target.getBbHeight() / 2.0F), target.getZ(), 10, 0.2D, 0.2D, 0.2D, 0.1D);
                             }
 
                             level.playSound(null, target.blockPosition(), SoundEvents.SOUL_ESCAPE, SoundSource.PLAYERS, 1.0F, 1.3F);
@@ -135,11 +124,11 @@ public class ErosionSwordItem extends SwordItem implements ISpecialModel {
                     List<LivingEntity> targets = level.getEntitiesOfClass(LivingEntity.class, searchBox,
                             entity -> entity.isAlive() && !entity.isSpectator()
                     );
-                    DamageSource erosionSource = DecayDamageUtil.getErosionSource(player);
+                    DamageSource erosionSource = DecayDamageUtil.getErosionSource(level,player);
 
                     boolean hitAny = false;
                     for (LivingEntity target : targets) {
-                        target.hurt(erosionSource, 30.0F);
+                        target.hurt(erosionSource, 10.0F);
                         if (level instanceof ServerLevel serverLevel) {
                             serverLevel.sendParticles(
                                     ParticleTypes.SOUL,
@@ -157,7 +146,7 @@ public class ErosionSwordItem extends SwordItem implements ISpecialModel {
                         player.displayClientMessage(Component.literal("§7[絶対侵食波] 衝撃波を放ちましたが、周囲に敵がいませんでした。"), true);
                     }
 
-                    player.getCooldowns().addCooldown(this, 60);
+                    player.getCooldowns().addCooldown(this, 00);
                 }
             }
         }

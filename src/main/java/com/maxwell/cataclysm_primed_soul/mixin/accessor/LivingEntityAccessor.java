@@ -1,9 +1,11 @@
 package com.maxwell.cataclysm_primed_soul.mixin.accessor;
 
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(LivingEntity.class)
 public interface LivingEntityAccessor {
@@ -11,4 +13,13 @@ public interface LivingEntityAccessor {
     static EntityDataAccessor<Float> getDataHealthId() {
         throw new AssertionError();
     }
+
+    @Accessor("dead")
+    boolean isDeadFlag();
+
+    @Accessor("dead")
+    void setDeadFlag(boolean dead);
+
+    @Invoker("dropAllDeathLoot")
+    void invokeDropAllDeathLoot(DamageSource source);
 }

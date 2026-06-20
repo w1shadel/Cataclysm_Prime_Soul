@@ -14,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public final class DecayDamageUtil {
 
     private DecayDamageUtil() {}
 
-    
+
     public static void forceSetHealthVanillaRawDirect(SynchedEntityData entityData, EntityDataAccessor<?> accessor, Object value) {
         try {
 
@@ -100,8 +101,7 @@ public final class DecayDamageUtil {
         } catch (Throwable ignored) {}
     }
 
-    public static DamageSource getErosionSource(LivingEntity attacker) {
-        Level level = attacker.level();
+    public static DamageSource getErosionSource(Level level, @Nullable Entity attacker) {
         Holder<DamageType> holder = level.registryAccess()
                 .registryOrThrow(Registries.DAMAGE_TYPE)
                 .getHolderOrThrow(ModDamageTypes.EROSION);

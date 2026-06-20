@@ -25,11 +25,7 @@ public class DecayLaunchPlugin implements ILaunchPluginService {
         if (classNode.name.startsWith("com/maxwell/cataclysm_primed_soul/transformer"))
             return false;
         if (reason.equals(ITransformerActivity.CLASSLOADING_REASON)) {
-            return DecayGenericTransformer.transform(
-                    phase == Phase.AFTER ? DecayGenericTransformer.Phase.ILaunchPluginService : DecayGenericTransformer.Phase.ILaunchPluginServiceBefore,
-                    classNode,
-                    Thread.currentThread().getContextClassLoader()
-            );
+            return DecayGenericTransformer.transform(phase == Phase.AFTER ? DecayGenericTransformer.Phase.ILaunchPluginService : DecayGenericTransformer.Phase.ILaunchPluginServiceBefore, classNode);
         }
         return false;
     }
