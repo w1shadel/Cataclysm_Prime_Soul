@@ -38,11 +38,8 @@ public class MaledictusPhantomEntity extends Mob {
     private static final int LIFE_BOW = 70;
     private static final EntityDataAccessor<Integer> PHANTOM_TYPE =
             SynchedEntityData.defineId(MaledictusPhantomEntity.class, EntityDataSerializers.INT);
-
     private static final int SPEAR_CHARGE_START = 22;
-
     private static final int MACE_HIT_TICK = 25;
-
     private static final int BOW_SHOT_TICK = 46;
     public final AnimationState phantomSpearChargeAnimationState = new AnimationState();
     public final AnimationState phantomMaceCrushAnimationState = new AnimationState();
@@ -113,16 +110,13 @@ public class MaledictusPhantomEntity extends Mob {
 
     @Nullable
     public LivingEntity getPhantomTarget() {
-
         if (this.cachedTarget != null && this.canPhantomHit(this.cachedTarget)) {
             return this.cachedTarget;
         }
-
         if (this.summoner instanceof Mob mobSummoner && mobSummoner.getTarget() != null && this.canPhantomHit(mobSummoner.getTarget())) {
             this.cachedTarget = mobSummoner.getTarget();
             return this.cachedTarget;
         }
-
         if (!this.level().isClientSide()) {
             List<LivingEntity> nearby = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(32.0D));
             double nearestDist = Double.MAX_VALUE;
@@ -284,7 +278,6 @@ public class MaledictusPhantomEntity extends Mob {
     }
 
     private void fireBowProjectile() {
-
         LivingEntity target = this.getPhantomTarget();
         if (target == null || !target.isAlive()) return;
         Vec3 start = this.getEyePosition();
@@ -292,7 +285,6 @@ public class MaledictusPhantomEntity extends Mob {
         double speed = 1.8D;
         Vec3 pos = start;
         for (int i = 0; i < 60; i++) {
-
             if (target.isAlive()) {
                 Vec3 toTarget = target.getEyePosition().subtract(pos).normalize();
                 direction = direction.scale(0.85D).add(toTarget.scale(0.15D)).normalize();

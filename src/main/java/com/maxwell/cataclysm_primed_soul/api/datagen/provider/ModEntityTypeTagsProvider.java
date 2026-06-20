@@ -25,5 +25,6 @@ public class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         this.tag(FORGE_BOSSES).add(ModEntities.IGNIS_PRIME.get());
+        this.tag(FORGE_BOSSES).add(ModEntities.MALEDICTUS_PRIME.get());
     }
 }

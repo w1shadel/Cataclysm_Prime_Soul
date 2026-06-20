@@ -1,7 +1,5 @@
 package com.maxwell.cataclysm_primed_soul.client.model.entity;
 
-
-
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.sub.Maledictus_PrimeSwordEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,9 +10,9 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
+
 @SuppressWarnings("removal")
 public class Maledictus_PrimeSwordEntityModel extends HierarchicalModel<Maledictus_PrimeSwordEntity> {
-
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Primed_Soul.MODID, "maledictusswordentitymodel"), "main");
     private final ModelPart Sword;
 

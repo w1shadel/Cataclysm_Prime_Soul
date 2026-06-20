@@ -36,6 +36,10 @@ public abstract class ModLanguageProvider extends LanguageProvider {
             this.add("chat.cataclysm_primed_soul.ignis_prime.half_hp", "The heat transforms into unrelenting pressure, and the equipment begins to melt.");
             this.add("chat.cataclysm_primed_soul.ignis_prime.phase_2", "A pure white soul fills my vision. All protection has turned to ash...");
             this.add("chat.cataclysm_primed_soul.ignis_prime.ultracharge", "§6...I am......");
+            this.add("death.attack.erosion", "%1$s decayed away into ash.");
+            this.add("death.attack.erosion.player", "%1$s was completely dissolved by the erosion of %2$s.");
+            this.add("death.attack.true_void", "%1$s was swallowed by the absolute void.");
+            this.add("death.attack.true_void.player", "%1$s was swallowed by the absolute void of %2$s.");
         }
     }
 
@@ -65,6 +69,10 @@ public abstract class ModLanguageProvider extends LanguageProvider {
             this.add("chat.cataclysm_primed_soul.ignis_prime.half_hp", "熱気が逃げ場のない圧力へと変わり、装備は溶け出す。");
             this.add("chat.cataclysm_primed_soul.ignis_prime.phase_2", "純白のソウルが視界を染め上げる。あらゆる加護は灰に消えた...");
             this.add("chat.cataclysm_primed_soul.ignis_prime.ultracharge", "§6...私は......");
+            this.add("death.attack.erosion", "%1$sは侵食されて朽ち果てた。");
+            this.add("death.attack.erosion.player", "%1$sは%2$sの侵食によって跡形もなく溶かされた。");
+            this.add("death.attack.true_void", "%1$sは絶対虚空に呑み込まれた。");
+            this.add("death.attack.true_void.player", "%1$sは%2$sの絶対虚空に呑み込まれた。");
         }
     }
 }

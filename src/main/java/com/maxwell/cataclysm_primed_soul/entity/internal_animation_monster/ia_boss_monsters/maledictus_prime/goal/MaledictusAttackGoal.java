@@ -4,7 +4,6 @@ import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_bo
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.Maledictus_PrimeEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
 
@@ -156,80 +155,43 @@ public class MaledictusAttackGoal extends Goal {
     private void spawnPhantom(LivingEntity target) {
         double distance = this.maledictus.distanceTo(target);
         boolean isPhase2 = this.maledictus.isPhase2();
-        int count = isPhase2 ? 3 : 1;
-        int mainPhantomType = MaledictusPhantomEntity.TYPE_SPEAR;
-        for (int i = 0; i < count; i++) {
-            int phantomType;
-            if (isPhase2) {
-                phantomType = i;
-            } else {
-                if (distance <= 7.0D) {
-                    phantomType = MaledictusPhantomEntity.TYPE_MACE;
-                } else if (distance <= 16.0D) {
-                    phantomType = this.maledictus.getRandom().nextBoolean()
-                            ? MaledictusPhantomEntity.TYPE_SPEAR
-                            : MaledictusPhantomEntity.TYPE_BOW;
-                } else {
-                    phantomType = MaledictusPhantomEntity.TYPE_BOW;
-                }
-            }
-            if (!isPhase2) {
-                mainPhantomType = phantomType;
-            }
-            MaledictusPhantomEntity phantom = com.maxwell.cataclysm_primed_soul.init.ModEntities.MALEDICTUS_PHANTOM.get().create(this.maledictus.level());
-            if (phantom != null) {
-                double px = this.maledictus.getX();
-                double py = this.maledictus.getY();
-                double pz = this.maledictus.getZ();
-                float pYaw = this.maledictus.getYRot();
-                if (isPhase2) {
-                    Vec3 targetPos = target.position();
-                    float targetYaw = target.getYRot() * ((float) Math.PI / 180F);
-                    if (phantomType == MaledictusPhantomEntity.TYPE_SPEAR) {
-                        px = targetPos.x + Math.sin(targetYaw) * 5.0D;
-                        pz = targetPos.z - Math.cos(targetYaw) * 5.0D;
-                        pYaw = target.getYRot() + 180.0F;
-                    } else if (phantomType == MaledictusPhantomEntity.TYPE_MACE) {
-                        px = targetPos.x + Math.sin(targetYaw) * 1.2D;
-                        pz = targetPos.z - Math.cos(targetYaw) * 1.2D;
-                        pYaw = target.getYRot() + 180.0F;
-                    } else if (phantomType == MaledictusPhantomEntity.TYPE_BOW) {
-                        px = targetPos.x - Math.sin(targetYaw) * 7.0D;
-                        pz = targetPos.z + Math.cos(targetYaw) * 7.0D;
-                        pYaw = target.getYRot();
-                    }
-                } else {
-                    if (distance <= 7.0D) {
-                        px = this.maledictus.getX();
-                        py = this.maledictus.getY();
-                        pz = this.maledictus.getZ();
-                    } else {
-                        double ox = (this.maledictus.getRandom().nextDouble() - 0.5D) * 4.0D;
-                        double oz = (this.maledictus.getRandom().nextDouble() - 0.5D) * 4.0D;
-                        px += ox;
-                        pz += oz;
-                    }
-                }
-                phantom.moveTo(px, py, pz, pYaw, 0.0F);
-                phantom.setPhantomType(phantomType);
-                phantom.setTarget(target);
-                phantom.setSummoner(this.maledictus);
-                phantom.setSummonerYRot(pYaw);
-                this.maledictus.level().addFreshEntity(phantom);
-            }
-        }
-        if (isPhase2) {
-            this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START);
+        int phantomType;
+        if (distance <= 7.0D) {
+            phantomType = MaledictusPhantomEntity.TYPE_MACE;
+        } else if (distance <= 16.0D) {
+            phantomType = this.maledictus.getRandom().nextBoolean()
+                    ? MaledictusPhantomEntity.TYPE_SPEAR
+                    : MaledictusPhantomEntity.TYPE_BOW;
         } else {
-            if (mainPhantomType == MaledictusPhantomEntity.TYPE_SPEAR) {
-                this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
-            } else if (mainPhantomType == MaledictusPhantomEntity.TYPE_MACE) {
-                this.maledictus.setAttackState(Maledictus_PrimeEntity.BACKSTEP);
-            } else if (mainPhantomType == MaledictusPhantomEntity.TYPE_BOW) {
-                this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_FAR_START);
+            phantomType = MaledictusPhantomEntity.TYPE_BOW;
+        }
+        MaledictusPhantomEntity phantom = com.maxwell.cataclysm_primed_soul.init.ModEntities.MALEDICTUS_PHANTOM.get().create(this.maledictus.level());
+        if (phantom != null) {
+            double px = this.maledictus.getX();
+            double py = this.maledictus.getY();
+            double pz = this.maledictus.getZ();
+            float pYaw = this.maledictus.getYRot();
+            if (distance > 7.0D) {
+                double ox = (this.maledictus.getRandom().nextDouble() - 0.5D) * 4.0D;
+                double oz = (this.maledictus.getRandom().nextDouble() - 0.5D) * 4.0D;
+                px += ox;
+                pz += oz;
             }
+            phantom.moveTo(px, py, pz, pYaw, 0.0F);
+            phantom.setPhantomType(phantomType);
+            phantom.setTarget(target);
+            phantom.setSummoner(this.maledictus);
+            phantom.setSummonerYRot(pYaw);
+            this.maledictus.level().addFreshEntity(phantom);
+        }
+        if (phantomType == MaledictusPhantomEntity.TYPE_SPEAR) {
+            this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
+        } else if (phantomType == MaledictusPhantomEntity.TYPE_MACE) {
+            this.maledictus.setAttackState(Maledictus_PrimeEntity.BACKSTEP);
+        } else if (phantomType == MaledictusPhantomEntity.TYPE_BOW) {
+            this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_FAR_START);
         }
         int baseCd = 60;
-        this.maledictus.setPhantomCooldown(isPhase2 ? baseCd / 5 : baseCd);
+        this.maledictus.setPhantomCooldown(isPhase2 ? baseCd / 3 : baseCd);
     }
 }

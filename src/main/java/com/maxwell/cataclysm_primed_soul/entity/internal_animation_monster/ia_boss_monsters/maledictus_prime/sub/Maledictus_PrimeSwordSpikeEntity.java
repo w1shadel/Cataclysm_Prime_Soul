@@ -11,11 +11,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -103,7 +101,6 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
         this.zo = this.getZ();
         this.yRotO = this.getYRot();
         this.xRotO = this.getXRot();
-
         if (this.warmupDelay > 0) {
             this.warmupDelay--;
             if (this.warmupDelay == 0 && this.level().isClientSide()) {
@@ -111,16 +108,13 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
             }
             return;
         }
-
         this.lifeTicks++;
-
         if (this.lifeTicks < 20 && this.level().isClientSide()) {
             if (this.lifeTicks % 3 == 0) {
                 this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getY() + 0.1D, this.getZ(),
                         (this.random.nextDouble() - 0.5D) * 0.2D, 0.05D, (this.random.nextDouble() - 0.5D) * 0.2D);
             }
         }
-
         if (this.lifeTicks == 20) {
             this.playSound(SoundEvents.GENERIC_EXPLODE, 1.2F, 0.7F);
             this.playSound(SoundEvents.ANVIL_LAND, 1.0F, 1.1F);
@@ -144,7 +138,6 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
                 }
             }
         }
-
         if (this.lifeTicks >= 30 && this.level().isClientSide()) {
             double rx = this.getX() + (this.random.nextDouble() - 0.5D) * 0.4D;
             double ry = this.getY() + this.random.nextDouble() * 2.0D;
@@ -155,7 +148,6 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
                 this.level().addParticle(ParticleTypes.WHITE_ASH, rx, ry, rz, 0.0D, 0.05D, 0.0D);
             }
         }
-
         if (this.lifeTicks > 40) {
             if (this.level() instanceof ServerLevel serverLevel) {
                 serverLevel.sendParticles(ParticleTypes.ASH, this.getX(), this.getY() + 1.0D, this.getZ(), 25, 0.3D, 0.8D, 0.3D, 0.1D);

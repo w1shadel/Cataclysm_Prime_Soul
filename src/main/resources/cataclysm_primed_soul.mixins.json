@@ -2,12 +2,21 @@
   "required": true,
   "package": "com.maxwell.cataclysm_primed_soul.mixin",
   "compatibilityLevel": "JAVA_17",
+  "plugin": "com.maxwell.cataclysm_primed_soul.PrimedSoulMixinPlugin",
   "refmap": "cataclysm_primed_soul.refmap.json",
   "mixins": [
     "AltarOfFireBlockEntityMixin",
-    "CursedTombstoneEntityMixin"
+    "CursedTombstoneEntityMixin",
+    "LivingEntityMixin",
+    "ServerLevelMixin",
+    "EntityMixin",
+    "ServerPlayerMixin",
+    "accessor.LivingEntityAccessor",
+    "accessor.SynchedEntityDataAccessor"
   ],
   "client": [
+    "client.MinecraftMixin",
+    "client.ClientPacketListenerMixin",
     "client.CursedTombstoneRendererMixin",
     "client.RendererAltarOfFireMixin"
   ],

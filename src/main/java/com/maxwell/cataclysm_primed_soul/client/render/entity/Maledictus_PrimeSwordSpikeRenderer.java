@@ -12,8 +12,9 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 @SuppressWarnings("removal")
 @OnlyIn(Dist.CLIENT)
 public class Maledictus_PrimeSwordSpikeRenderer extends EntityRenderer<Maledictus_PrimeSwordSpikeEntity> {
@@ -47,25 +48,23 @@ public class Maledictus_PrimeSwordSpikeRenderer extends EntityRenderer<Maledictu
         if (entity.getWarmupDelay() > 0) {
             return;
         }
-
         poseStack.pushPose();
         float yaw = Mth.lerp(partialTicks, entity.yRotO, entity.getYRot());
         poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180.0F - yaw));
-
         float age = (float) entity.getLifeTicks() + partialTicks;
         float progress = Math.min(20.0F, age) / 20.0F;
-        float heightOffset = -1.5F + (1.5F * progress);
+        float scale = 0.75F;
+        float baseHeight = 0.6F;
+        float spawnDepth = -4.0F;
+        float heightOffset = baseHeight + (spawnDepth * (1.0F - progress));
         poseStack.translate(0.0F, heightOffset, 0.0F);
-
-        poseStack.scale(-1.3F, -1.3F, 1.3F);
+        poseStack.scale(-scale, -scale, scale);
         poseStack.translate(0.0F, -1.5F, 0.0F);
-
         float alpha = 1.0F;
         if (age > 30.0F) {
             alpha = 1.0F - ((age - 30.0F) / 10.0F);
         }
         alpha = Math.max(0.0F, Math.min(1.0F, alpha));
-
         this.model.setupAnim(null, 0.0F, 0.0F, age, 0.0F, 0.0F);
         ResourceLocation currentTex = this.getTextureLocation(entity);
         VertexConsumer armorConsumer = buffer.getBuffer(RenderType.entityTranslucent(currentTex));

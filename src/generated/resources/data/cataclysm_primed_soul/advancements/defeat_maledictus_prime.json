@@ -8,7 +8,7 @@
             "condition": "minecraft:entity_properties",
             "entity": "this",
             "predicate": {
-              "type": "cataclysm_primed_soul:ignis_prime"
+              "type": "cataclysm_primed_soul:maledictus_prime"
             }
           }
         ]
@@ -24,7 +24,7 @@
     "frame": "challenge",
     "hidden": true,
     "icon": {
-      "item": "cataclysm_primed_soul:abyssal_ashes"
+      "item": "cataclysm_primed_soul:rusted_knight_sword"
     },
     "show_toast": true,
     "title": {
