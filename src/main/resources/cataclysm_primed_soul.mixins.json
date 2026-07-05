@@ -6,17 +6,9 @@
   "refmap": "cataclysm_primed_soul.refmap.json",
   "mixins": [
     "AltarOfFireBlockEntityMixin",
-    "CursedTombstoneEntityMixin",
-    "LivingEntityMixin",
-    "ServerLevelMixin",
-    "EntityMixin",
-    "ServerPlayerMixin",
-    "accessor.LivingEntityAccessor",
-    "accessor.SynchedEntityDataAccessor"
+    "CursedTombstoneEntityMixin"
   ],
   "client": [
-    "client.MinecraftMixin",
-    "client.ClientPacketListenerMixin",
     "client.CursedTombstoneRendererMixin",
     "client.RendererAltarOfFireMixin"
   ],

@@ -1,7 +1,6 @@
 package com.maxwell.cataclysm_primed_soul.network;
 
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
-import com.maxwell.cataclysm_primed_soul.network.packet.ClientboundDecaySyncPacket;
 import com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect;
 import com.maxwell.cataclysm_primed_soul.network.packet.MessageSyncIgnisDebuff;
 import net.minecraftforge.network.NetworkRegistry;
@@ -33,11 +32,6 @@ public class ModMessages {
                 .encoder(MessageSyncIgnisDebuff::encode)
                 .decoder(MessageSyncIgnisDebuff::decode)
                 .consumerMainThread(MessageSyncIgnisDebuff::handle)
-                .add();
-        INSTANCE.messageBuilder(ClientboundDecaySyncPacket.class, id())
-                .encoder(ClientboundDecaySyncPacket::encode)
-                .decoder(ClientboundDecaySyncPacket::decode)
-                .consumerMainThread(ClientboundDecaySyncPacket::handle)
                 .add();
     }
 
