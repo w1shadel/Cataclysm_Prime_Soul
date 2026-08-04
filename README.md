@@ -1,2 +1,1 @@
-I drew inspiration from the Prime Bosses in ULTRAKILL and brought that vision to life.
-It’s still a work in progress, and so far I’ve only implemented Ignis, but I’ll be updating it gradually.
+I am making this project private after confirming that an individual engaged in unacceptable conduct.
