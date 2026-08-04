@@ -1,5 +1,6 @@
 package com.maxwell.cataclysm_primed_soul.client;
 
+import com.github.L_Ender.cataclysm.client.particle.Options.RingParticleOptions;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavior;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
@@ -192,7 +193,22 @@ public class ClientVisuals {
             level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, state), boss.getX(), boss.getY() + 0.1D, boss.getZ(), mx, my, mz);
             level.addParticle(ParticleTypes.FLAME, boss.getX(), boss.getY() + 0.1D, boss.getZ(), mx, my, mz);
         }
-        level.addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 25, 1.0F, 1.0F, 1.0F, 1.0F, 15.0F, false, EnumRingBehavior.GROW), boss.getX(), boss.getY() + 0.1D, boss.getZ(), 0.0D, 0.0D, 0.0D);
+        level.addParticle(
+                new RingParticleOptions(
+                        0.0F,                          // yaw
+                        ((float) Math.PI / 2F),        // pitch
+                        25,                            // duration
+                        255,                           // r (以前の 1.0F から変更)
+                        255,                           // g (以前の 1.0F から変更)
+                        255,                           // b (以前の 1.0F から変更)
+                        1.0F,                          // a
+                        15.0F,                         // scale
+                        false,                         // facesCamera
+                        EnumRingBehavior.GROW.ordinal() // behavior (Enum から int に合わせるため ordinal() を使用)
+                ),
+                boss.getX(), boss.getY() + 0.1D, boss.getZ(),
+                0.0D, 0.0D, 0.0D
+        );
     }
 
     private static void spawnChargeVisuals(LivingEntity boss) {
@@ -218,7 +234,23 @@ public class ClientVisuals {
             level.addParticle(ParticleTypes.SOUL_FIRE_FLAME, boss.getX(), boss.getY() + 1.0D, boss.getZ(), mx, my, mz);
             level.addParticle(ParticleTypes.LARGE_SMOKE, boss.getX(), boss.getY() + 1.0D, boss.getZ(), mx * 0.5D, my, mz * 0.5D);
         }
-        level.addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 40, 0.2F, 0.7F, 1.0F, 1.0F, 35.0F, false, EnumRingBehavior.GROW), boss.getX(), boss.getY() + 0.1D, boss.getZ(), 0.0D, 0.0D, 0.0D);
+
+        level.addParticle(
+                new RingParticleOptions(
+                        0.0F,                          // yaw
+                        ((float) Math.PI / 2F),        // pitch
+                        40,                            // duration
+                        255,                           // r (以前の 1.0F から変更)
+                        255,                           // g (以前の 1.0F から変更)
+                        255,                           // b (以前の 1.0F から変更)
+                        1.0F,                          // a
+                        35.0F,                         // scale
+                        false,                         // facesCamera
+                        EnumRingBehavior.GROW.ordinal() // behavior (Enum から int に合わせるため ordinal() を使用)
+                ),
+                boss.getX(), boss.getY() + 0.1D, boss.getZ(),
+                0.0D, 0.0D, 0.0D
+        );
     }
 
     private static void spawnGuardSuccessVisuals(LivingEntity boss) {

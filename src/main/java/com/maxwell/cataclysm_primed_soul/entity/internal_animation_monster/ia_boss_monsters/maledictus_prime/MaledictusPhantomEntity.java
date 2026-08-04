@@ -1,5 +1,6 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime;
 
+import com.github.L_Ender.cataclysm.client.particle.Options.RingParticleOptions;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavior;
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
@@ -176,7 +177,7 @@ public class MaledictusPhantomEntity extends Mob {
             if (this.level().isClientSide()) {
                 float rotYaw = (float) Math.toRadians(-this.getYRot());
                 float pitch = (float) Math.toRadians(-this.getXRot());
-                this.level().addParticle(new RingParticle.RingData(rotYaw, pitch, 35, 0.337F, 0.925F, 0.8F, 1.0F, 60.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                this.level().addParticle(new RingParticleOptions(rotYaw, pitch, 35, 86, 236, 204, 1.0F, 60.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
                         this.getX(), this.getY() + (this.getBbHeight() / 2.0F), this.getZ(), 0.0D, 0.0D, 0.0D);
             }
         }
@@ -195,8 +196,8 @@ public class MaledictusPhantomEntity extends Mob {
                 float rotYaw = (float) Math.toRadians(-this.getYRot());
                 float rotYaw2 = (float) Math.toRadians(-this.getYRot() + 180.0F);
                 float pitch = (float) Math.toRadians(-this.getXRot());
-                this.level().addParticle(new RingParticle.RingData(rotYaw, pitch, 40, 0.337F, 0.925F, 0.8F, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK), x, y, z, 0.0D, 0.0D, 0.0D);
-                this.level().addParticle(new RingParticle.RingData(rotYaw2, pitch, 40, 0.337F, 0.925F, 0.8F, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK), x, y, z, 0.0D, 0.0D, 0.0D);
+                this.level().addParticle(new RingParticleOptions(rotYaw, pitch, 40, 86, 236, 204, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()), x, y, z, 0.0D, 0.0D, 0.0D);
+                this.level().addParticle(new RingParticleOptions(rotYaw2, pitch, 40, 86, 236, 204, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()), x, y, z, 0.0D, 0.0D, 0.0D);
                 if (elapsed % 2 == 0) {
                     this.level().addParticle((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(),
                             this.getRandomX(0.8D), this.getY() + 0.5D, this.getRandomZ(0.8D),
@@ -235,9 +236,9 @@ public class MaledictusPhantomEntity extends Mob {
             this.playSound(SoundEvents.GENERIC_EXPLODE, 1.5F, 0.6F);
             ScreenShake_Entity.ScreenShake(this.level(), this.position(), 35.0F, 0.3F, 0, 18);
             if (this.level().isClientSide()) {
-                this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 40, 0.337F, 0.925F, 0.8F, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                this.level().addParticle(new RingParticleOptions(0.0F, ((float) Math.PI / 2F), 40, 86, 236, 204, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
                         this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
-                this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 50, 0.337F, 0.925F, 0.8F, 0.5F, 75.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                this.level().addParticle(new RingParticleOptions(0.0F, ((float) Math.PI / 2F), 50, 86, 236, 204, 0.5F, 75.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
                         this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
             } else if (this.level() instanceof ServerLevel serverLevel) {
                 serverLevel.sendParticles(ParticleTypes.EXPLOSION_EMITTER, this.getX(), this.getY() + 0.2D, this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
@@ -267,7 +268,7 @@ public class MaledictusPhantomEntity extends Mob {
             if (this.level().isClientSide()) {
                 float rotYaw = (float) Math.toRadians(-this.getYRot());
                 float pitch = (float) Math.toRadians(-this.getXRot());
-                this.level().addParticle(new RingParticle.RingData(rotYaw, pitch, 25, 0.337F, 0.925F, 0.8F, 1.0F, 35.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                this.level().addParticle(new RingParticleOptions(rotYaw, pitch, 25, 86, 236, 204, 1.0F, 35.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
                         this.getX(), this.getY() + 1.8D, this.getZ(), 0.0D, 0.0D, 0.0D);
             }
             if (!this.level().isClientSide()) {

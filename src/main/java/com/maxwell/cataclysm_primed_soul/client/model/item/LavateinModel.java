@@ -186,9 +186,10 @@ public class LavateinModel extends AdvancedEntityModel<Entity> {
     }
 
     @Override
-    public Iterable<BasicModelPart> parts() {
-        return ImmutableList.of(this.root);
+    public BasicModelPart root() {
+        return this.root;
     }
+
 
     public void setupStage(int stage) {
         this.sword_phase1.showModel = (stage == 0);

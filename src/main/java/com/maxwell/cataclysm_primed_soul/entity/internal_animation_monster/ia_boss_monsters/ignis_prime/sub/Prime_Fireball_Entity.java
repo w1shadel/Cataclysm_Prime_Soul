@@ -1,6 +1,7 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub;
 
-import com.github.L_Ender.cataclysm.config.CMConfig;
+
+import com.github.L_Ender.cataclysm.config.CMCommonConfig;
 import com.github.L_Ender.cataclysm.entity.AnimationMonster.BossMonsters.Ignis_Entity;
 import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
 import com.github.L_Ender.cataclysm.entity.projectile.Ignis_Fireball_Entity;
@@ -140,7 +141,7 @@ public class Prime_Fireball_Entity extends AbstractHurtingProjectile {
                 if (flag) {
                     this.doEnchantDamageEffects(owner, entity);
                     if (owner instanceof Ignis_Entity) {
-                        owner.heal(5.0F * (float) CMConfig.IgnisHealingMultiplier);
+                        owner.heal(5.0F * (float) CMCommonConfig.Ignis.healthMultiplier);
                     } else {
                         owner.heal(5.0F);
                     }

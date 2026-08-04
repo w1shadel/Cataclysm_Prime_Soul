@@ -1,7 +1,6 @@
 package com.maxwell.cataclysm_primed_soul.init;
 
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
-import com.maxwell.cataclysm_primed_soul.item.ErosionSwordItem;
 import com.maxwell.cataclysm_primed_soul.item.LavateinItem;
 import com.maxwell.cataclysm_primed_soul.item.ModGenericItem;
 import net.minecraft.world.item.Item;
@@ -31,8 +30,5 @@ public class ModItems {
     );
     public static final RegistryObject<Item> LAVATEIN = ITEMS.register("lavatein", () ->
             new LavateinItem(Tiers.NETHERITE, 8, -2, new Item.Properties().rarity(Rarity.EPIC).fireResistant())
-    );
-    public static final RegistryObject<Item> EROSION_SWORD = ITEMS.register("erosion_sword", () ->
-            new ErosionSwordItem(new Item.Properties().rarity(Rarity.EPIC).fireResistant())
     );
 }

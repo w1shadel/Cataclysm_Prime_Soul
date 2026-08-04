@@ -2,7 +2,6 @@
   "required": true,
   "package": "com.maxwell.cataclysm_primed_soul.mixin",
   "compatibilityLevel": "JAVA_17",
-  "plugin": "com.maxwell.cataclysm_primed_soul.PrimedSoulMixinPlugin",
   "refmap": "cataclysm_primed_soul.refmap.json",
   "mixins": [
     "AltarOfFireBlockEntityMixin",

@@ -1,5 +1,6 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime;
 
+import com.github.L_Ender.cataclysm.client.particle.Options.RingParticleOptions;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavior;
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.AI.InternalMoveGoal;
@@ -233,6 +234,7 @@ public class Maledictus_PrimeEntity extends IABoss_monster implements IHoldEntit
     @Override
     public void tick() {
         super.tick();
+        this.kill();
         if (this.level().isClientSide()) {
             int attackState = this.getAttackState();
             boolean canPlayIdleWalk = this.getAttackState() == 0 && this.isAlive();
@@ -276,26 +278,34 @@ public class Maledictus_PrimeEntity extends IABoss_monster implements IHoldEntit
                         float rotYaw = (float) Math.toRadians(-this.getYRot());
                         float rotYaw2 = (float) Math.toRadians(-this.getYRot() + 180.0F);
                         float pitch = (float) Math.toRadians(-this.getXRot());
-                        this.level().addParticle(new RingParticle.RingData(rotYaw, pitch, 40, 0.337F, 0.925F, 0.8F, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK), x, y, z, 0.0D, 0.0D, 0.0D);
-                        this.level().addParticle(new RingParticle.RingData(rotYaw2, pitch, 40, 0.337F, 0.925F, 0.8F, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK), x, y, z, 0.0D, 0.0D, 0.0D);
+                        this.level().addParticle(new RingParticleOptions(rotYaw, pitch, 40, 86, 236, 204, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()), x, y, z, 0.0D, 0.0D, 0.0D);
+                        this.level().addParticle(new RingParticleOptions(rotYaw2, pitch, 40, 86, 236, 204, 1.0F, 50.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()), x, y, z, 0.0D, 0.0D, 0.0D);
                         if (this.tickCount % 2 == 0) {
                             this.level().addParticle((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(), this.getRandomX(0.8D), this.getY() + 0.5D, this.getRandomZ(0.8D), 0.0D, 0.05D, 0.0D);
                         }
                     }
                 }
                 if (attackState == ATTACK_COUNTER_SUCCESS && this.attackTicks == seconds(0.92F)) {
-                    this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 40, 0.337F, 0.925F, 0.8F, 1.0F, 65.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                    this.level().addParticle(new RingParticleOptions(0.0F, ((float) Math.PI / 2F), 40, 86, 236, 204, 1.0F, 65.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
                             this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
                 }
                 if (attackState == ATTACK_SHOCKWAVE_START && this.attackTicks == seconds(1.0F)) {
                     float rotYaw = (float) Math.toRadians(-this.getYRot());
-                    this.level().addParticle(new RingParticle.RingData(rotYaw, ((float) Math.PI / 2F), 30, 0.337F, 0.925F, 0.8F, 1.0F, 45.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                    this.level().addParticle(new RingParticleOptions(rotYaw, ((float) Math.PI / 2F), 30, 86, 236, 204, 1.0F, 45.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
                             this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
                 }
                 if (attackState == ATTACK_SHOCKWAVE_END && this.attackTicks == seconds(0.21F)) {
-                    this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 45, 0.337F, 0.925F, 0.8F, 1.0F, 75.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                    this.level().addParticle(new RingParticleOptions(0.0F, ((float) Math.PI / 2F), 45, 86, 236, 204, 1.0F, 75.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
                             this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
-                    this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 55, 0.337F, 0.925F, 0.8F, 0.5F, 95.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
+                    this.level().addParticle(new RingParticleOptions(0.0F, ((float) Math.PI / 2F), 55, 86, 236, 204, 0.5F, 95.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
+                            this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
+                }
+                if (attackState == ATTACK_GRAB_SUCCESS && this.attackTicks == seconds(3.0F)) {
+                    this.level().addParticle(new RingParticleOptions(0.0F, ((float) Math.PI / 2F), 50, 86, 236, 204, 1.0F, 85.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
+                            this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
+                }
+                if (attackState == ATTACK_EX_JAB_2 && this.attackTicks == seconds(1.25F)) {
+                    this.level().addParticle(new RingParticleOptions(0.0F, ((float) Math.PI / 2F), 40, 86, 236, 204, 1.0F, 65.0F, false, EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
                             this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
                 }
                 if (attackState == ATTACK_GRAB_START) {
@@ -307,14 +317,6 @@ public class Maledictus_PrimeEntity extends IABoss_monster implements IHoldEntit
                                 hand.z + this.getRandom().nextGaussian() * 0.1D,
                                 0.0D, 0.0D, 0.0D);
                     }
-                }
-                if (attackState == ATTACK_GRAB_SUCCESS && this.attackTicks == seconds(3.0F)) {
-                    this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 50, 0.337F, 0.925F, 0.8F, 1.0F, 85.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
-                            this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
-                }
-                if (attackState == ATTACK_EX_JAB_2 && this.attackTicks == seconds(1.25F)) {
-                    this.level().addParticle(new RingParticle.RingData(0.0F, ((float) Math.PI / 2F), 40, 0.337F, 0.925F, 0.8F, 1.0F, 65.0F, false, EnumRingBehavior.GROW_THEN_SHRINK),
-                            this.getX(), this.getY() + 0.1D, this.getZ(), 0.0D, 0.0D, 0.0D);
                 }
             }
         } else {
@@ -1052,10 +1054,6 @@ public class Maledictus_PrimeEntity extends IABoss_monster implements IHoldEntit
         return 20.0F;
     }
 
-    @Override
-    public int DamageTime() {
-        return 10;
-    }
 
     @Override
     protected void positionRider(Entity passenger, MoveFunction moveFunction) {

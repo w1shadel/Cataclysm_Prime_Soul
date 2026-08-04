@@ -2,7 +2,6 @@ package com.maxwell.cataclysm_primed_soul.api.datagen;
 
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.api.datagen.provider.*;
-import com.maxwell.cataclysm_primed_soul.init.ModDamageTypes;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
@@ -18,8 +17,6 @@ import java.util.concurrent.CompletableFuture;
 
 @Mod.EventBusSubscriber(modid = Primed_Soul.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class DataGenerators {
-    private static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
-            .add(Registries.DAMAGE_TYPE, ModDamageTypes::bootstrap);
 
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
@@ -41,16 +38,5 @@ public class DataGenerators {
         generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, existingFileHelper));
         generator.addProvider(event.includeClient(), new ModLanguageProvider.English(output));
         generator.addProvider(event.includeClient(), new ModLanguageProvider.Japanese(output));
-
-        if (event.includeServer()) {
-            DatapackBuiltinEntriesProvider datapackProvider = new DatapackBuiltinEntriesProvider(
-                    output, lookupProvider, BUILDER, Set.of(Primed_Soul.MODID)
-            );
-            generator.addProvider(true, datapackProvider);
-
-            generator.addProvider(true, new ModDamageTagsProvider(
-                    output, datapackProvider.getRegistryProvider(), existingFileHelper
-            ));
-        }
     }
 }

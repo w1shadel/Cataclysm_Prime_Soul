@@ -5,6 +5,7 @@ import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModTag;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
@@ -66,9 +67,7 @@ public class MaledictusSummonEvent {
                         if (prime != null) {
                             ScreenShake_Entity.ScreenShake(level, Vec3.atCenterOf(pos), 25.0F, 0.25F, 0, 40);
                             prime.setPos((double) pos.getX() + 0.5D, (double) (pos.getY() + 2), (double) pos.getZ() + 0.5D);
-                            prime.setHomePos(pos);
-                            ResourceLocation dimLoc = serverLevel.dimension().location();
-                            prime.setDimensionType(dimLoc.toString());
+                            prime.setHomePos(GlobalPos.of(level.dimension(), pos));
                             serverLevel.sendParticles(ParticleTypes.EXPLOSION_EMITTER, pos.getX() + 0.5D, pos.getY() + 2.0D, pos.getZ() + 0.5D, 1, 0.0D, 0.0D, 0.0D, 0.0D);
                             serverLevel.sendParticles((ParticleOptions) com.github.L_Ender.cataclysm.init.ModParticle.PHANTOM_WING_FLAME.get(), pos.getX() + 0.5D, pos.getY() + 2.0D, pos.getZ() + 0.5D, 45, 1.5D, 1.5D, 1.5D, 0.1D);
                             serverLevel.sendParticles(ParticleTypes.SOUL, pos.getX() + 0.5D, pos.getY() + 2.0D, pos.getZ() + 0.5D, 30, 1.5D, 1.5D, 1.5D, 0.1D);
