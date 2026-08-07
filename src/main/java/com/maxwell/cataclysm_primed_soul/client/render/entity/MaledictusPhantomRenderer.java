@@ -5,12 +5,15 @@ import com.maxwell.cataclysm_primed_soul.client.model.entity.MaledictusPhantomMo
 import com.maxwell.cataclysm_primed_soul.client.render.layer.MaledictusPhantomGhostLayer;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.MaledictusPhantomEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nullable;
 
 @SuppressWarnings("removal")
 @OnlyIn(Dist.CLIENT)
@@ -40,5 +43,11 @@ public class MaledictusPhantomRenderer extends MobRenderer<MaledictusPhantomEnti
     @Override
     protected int getBlockLightLevel(MaledictusPhantomEntity entity, BlockPos pos) {
         return Math.min(super.getBlockLightLevel(entity, pos), 2);
+    }
+
+    @Nullable
+    @Override
+    protected RenderType getRenderType(MaledictusPhantomEntity entity, boolean bodyVisible, boolean translucent, boolean outline) {
+        return null;
     }
 }

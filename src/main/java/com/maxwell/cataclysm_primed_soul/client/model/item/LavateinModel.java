@@ -190,7 +190,6 @@ public class LavateinModel extends AdvancedEntityModel<Entity> {
         return this.root;
     }
 
-
     public void setupStage(int stage) {
         this.sword_phase1.showModel = (stage == 0);
         this.sword_phase2.showModel = (stage == 1);

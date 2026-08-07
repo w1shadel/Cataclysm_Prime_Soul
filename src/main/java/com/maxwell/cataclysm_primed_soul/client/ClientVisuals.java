@@ -1,7 +1,6 @@
 package com.maxwell.cataclysm_primed_soul.client;
 
 import com.github.L_Ender.cataclysm.client.particle.Options.RingParticleOptions;
-import com.github.L_Ender.cataclysm.client.particle.RingParticle;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavior;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.api.entity.IShaderBoss;
@@ -83,27 +82,15 @@ public class ClientVisuals {
             }
             if (mc.gameRenderer.currentEffect() != null) {
                 PostChain effect = mc.gameRenderer.currentEffect();
-                try {
-                    for (java.lang.reflect.Field f : PostChain.class.getDeclaredFields()) {
-                        if (java.util.List.class.isAssignableFrom(f.getType())) {
-                            f.setAccessible(true);
-                            java.util.List<?> list = (java.util.List<?>) f.get(effect);
-                            if (list != null) {
-                                for (Object p : list) {
-                                    if (p instanceof PostPass pass) {
-                                        if (pass.getEffect().getUniform("DebuffLevel") != null) {
-                                            pass.getEffect().getUniform("DebuffLevel").set((float) currentDebuffLevel);
-                                        }
-                                        if (pass.getEffect().getUniform("PrimeTime") != null) {
-                                            pass.getEffect().getUniform("PrimeTime").set((float) tickCount);
-                                        }
-                                    }
-                                }
-                            }
+                if (effect instanceof com.maxwell.cataclysm_primed_soul.mixin.client.PostChainAccessor accessor) {
+                    for (PostPass pass : accessor.getPasses()) {
+                        if (pass.getEffect().getUniform("DebuffLevel") != null) {
+                            pass.getEffect().getUniform("DebuffLevel").set((float) currentDebuffLevel);
+                        }
+                        if (pass.getEffect().getUniform("PrimeTime") != null) {
+                            pass.getEffect().getUniform("PrimeTime").set((float) tickCount);
                         }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
         } else {
@@ -195,16 +182,16 @@ public class ClientVisuals {
         }
         level.addParticle(
                 new RingParticleOptions(
-                        0.0F,                          // yaw
-                        ((float) Math.PI / 2F),        // pitch
-                        25,                            // duration
-                        255,                           // r (以前の 1.0F から変更)
-                        255,                           // g (以前の 1.0F から変更)
-                        255,                           // b (以前の 1.0F から変更)
-                        1.0F,                          // a
-                        15.0F,                         // scale
-                        false,                         // facesCamera
-                        EnumRingBehavior.GROW.ordinal() // behavior (Enum から int に合わせるため ordinal() を使用)
+                        0.0F,
+                        ((float) Math.PI / 2F),
+                        25,
+                        255,
+                        255,
+                        255,
+                        1.0F,
+                        15.0F,
+                        false,
+                        EnumRingBehavior.GROW.ordinal()
                 ),
                 boss.getX(), boss.getY() + 0.1D, boss.getZ(),
                 0.0D, 0.0D, 0.0D
@@ -234,19 +221,18 @@ public class ClientVisuals {
             level.addParticle(ParticleTypes.SOUL_FIRE_FLAME, boss.getX(), boss.getY() + 1.0D, boss.getZ(), mx, my, mz);
             level.addParticle(ParticleTypes.LARGE_SMOKE, boss.getX(), boss.getY() + 1.0D, boss.getZ(), mx * 0.5D, my, mz * 0.5D);
         }
-
         level.addParticle(
                 new RingParticleOptions(
-                        0.0F,                          // yaw
-                        ((float) Math.PI / 2F),        // pitch
-                        40,                            // duration
-                        255,                           // r (以前の 1.0F から変更)
-                        255,                           // g (以前の 1.0F から変更)
-                        255,                           // b (以前の 1.0F から変更)
-                        1.0F,                          // a
-                        35.0F,                         // scale
-                        false,                         // facesCamera
-                        EnumRingBehavior.GROW.ordinal() // behavior (Enum から int に合わせるため ordinal() を使用)
+                        0.0F,
+                        ((float) Math.PI / 2F),
+                        40,
+                        255,
+                        255,
+                        255,
+                        1.0F,
+                        35.0F,
+                        false,
+                        EnumRingBehavior.GROW.ordinal()
                 ),
                 boss.getX(), boss.getY() + 0.1D, boss.getZ(),
                 0.0D, 0.0D, 0.0D

@@ -199,6 +199,11 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     }
 
     @Override
+    public boolean canBeAffected(net.minecraft.world.effect.MobEffectInstance effect) {
+        return false;
+    }
+
+    @Override
     public ResourceLocation getDebuffShader() {
         return SHADER;
     }
@@ -536,6 +541,11 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     }
 
     @Override
+    public float DamageCap() {
+        return 30.0F;
+    }
+
+    @Override
     public boolean hurt(DamageSource source, float amount) {
         int state = this.getAttackState();
         if (state == STATE_ULTRACHARGE || state == STATE_ULTRACHARGE_LIKEAMMO || state == STATE_ULTRACHARGE_STRIKING) {
@@ -557,6 +567,9 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
             return false;
         }
         boolean isGenericKill = source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY);
+        if (!isGenericKill) {
+            amount = Math.min(amount, this.DamageCap());
+        }
         if (!isGenericKill && this.getAttackState() == 0 && source.getEntity() instanceof LivingEntity attacker) {
             if (this.random.nextFloat() < 0.15F && this.dashCooldown <= 0) {
                 double angle = this.getYRot() * (Math.PI / 180.0D) + (this.random.nextBoolean() ? Math.PI / 2.0D : -Math.PI / 2.0D);

@@ -2,6 +2,7 @@ package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_b
 
 import com.github.L_Ender.cataclysm.entity.InternalAnimationMonster.AI.InternalAttackGoal;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.Maledictus_PrimeEntity;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 
 public class MaledictusStateGoal extends InternalAttackGoal {
@@ -27,8 +28,21 @@ public class MaledictusStateGoal extends InternalAttackGoal {
         super.tick();
         LivingEntity target = this.maledictus.getTarget();
         if (target != null && this.maledictus.getAttackState() != Maledictus_PrimeEntity.ATTACK_CHARGE) {
+            double dx = target.getX() - this.maledictus.getX();
+            double dz = target.getZ() - this.maledictus.getZ();
+            float targetYaw = (float) (Mth.atan2(dz, dx) * (180D / Math.PI)) - 90.0F;
+            float rotationSpeed = this.maledictus.isPhase2() ? 12.0F : 6.0F;
+            float yawDifference = Mth.wrapDegrees(targetYaw - this.maledictus.getYRot());
+            if (yawDifference > rotationSpeed) {
+                yawDifference = rotationSpeed;
+            } else if (yawDifference < -rotationSpeed) {
+                yawDifference = -rotationSpeed;
+            }
+            float newYaw = this.maledictus.getYRot() + yawDifference;
+            this.maledictus.setYRot(newYaw);
+            this.maledictus.yBodyRot = newYaw;
+            this.maledictus.yHeadRot = newYaw;
             this.maledictus.getLookControl().setLookAt(target, 60.0F, 60.0F);
-            this.maledictus.lookAt(target, 60.0F, 60.0F);
         }
     }
 

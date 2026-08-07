@@ -34,19 +34,8 @@ public class MaledictusAttackGoal extends Goal {
                     || this.maledictus.isGrabReady()
                     || this.maledictus.isExJabReady();
         }
-        if (distance <= 7.0D) {
-            return this.maledictus.isJabReady()
-                    || this.maledictus.isShockwaveReady()
-                    || this.maledictus.isChargeReady()
-                    || this.maledictus.isPhantomReady();
-        }
-        if (distance <= 16.0D) {
-            return this.maledictus.isChargeReady()
-                    || this.maledictus.isFarReady()
-                    || this.maledictus.isPhantomReady();
-        }
-        return this.maledictus.isFarReady()
-                || this.maledictus.isChargeReady()
+        return this.maledictus.isChargeReady()
+                || this.maledictus.isShockwaveReady()
                 || this.maledictus.isPhantomReady();
     }
 
@@ -99,57 +88,29 @@ public class MaledictusAttackGoal extends Goal {
             }
             return Maledictus_PrimeEntity.ATTACK_JAB_1;
         }
-        if (distance <= 7.0D) {
-            float phantomThreshold = isPhase2 ? 0.65F : 0.40F;
-            if (roll < 0.20F && this.maledictus.isShockwaveReady()) {
+        double heightDiff = Math.abs(this.maledictus.getY() - target.getY());
+        if (heightDiff > 2.0D) {
+            if (this.maledictus.isShockwaveReady()) {
                 return Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START;
             }
-            if (roll < phantomThreshold && this.maledictus.isPhantomReady()) {
-                return -1;
-            }
-            if (roll < 0.80F && this.maledictus.isChargeReady()) {
+        } else {
+            if (this.maledictus.isChargeReady()) {
                 return Maledictus_PrimeEntity.ATTACK_CHARGE;
             }
-            if (this.maledictus.isJabReady()) {
-                return Maledictus_PrimeEntity.ATTACK_JAB_1;
-            }
+        }
+        if (heightDiff > 2.0D && this.maledictus.isChargeReady()) {
+            return Maledictus_PrimeEntity.ATTACK_CHARGE;
+        }
+        if (heightDiff <= 2.0D && this.maledictus.isShockwaveReady()) {
             return Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START;
         }
-        if (distance <= 16.0D) {
-            if (target.isUsingItem() && target.getUseItem().getItem() instanceof net.minecraft.world.item.BowItem) {
-                if (this.maledictus.isChargeReady()) {
-                    return Maledictus_PrimeEntity.ATTACK_CHARGE;
-                }
-                if (this.maledictus.isFarReady()) {
-                    return Maledictus_PrimeEntity.ATTACK_FAR_START;
-                }
-            }
-            float phantomThreshold = isPhase2 ? 0.85F : 0.52F;
-            if (roll < 0.30F && this.maledictus.isChargeReady()) {
-                return Maledictus_PrimeEntity.ATTACK_CHARGE;
-            }
-            if (roll < phantomThreshold && this.maledictus.isPhantomReady()) {
+        if (this.maledictus.isPhantomReady()) {
+            float phantomThreshold = isPhase2 ? 0.75F : 0.45F;
+            if (roll < phantomThreshold) {
                 return -1;
             }
-            if (this.maledictus.isFarReady()) {
-                return Maledictus_PrimeEntity.ATTACK_FAR_START;
-            }
-            return this.maledictus.isChargeReady()
-                    ? Maledictus_PrimeEntity.ATTACK_CHARGE
-                    : Maledictus_PrimeEntity.ATTACK_FAR_START;
         }
-        if (isPhase2 && this.maledictus.isPhantomReady()) {
-            return -1;
-        }
-        if (roll < 0.45F && this.maledictus.isFarReady()) {
-            return Maledictus_PrimeEntity.ATTACK_FAR_START;
-        }
-        if (this.maledictus.isPhantomReady()) {
-            return -1;
-        }
-        return this.maledictus.isChargeReady()
-                ? Maledictus_PrimeEntity.ATTACK_CHARGE
-                : Maledictus_PrimeEntity.ATTACK_FAR_START;
+        return Maledictus_PrimeEntity.ATTACK_JAB_1;
     }
 
     private void spawnPhantom(LivingEntity target) {
@@ -189,7 +150,14 @@ public class MaledictusAttackGoal extends Goal {
         } else if (phantomType == MaledictusPhantomEntity.TYPE_MACE) {
             this.maledictus.setAttackState(Maledictus_PrimeEntity.BACKSTEP);
         } else if (phantomType == MaledictusPhantomEntity.TYPE_BOW) {
-            this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_FAR_START);
+            double heightDiff = Math.abs(this.maledictus.getY() - target.getY());
+            if (heightDiff > 2.0D && this.maledictus.isShockwaveReady()) {
+                this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START);
+            } else if (this.maledictus.isChargeReady()) {
+                this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
+            } else {
+                this.maledictus.setAttackState(0);
+            }
         }
         int baseCd = 60;
         this.maledictus.setPhantomCooldown(isPhase2 ? baseCd / 3 : baseCd);

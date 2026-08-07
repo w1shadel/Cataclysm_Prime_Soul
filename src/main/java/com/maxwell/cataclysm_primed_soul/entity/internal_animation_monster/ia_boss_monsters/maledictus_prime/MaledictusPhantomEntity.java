@@ -1,7 +1,6 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime;
 
 import com.github.L_Ender.cataclysm.client.particle.Options.RingParticleOptions;
-import com.github.L_Ender.cataclysm.client.particle.RingParticle;
 import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavior;
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModParticle;
@@ -142,6 +141,20 @@ public class MaledictusPhantomEntity extends Mob {
     @Override
     public void tick() {
         super.tick();
+        if (!this.level().isClientSide()) {
+            int type = this.getPhantomType();
+            boolean isTelegraphing = false;
+            if (type == TYPE_SPEAR && this.tickCount < SPEAR_CHARGE_START) {
+                isTelegraphing = true;
+            } else if (type == TYPE_MACE && this.tickCount < MACE_HIT_TICK) {
+                isTelegraphing = true;
+            } else if (type == TYPE_BOW && this.tickCount < BOW_SHOT_TICK) {
+                isTelegraphing = true;
+            }
+            if (isTelegraphing) {
+                this.rotateTowardsTarget();
+            }
+        }
         this.tickPhantomAttack();
         if (this.level().isClientSide()) {
             int type = this.getPhantomType();
@@ -153,6 +166,27 @@ public class MaledictusPhantomEntity extends Mob {
             if (this.lifeTicks <= 0) {
                 this.discard();
             }
+        }
+    }
+
+    private void rotateTowardsTarget() {
+        LivingEntity target = this.getPhantomTarget();
+        if (target != null && target.isAlive()) {
+            double dx = target.getX() - this.getX();
+            double dz = target.getZ() - this.getZ();
+            float targetYaw = (float) (Mth.atan2(dz, dx) * (180D / Math.PI)) - 90.0F;
+            float rotationSpeed = 15.0F;
+            float yawDifference = Mth.wrapDegrees(targetYaw - this.getYRot());
+            if (yawDifference > rotationSpeed) {
+                yawDifference = rotationSpeed;
+            } else if (yawDifference < -rotationSpeed) {
+                yawDifference = -rotationSpeed;
+            }
+            float newYaw = this.getYRot() + yawDifference;
+            this.setYRot(newYaw);
+            this.yBodyRot = newYaw;
+            this.yHeadRot = newYaw;
+            this.summonerYRot = newYaw;
         }
     }
 
@@ -332,20 +366,20 @@ public class MaledictusPhantomEntity extends Mob {
         float yaw = this.yBodyRot * ((float) Math.PI / 180F);
         List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class,
                 this.getBoundingBox().inflate(range, 2.0D, range));
-        for (LivingEntity t : targets) {
-            if (!this.canPhantomHit(t)) continue;
-            float angleToTarget = (float) (Mth.atan2(t.getZ() - this.getZ(), t.getX() - this.getX())
+        for (LivingEntity target : targets) {
+            if (!this.canPhantomHit(target)) continue;
+            float angleToTarget = (float) (Mth.atan2(target.getZ() - this.getZ(), target.getX() - this.getX())
                     * (180D / Math.PI)) - 90.0F;
             if (Mth.degreesDifferenceAbs(this.yBodyRot, angleToTarget) > arc / 2.0F) continue;
-            if (this.distanceTo(t) > range + this.getBbWidth()) continue;
+            if (this.distanceTo(target) > range + this.getBbWidth()) continue;
             float dmg = this.getPhantomBaseDamage() * damageMult;
-            if (t.hurt(this.damageSources().indirectMagic(this, this.summoner != null ? this.summoner : this), dmg)) {
-                if (knockback > 0.0F) t.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
+            if (target.hurt(this.damageSources().indirectMagic(this, this.summoner != null ? this.summoner : this), dmg)) {
+                if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
                 if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
                     Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);
-                    t.setDeltaMovement(t.getDeltaMovement().add(push));
+                    target.setDeltaMovement(target.getDeltaMovement().add(push));
                 }
-                t.hasImpulse = true;
+                target.hasImpulse = true;
             }
         }
     }
@@ -355,17 +389,17 @@ public class MaledictusPhantomEntity extends Mob {
         float yaw = this.yBodyRot * ((float) Math.PI / 180F);
         List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class,
                 this.getBoundingBox().inflate(xzRange, yRange, xzRange));
-        for (LivingEntity t : targets) {
-            if (!this.canPhantomHit(t)) continue;
-            if (this.distanceTo(t) > xzRange + this.getBbWidth()) continue;
+        for (LivingEntity target : targets) {
+            if (!this.canPhantomHit(target)) continue;
+            if (this.distanceTo(target) > xzRange + this.getBbWidth()) continue;
             float dmg = this.getPhantomBaseDamage() * damageMult;
-            if (t.hurt(this.damageSources().indirectMagic(this, this.summoner != null ? this.summoner : this), dmg)) {
-                if (knockback > 0.0F) t.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
+            if (target.hurt(this.damageSources().indirectMagic(this, this.summoner != null ? this.summoner : this), dmg)) {
+                if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
                 if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
                     Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);
-                    t.setDeltaMovement(t.getDeltaMovement().add(push));
+                    target.setDeltaMovement(target.getDeltaMovement().add(push));
                 }
-                t.hasImpulse = true;
+                target.hasImpulse = true;
             }
         }
     }

@@ -38,6 +38,8 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
     private final ModelPart Broken_Halbard;
     private final ModelPart Broken_MaceRight;
     private final ModelPart Sword;
+    private final ModelPart sword_tip2;
+    private final ModelPart sword_tip;
     private final ModelPart Left_Shoulder;
     private final ModelPart LeftArm;
     private final ModelPart LeftArm_Under;
@@ -76,6 +78,8 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         this.Broken_Halbard = this.Right_ArmUnder.getChild("Broken_Halbard");
         this.Broken_MaceRight = this.Right_ArmUnder.getChild("Broken_MaceRight");
         this.Sword = this.Right_ArmUnder.getChild("Sword");
+        this.sword_tip2 = this.Sword.getChild("sword_tip2");
+        this.sword_tip = this.Sword.getChild("sword_tip");
         this.Left_Shoulder = this.UpperBody.getChild("Left_Shoulder");
         this.LeftArm = this.Left_Shoulder.getChild("LeftArm");
         this.LeftArm_Under = this.LeftArm.getChild("LeftArm_Under");
@@ -170,6 +174,8 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         PartDefinition cube_r19 = Sword.addOrReplaceChild("cube_r19", CubeListBuilder.create().texOffs(216, 144).addBox(0.0F, -1.0F, -5.5F, 0.0F, 2.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -0.4031F, -7.8939F, -0.3054F, 0.0F, 0.0F));
         PartDefinition cube_r20 = Sword.addOrReplaceChild("cube_r20", CubeListBuilder.create().texOffs(216, 74).addBox(0.0F, -1.0F, -5.5F, 0.0F, 2.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.3969F, -7.8939F, 0.3054F, 0.0F, 0.0F));
         PartDefinition cube_r21 = Sword.addOrReplaceChild("cube_r21", CubeListBuilder.create().texOffs(212, 164).addBox(-0.5F, -1.0F, -1.0F, 5.0F, 2.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-2.0F, -0.0031F, -5.7939F, 0.7418F, 0.0F, 0.0F));
+        PartDefinition sword_tip2 = Sword.addOrReplaceChild("sword_tip2", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, -7.0F));
+        PartDefinition sword_tip = Sword.addOrReplaceChild("sword_tip", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, -60.0F));
         PartDefinition Left_Shoulder = UpperBody.addOrReplaceChild("Left_Shoulder", CubeListBuilder.create(), PartPose.offset(3.5F, -14.5F, 0.0F));
         PartDefinition cube_r22 = Left_Shoulder.addOrReplaceChild("cube_r22", CubeListBuilder.create().texOffs(20, 205).addBox(-2.7043F, -0.3823F, -3.0F, 4.0F, 10.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.5708F));
         PartDefinition cube_r23 = Left_Shoulder.addOrReplaceChild("cube_r23", CubeListBuilder.create().texOffs(212, 201).addBox(1.4903F, 1.6486F, -2.5F, 6.0F, 8.0F, 5.0F, new CubeDeformation(0.1F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -0.3054F));
@@ -236,13 +242,22 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         return LeftHand;
     }
 
+    public ModelPart getSwordTip() {
+        return sword_tip;
+    }
+
+    public ModelPart getSwordTip2() {
+        return sword_tip2;
+    }
+
+    public ModelPart getSword() {
+        return this.Sword;
+    }
+
     @Override
     public void setupAnim(Maledictus_PrimeEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
         this.setupWeaponVisibility(entity);
-        if (entity.getAttackState() == 0) {
-            this.animateHeadLookTarget(netHeadYaw, headPitch);
-        }
         boolean isPhase2 = entity.isPhase2();
         float comboSpeed = isPhase2 ? 1.4F : 1.15F;
         float heavyAttackSpeed = isPhase2 ? 1.25F : 1.05F;
@@ -252,34 +267,35 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         this.animate(entity.getAnimationState("jab_2"), Maledictus_PrimeAnimation.ATTACK_JAB_2, ageInTicks, comboSpeed);
         this.animate(entity.getAnimationState("jab_3"), Maledictus_PrimeAnimation.ATTACK_JAB_3, ageInTicks, comboSpeed);
         this.animate(entity.getAnimationState("charge"), Maledictus_PrimeAnimation.ATTACK_CHARGE, ageInTicks, heavyAttackSpeed);
-        this.animate(entity.getAnimationState("counter_start"), Maledictus_PrimeAnimation.ATTACK_COUNTER_START, ageInTicks, 1.0F);
-        this.animate(entity.getAnimationState("counter_success"), Maledictus_PrimeAnimation.ATTACK_COUNTER_SUCCESS, ageInTicks, godSpeed);
-        this.animate(entity.getAnimationState("counter_fail"), Maledictus_PrimeAnimation.ATTACK_COUNTER_FAIL, ageInTicks, 1.1F);
         this.animate(entity.getAnimationState("shockwave_start"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_START, ageInTicks, heavyAttackSpeed);
         this.animate(entity.getAnimationState("shockwave_end"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_END, ageInTicks, heavyAttackSpeed);
         this.animate(entity.getAnimationState("grab_start"), Maledictus_PrimeAnimation.ATTACK_GRAB_START, ageInTicks, comboSpeed);
         this.animate(entity.getAnimationState("grab_success"), Maledictus_PrimeAnimation.ATTACK_GRAB_SUCCESS, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("grab_sloop"), Maledictus_PrimeAnimation.ATTACK_GRAB_SLOOP, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("grab_send"), Maledictus_PrimeAnimation.ATTACK_GRAB_SEND, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("grab_fail"), Maledictus_PrimeAnimation.ATTACK_GRAB_FAIL, ageInTicks, 1.1F);
+        this.animate(entity.getAnimationState("ultimate"), Maledictus_PrimeAnimation.ATTACK_LAST1, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("head_break"), Maledictus_PrimeAnimation.ATTACK_HEAD_BREAKER, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("ex_jab_1"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_1, ageInTicks, comboSpeed);
         this.animate(entity.getAnimationState("ex_jab_2"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_2, ageInTicks, comboSpeed);
         this.animate(entity.getAnimationState("ex_jab_3"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_3, ageInTicks, godSpeed);
-        this.animate(entity.getAnimationState("far_start"), Maledictus_PrimeAnimation.ATTACK_FAR_START, ageInTicks, comboSpeed);
         this.animate(entity.getAnimationState("backstep"), Maledictus_PrimeAnimation.BACKSTEP, ageInTicks, godSpeed);
         boolean isAttacking = entity.getAttackState() != 0;
         if (!isAttacking) {
-            this.animate(entity.getAnimationState("walk"), Maledictus_PrimeAnimation.WALK, ageInTicks, 1.0F);
+            float walkSpeed = limbSwingAmount * 1.2F;
+            this.animate(entity.getAnimationState("walk"), Maledictus_PrimeAnimation.WALK, ageInTicks, walkSpeed);
+        }
+        if (entity.getAttackState() == 0) {
+            this.animateHeadLookTarget(netHeadYaw, headPitch);
         }
     }
 
     private void setupWeaponVisibility(Maledictus_PrimeEntity entity) {
         int attackState = entity.getAttackState();
-        boolean thrownSword = attackState == Maledictus_PrimeEntity.ATTACK_FAR_START && entity.attackTicks >= 25;
         this.Broken_Halbard.visible = false;
         this.Broken_MaceRight.visible = false;
         this.Broken_Mace_Left.visible = false;
         this.Broken_Bow.visible = false;
-        this.Sword.visible = !thrownSword;
         this.Armor.visible = !entity.isPhase2();
     }
 

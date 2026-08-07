@@ -3,8 +3,8 @@ package com.maxwell.cataclysm_primed_soul.mixin.client;
 import com.github.L_Ender.cataclysm.blockentities.Cursed_tombstone_Entity;
 import com.github.L_Ender.cataclysm.client.render.blockentity.Cursed_Tombstone_Renderer;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
+import com.maxwell.cataclysm_primed_soul.api.entity.IPrimeTombstone;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Maledictus_PrimeSwordEntityModel;
-import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.MaledictusSummonEvent;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,7 +27,7 @@ public class CursedTombstoneRendererMixin {
 
     @Inject(method = "render", at = @At("TAIL"), remap = false)
     private void hookRender(Cursed_tombstone_Entity entity, float delta, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int overlay, CallbackInfo ci) {
-        boolean isPrime = MaledictusSummonEvent.PRIME_TOMBSTONES.contains(entity.getBlockPos()) || entity.getPersistentData().getBoolean("isPrimeSummon");
+        boolean isPrime = entity instanceof IPrimeTombstone primeTombstone && primeTombstone.cataclysm_primed_soul$isPrimeSummon();
         if (isPrime) {
             if (this.swordModel == null) {
                 this.swordModel = new Maledictus_PrimeSwordEntityModel(net.minecraft.client.Minecraft.getInstance().getEntityModels().bakeLayer(Maledictus_PrimeSwordEntityModel.LAYER_LOCATION));

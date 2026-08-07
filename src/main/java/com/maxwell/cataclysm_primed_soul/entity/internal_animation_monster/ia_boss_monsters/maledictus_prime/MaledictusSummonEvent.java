@@ -3,12 +3,12 @@ package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_b
 import com.github.L_Ender.cataclysm.blocks.Cursed_Tombstone_Block;
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModTag;
-import com.maxwell.cataclysm_primed_soul.Primed_Soul;
+import com.maxwell.cataclysm_primed_soul.api.entity.IPrimeTombstone;
+import com.maxwell.cataclysm_primed_soul.init.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -23,12 +23,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
 
-@Mod.EventBusSubscriber(modid = Primed_Soul.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = com.maxwell.cataclysm_primed_soul.Primed_Soul.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class MaledictusSummonEvent {
-    public static final java.util.Set<BlockPos> PRIME_TOMBSTONES = java.util.Collections.synchronizedSet(new java.util.HashSet<>());
-
     @SubscribeEvent
     public static void onBlockClick(PlayerInteractEvent.RightClickBlock event) {
         Level level = event.getLevel();
@@ -39,17 +36,13 @@ public class MaledictusSummonEvent {
         }
         Player player = event.getEntity();
         ItemStack stack = event.getItemStack();
+        BlockEntity be = level.getBlockEntity(pos);
         if (player.isShiftKeyDown() && event.getHand() == InteractionHand.MAIN_HAND) {
-            ResourceLocation itemID = ForgeRegistries.ITEMS.getKey(stack.getItem());
-            if (itemID != null && itemID.toString().equals("cataclysm_primed_soul:rusted_knight_sword")) {
+            if (stack.is(ModItems.RUSTED_KNIGHT_SWORD.get())) {
                 if (!(Boolean) state.getValue(Cursed_Tombstone_Block.LIT)) {
                     if (!level.isClientSide()) {
-                        PRIME_TOMBSTONES.add(pos);
-                        BlockEntity be = level.getBlockEntity(pos);
-                        if (be != null) {
-                            be.getPersistentData().putBoolean("isPrimeSummon", true);
-                            be.setChanged();
-                            level.sendBlockUpdated(pos, state, state, 3);
+                        if (be instanceof IPrimeTombstone primeTombstone) {
+                            primeTombstone.cataclysm_primed_soul$setPrimeSummon(true);
                         }
                     }
                     if (!player.isCreative()) {
@@ -60,7 +53,7 @@ public class MaledictusSummonEvent {
                 }
             }
         } else if (!player.isShiftKeyDown() && event.getHand() == InteractionHand.MAIN_HAND) {
-            if (PRIME_TOMBSTONES.contains(pos) || level.getBlockEntity(pos) != null && level.getBlockEntity(pos).getPersistentData().getBoolean("isPrimeSummon")) {
+            if (be instanceof IPrimeTombstone primeTombstone && primeTombstone.cataclysm_primed_soul$isPrimeSummon()) {
                 if (!(Boolean) state.getValue(Cursed_Tombstone_Block.LIT) && (Boolean) state.getValue(Cursed_Tombstone_Block.POWERED)) {
                     if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
                         Maledictus_PrimeEntity prime = com.maxwell.cataclysm_primed_soul.init.ModEntities.MALEDICTUS_PRIME.get().create(level);
@@ -92,7 +85,6 @@ public class MaledictusSummonEvent {
                                 level.destroyBlock(pos, false);
                             }
                         }
-                        PRIME_TOMBSTONES.remove(pos);
                     }
                     event.setCancellationResult(InteractionResult.SUCCESS);
                     event.setCanceled(true);

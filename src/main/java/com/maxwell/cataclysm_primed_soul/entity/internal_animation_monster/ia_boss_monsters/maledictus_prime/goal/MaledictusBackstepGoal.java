@@ -28,7 +28,7 @@ public class MaledictusBackstepGoal extends Goal {
         }
         double distanceSq = this.maledictus.distanceToSqr(target);
         if (distanceSq <= 20.25D) {
-            return this.maledictus.getRandom().nextFloat() < 0.25F;
+            return this.maledictus.getRandom().nextFloat() < 0.10F;
         }
         return false;
     }

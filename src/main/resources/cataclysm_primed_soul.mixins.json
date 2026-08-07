@@ -9,7 +9,8 @@
   ],
   "client": [
     "client.CursedTombstoneRendererMixin",
-    "client.RendererAltarOfFireMixin"
+    "client.RendererAltarOfFireMixin",
+    "client.PostChainAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

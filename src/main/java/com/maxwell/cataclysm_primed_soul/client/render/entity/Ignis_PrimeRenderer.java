@@ -32,10 +32,10 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
     private static final int HAND_TRAIL_SAMPLES = 20;
     private static final double MIN_SAMPLE_DISTANCE = 0.05;
     private static final int MAX_SHADOWS = 5;
-    private final java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> leftHandTrails = new java.util.HashMap<>();
-    private final java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> rightHandTrails = new java.util.HashMap<>();
-    private final java.util.Map<java.util.UUID, Deque<ShadowPose>> shadowHistory = new java.util.HashMap<>();
-    private final java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> coreTrails = new java.util.HashMap<>();
+    private final java.util.Map<Ignis_PrimeEntity, Deque<net.minecraft.world.phys.Vec3>> leftHandTrails = new java.util.WeakHashMap<>();
+    private final java.util.Map<Ignis_PrimeEntity, Deque<net.minecraft.world.phys.Vec3>> rightHandTrails = new java.util.WeakHashMap<>();
+    private final java.util.Map<Ignis_PrimeEntity, Deque<ShadowPose>> shadowHistory = new java.util.WeakHashMap<>();
+    private final java.util.Map<Ignis_PrimeEntity, Deque<net.minecraft.world.phys.Vec3>> coreTrails = new java.util.WeakHashMap<>();
 
     public Ignis_PrimeRenderer(EntityRendererProvider.Context renderManagerIn) {
         super(renderManagerIn, new Ignis_PrimeModel(renderManagerIn.bakeLayer(Ignis_PrimeModel.LAYER_LOCATION)), 1.0F);
@@ -67,7 +67,7 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         boolean shouldShowTrail = attackState != 0 && attackState != 6 && attackState != 99 && (attackState < 21 || attackState > 24);
         boolean isHighSpeed = attackState == 34 || attackState == 35 || entityIn.getDeltaMovement().lengthSqr() > 0.1D;
         if (isHighSpeed && !entityIn.isInvisible()) {
-            Deque<ShadowPose> shadows = shadowHistory.computeIfAbsent(entityIn.getUUID(), id -> new ArrayDeque<>());
+            Deque<ShadowPose> shadows = shadowHistory.computeIfAbsent(entityIn, id -> new ArrayDeque<>());
             if (entityIn.tickCount % 2 == 0) {
                 shadows.addFirst(new ShadowPose(new net.minecraft.world.phys.Vec3(renderPosX, renderPosY, renderPosZ), entityYaw, entityIn.tickCount));
                 if (shadows.size() > MAX_SHADOWS) shadows.removeLast();
@@ -89,7 +89,7 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
                 i++;
             }
         } else {
-            shadowHistory.remove(entityIn.getUUID());
+            shadowHistory.remove(entityIn);
         }
         if (entityIn.deathTime > 0) {
             float f1 = (float) entityIn.deathTime / 145.0F;
@@ -132,14 +132,14 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
             net.minecraft.world.phys.Vec3 rightHandPos = getRightHandPosition(entityIn, partialTicks, renderPosX, renderPosY, renderPosZ);
             net.minecraft.world.phys.Vec3 leftHandPos = getLeftHandPosition(entityIn, partialTicks, renderPosX, renderPosY, renderPosZ);
             if (isUltimate) {
-                updateTrailPoints(entityIn.getUUID(), corePos, coreTrails);
-                renderHandTrail(entityIn, entityIn.getUUID(), coreTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 1.0F, 0.2F, 0.5F);
+                updateTrailPoints(entityIn, corePos, coreTrails);
+                renderHandTrail(entityIn, coreTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 1.0F, 0.2F, 0.5F);
             }
-            updateTrailPoints(entityIn.getUUID(), rightHandPos, rightHandTrails);
-            updateTrailPoints(entityIn.getUUID(), leftHandPos, leftHandTrails);
+            updateTrailPoints(entityIn, rightHandPos, rightHandTrails);
+            updateTrailPoints(entityIn, leftHandPos, leftHandTrails);
             float pulse = isUltimate ? (float) Math.sin(entityIn.tickCount * 0.5F) * 0.2F + 1.0F : 1.0F;
-            renderHandTrail(entityIn, entityIn.getUUID(), rightHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 1.0F, 0.4F * pulse, 1.0F);
-            renderHandTrail(entityIn, entityIn.getUUID(), leftHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 0.4F * pulse, 0.8F, 1.0F);
+            renderHandTrail(entityIn, rightHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 1.0F, 0.4F * pulse, 1.0F);
+            renderHandTrail(entityIn, leftHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 0.4F * pulse, 0.8F, 1.0F);
         }
         if (caughtEntity != null || shouldShowTrail) {
             net.minecraft.world.phys.Vec3 rightHandPos = getRightHandPosition(entityIn, partialTicks, renderPosX, renderPosY, renderPosZ);
@@ -149,15 +149,14 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
                 caughtEntity.setOldPosAndRot();
             }
             if (shouldShowTrail) {
-                updateTrailPoints(entityIn.getUUID(), rightHandPos, rightHandTrails);
-                updateTrailPoints(entityIn.getUUID(), leftHandPos, leftHandTrails);
-                renderHandTrail(entityIn, entityIn.getUUID(), rightHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 0.98F, 0.36F, 1.0F);
-                renderHandTrail(entityIn, entityIn.getUUID(), leftHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 0.35F, 0.78F, 1.0F);
+                updateTrailPoints(entityIn, rightHandPos, rightHandTrails);
+                updateTrailPoints(entityIn, leftHandPos, leftHandTrails);
+                renderHandTrail(entityIn, rightHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 0.98F, 0.36F, 1.0F);
+                renderHandTrail(entityIn, leftHandTrails, renderPosX, renderPosY, renderPosZ, matrixStackIn, bufferIn, packedLightIn, 0.35F, 0.78F, 1.0F);
             } else {
-                rightHandTrails.remove(entityIn.getUUID());
-                leftHandTrails.remove(entityIn.getUUID());
+                rightHandTrails.remove(entityIn);
+                leftHandTrails.remove(entityIn);
             }
-
         }
     }
 
@@ -177,8 +176,8 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         return 0.0F;
     }
 
-    private void updateTrailPoints(java.util.UUID uuid, net.minecraft.world.phys.Vec3 currentPos, java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> trails) {
-        Deque<net.minecraft.world.phys.Vec3> trail = trails.computeIfAbsent(uuid, id -> new ArrayDeque<>());
+    private void updateTrailPoints(Ignis_PrimeEntity entity, net.minecraft.world.phys.Vec3 currentPos, java.util.Map<Ignis_PrimeEntity, Deque<net.minecraft.world.phys.Vec3>> trails) {
+        Deque<net.minecraft.world.phys.Vec3> trail = trails.computeIfAbsent(entity, id -> new ArrayDeque<>());
         net.minecraft.world.phys.Vec3 last = trail.peekLast();
         if (last != null) {
             double distSq = currentPos.distanceToSqr(last);
@@ -194,11 +193,11 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
         }
     }
 
-    private void renderHandTrail(Ignis_PrimeEntity entity, java.util.UUID uuid,
-                                 java.util.Map<java.util.UUID, Deque<net.minecraft.world.phys.Vec3>> trails,
+    private void renderHandTrail(Ignis_PrimeEntity entity,
+                                 java.util.Map<Ignis_PrimeEntity, Deque<net.minecraft.world.phys.Vec3>> trails,
                                  double entityX, double entityY, double entityZ, PoseStack poseStack,
                                  MultiBufferSource buffer, int packedLight, float red, float green, float blue) {
-        Deque<net.minecraft.world.phys.Vec3> trail = trails.get(uuid);
+        Deque<net.minecraft.world.phys.Vec3> trail = trails.get(entity);
         if (trail == null || trail.size() < 2 || entity.isInvisible()) return;
         poseStack.pushPose();
         poseStack.translate(-entityX, -entityY, -entityZ);

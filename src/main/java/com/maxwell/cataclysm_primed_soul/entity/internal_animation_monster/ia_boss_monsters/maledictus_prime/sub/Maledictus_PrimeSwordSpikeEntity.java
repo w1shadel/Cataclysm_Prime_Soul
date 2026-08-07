@@ -110,6 +110,27 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
         }
         this.lifeTicks++;
         if (this.lifeTicks < 20 && this.level().isClientSide()) {
+            if (this.lifeTicks % 2 == 0) {
+                net.minecraft.core.BlockPos belowPos = net.minecraft.core.BlockPos.containing(this.getX(), this.getY() - 1.0D, this.getZ());
+                net.minecraft.world.level.block.state.BlockState state = this.level().getBlockState(belowPos);
+                if (state.isAir()) {
+                    belowPos = belowPos.below();
+                    state = this.level().getBlockState(belowPos);
+                }
+                if (!state.isAir() && state.getRenderShape() != net.minecraft.world.level.block.RenderShape.INVISIBLE) {
+                    this.level().addParticle(
+                            new net.minecraft.core.particles.BlockParticleOption(net.minecraft.core.particles.ParticleTypes.BLOCK, state),
+                            this.getX() + (this.random.nextDouble() - 0.5D) * 0.6D,
+                            this.getY() + 0.1D,
+                            this.getZ() + (this.random.nextDouble() - 0.5D) * 0.6D,
+                            (this.random.nextDouble() - 0.5D) * 0.15D,
+                            0.1D + this.random.nextDouble() * 0.15D,
+                            (this.random.nextDouble() - 0.5D) * 0.15D
+                    );
+                }
+            }
+        }
+        if (this.lifeTicks < 20 && this.level().isClientSide()) {
             if (this.lifeTicks % 3 == 0) {
                 this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getY() + 0.1D, this.getZ(),
                         (this.random.nextDouble() - 0.5D) * 0.2D, 0.05D, (this.random.nextDouble() - 0.5D) * 0.2D);
