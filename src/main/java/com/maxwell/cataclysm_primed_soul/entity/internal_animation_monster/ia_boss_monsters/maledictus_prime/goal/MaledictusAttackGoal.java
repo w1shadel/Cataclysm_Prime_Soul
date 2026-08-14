@@ -28,7 +28,7 @@ public class MaledictusAttackGoal extends Goal {
 
     private boolean hasAnyAttackReady(LivingEntity target) {
         double distance = this.maledictus.distanceTo(target);
-        if (distance <= 3.5D) {
+        if (distance <= 4.8D) {
             return this.maledictus.isJabReady()
                     || this.maledictus.isCounterReady()
                     || this.maledictus.isGrabReady()
@@ -159,7 +159,7 @@ public class MaledictusAttackGoal extends Goal {
                 this.maledictus.setAttackState(0);
             }
         }
-        int baseCd = 60;
-        this.maledictus.setPhantomCooldown(isPhase2 ? baseCd / 3 : baseCd);
+        float baseCooldownSeconds = 3.0F;
+        this.maledictus.setPhantomCooldown(isPhase2 ? baseCooldownSeconds / 3.0F : baseCooldownSeconds);
     }
 }

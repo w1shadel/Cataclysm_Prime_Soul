@@ -11,6 +11,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 @SuppressWarnings("removal")
 public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEntity> {
@@ -160,6 +161,7 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         PartDefinition cube_r14 = Broken_MaceRight.addOrReplaceChild("cube_r14", CubeListBuilder.create().texOffs(118, 107).addBox(-5.0F, 0.0F, -10.0F, 9.0F, 0.0F, 20.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -5.5333F, -24.1667F, 0.0F, 0.0F, -1.5708F));
         PartDefinition Sword = Right_ArmUnder.addOrReplaceChild("Sword", CubeListBuilder.create().texOffs(216, 46).addBox(-1.0F, -1.0031F, -4.7939F, 2.0F, 2.0F, 8.0F, new CubeDeformation(0.0F))
                 .texOffs(34, 188).addBox(-1.5F, -4.0031F, -6.7939F, 3.0F, 8.0F, 2.0F, new CubeDeformation(0.0F))
+                .texOffs(3, 69).addBox(-1.5F, -4.0031F, -60.7939F, 3.0F, 8.0F, 54.0F, new CubeDeformation(0.0F))
                 .texOffs(220, 0).addBox(0.0F, 0.9969F, -18.7939F, 0.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
                 .texOffs(220, 24).addBox(0.0F, 0.9969F, -37.4939F, 0.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
                 .texOffs(0, 67).addBox(-0.5F, -0.5017F, -61.0013F, 1.0F, 1.0F, 58.0F, new CubeDeformation(0.0F))
@@ -282,8 +284,13 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         this.animate(entity.getAnimationState("backstep"), Maledictus_PrimeAnimation.BACKSTEP, ageInTicks, godSpeed);
         boolean isAttacking = entity.getAttackState() != 0;
         if (!isAttacking) {
-            float walkSpeed = limbSwingAmount * 1.2F;
-            this.animate(entity.getAnimationState("walk"), Maledictus_PrimeAnimation.WALK, ageInTicks, walkSpeed);
+            float speed = 0.1662F;
+            float degree = 0.2F;
+            this.LeftLeg.xRot = Mth.cos(limbSwing * speed) * degree * limbSwingAmount;
+            this.RightLeg.xRot = Mth.cos(limbSwing * speed + (float) Math.PI) * degree * limbSwingAmount;
+            float kneeBending = 0.5F;
+            this.LeftLeg_Under.xRot = Math.max(0.0F, Mth.sin(limbSwing * speed) * kneeBending * limbSwingAmount);
+            this.RightLeg_Under.xRot = Math.max(0.0F, Mth.sin(limbSwing * speed + (float) Math.PI) * kneeBending * limbSwingAmount);
         }
         if (entity.getAttackState() == 0) {
             this.animateHeadLookTarget(netHeadYaw, headPitch);

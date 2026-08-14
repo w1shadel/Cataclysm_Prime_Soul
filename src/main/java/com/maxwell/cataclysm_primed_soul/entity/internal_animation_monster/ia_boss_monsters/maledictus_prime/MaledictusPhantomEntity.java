@@ -30,17 +30,18 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class MaledictusPhantomEntity extends Mob {
+    private static final float TICKS_PER_SECOND = 20.0F;
     public static final int TYPE_SPEAR = 0;
     public static final int TYPE_MACE = 1;
     public static final int TYPE_BOW = 2;
-    private static final int LIFE_SPEAR = 60;
-    private static final int LIFE_MACE = 40;
-    private static final int LIFE_BOW = 70;
+    private static final int LIFE_SPEAR = ticks(3.0F);
+    private static final int LIFE_MACE = ticks(2.0F);
+    private static final int LIFE_BOW = ticks(3.5F);
     private static final EntityDataAccessor<Integer> PHANTOM_TYPE =
             SynchedEntityData.defineId(MaledictusPhantomEntity.class, EntityDataSerializers.INT);
-    private static final int SPEAR_CHARGE_START = 22;
-    private static final int MACE_HIT_TICK = 25;
-    private static final int BOW_SHOT_TICK = 46;
+    private static final int SPEAR_CHARGE_START = ticks(1.1F);
+    private static final int MACE_HIT_TICK = ticks(1.25F);
+    private static final int BOW_SHOT_TICK = ticks(2.3F);
     public final AnimationState phantomSpearChargeAnimationState = new AnimationState();
     public final AnimationState phantomMaceCrushAnimationState = new AnimationState();
     public final AnimationState phantomBowSnipeAnimationState = new AnimationState();
@@ -51,6 +52,10 @@ public class MaledictusPhantomEntity extends Mob {
     private LivingEntity cachedTarget;
     @Nullable
     private LivingEntity summoner;
+
+    private static int ticks(float seconds) {
+        return Math.round(seconds * TICKS_PER_SECOND);
+    }
 
     public MaledictusPhantomEntity(EntityType<? extends Mob> type, Level level) {
         super(type, level);
@@ -334,7 +339,7 @@ public class MaledictusPhantomEntity extends Mob {
             for (LivingEntity t : targets) {
                 if (this.canPhantomHit(t)) {
                     float dmg = this.getPhantomBaseDamage() * 2.2F;
-                    t.hurt(this.damageSources().indirectMagic(this, this.summoner != null ? this.summoner : this), dmg);
+                    t.hurt(this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg);
                     t.setDeltaMovement(t.getDeltaMovement().add(direction.scale(0.6D)));
                     t.hasImpulse = true;
                     return;
@@ -373,7 +378,7 @@ public class MaledictusPhantomEntity extends Mob {
             if (Mth.degreesDifferenceAbs(this.yBodyRot, angleToTarget) > arc / 2.0F) continue;
             if (this.distanceTo(target) > range + this.getBbWidth()) continue;
             float dmg = this.getPhantomBaseDamage() * damageMult;
-            if (target.hurt(this.damageSources().indirectMagic(this, this.summoner != null ? this.summoner : this), dmg)) {
+            if (target.hurt(this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg)) {
                 if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
                 if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
                     Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);
@@ -393,7 +398,7 @@ public class MaledictusPhantomEntity extends Mob {
             if (!this.canPhantomHit(target)) continue;
             if (this.distanceTo(target) > xzRange + this.getBbWidth()) continue;
             float dmg = this.getPhantomBaseDamage() * damageMult;
-            if (target.hurt(this.damageSources().indirectMagic(this, this.summoner != null ? this.summoner : this), dmg)) {
+            if (target.hurt(this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg)) {
                 if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
                 if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
                     Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);

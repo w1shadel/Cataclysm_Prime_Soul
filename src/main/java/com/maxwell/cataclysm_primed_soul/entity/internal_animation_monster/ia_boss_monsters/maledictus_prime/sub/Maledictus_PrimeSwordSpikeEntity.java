@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class Maledictus_PrimeSwordSpikeEntity extends Entity {
+    private static final float TICKS_PER_SECOND = 20.0F;
     private int lifeTicks;
     private int warmupDelay;
     private float damage;
@@ -27,6 +28,10 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
     private LivingEntity summoner;
     @Nullable
     private UUID summonerUUID;
+
+    private static int ticks(float seconds) {
+        return Math.round(seconds * TICKS_PER_SECOND);
+    }
 
     public Maledictus_PrimeSwordSpikeEntity(EntityType<?> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -109,7 +114,7 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
             return;
         }
         this.lifeTicks++;
-        if (this.lifeTicks < 20 && this.level().isClientSide()) {
+        if (this.lifeTicks < ticks(1.0F) && this.level().isClientSide()) {
             if (this.lifeTicks % 2 == 0) {
                 net.minecraft.core.BlockPos belowPos = net.minecraft.core.BlockPos.containing(this.getX(), this.getY() - 1.0D, this.getZ());
                 net.minecraft.world.level.block.state.BlockState state = this.level().getBlockState(belowPos);
@@ -130,13 +135,13 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
                 }
             }
         }
-        if (this.lifeTicks < 20 && this.level().isClientSide()) {
+        if (this.lifeTicks < ticks(1.0F) && this.level().isClientSide()) {
             if (this.lifeTicks % 3 == 0) {
                 this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getY() + 0.1D, this.getZ(),
                         (this.random.nextDouble() - 0.5D) * 0.2D, 0.05D, (this.random.nextDouble() - 0.5D) * 0.2D);
             }
         }
-        if (this.lifeTicks == 20) {
+        if (this.lifeTicks == ticks(1.0F)) {
             this.playSound(SoundEvents.GENERIC_EXPLODE, 1.2F, 0.7F);
             this.playSound(SoundEvents.ANVIL_LAND, 1.0F, 1.1F);
             if (this.level() instanceof ServerLevel serverLevel) {
@@ -151,7 +156,10 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
                 for (LivingEntity target : targets) {
                     if (this.canHit(target)) {
                         float finalDamage = this.damage > 0 ? this.damage : 16.0F;
-                        if (target.hurt(this.damageSources().indirectMagic(this, boss != null ? boss : this), finalDamage)) {
+                        net.minecraft.world.damagesource.DamageSource source = boss != null
+                                ? this.damageSources().mobAttack(boss)
+                                : this.damageSources().generic();
+                        if (target.hurt(source, finalDamage)) {
                             target.setDeltaMovement(target.getDeltaMovement().add(0.0D, 0.65D, 0.0D));
                             target.hasImpulse = true;
                         }
@@ -159,7 +167,7 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
                 }
             }
         }
-        if (this.lifeTicks >= 30 && this.level().isClientSide()) {
+        if (this.lifeTicks >= ticks(1.5F) && this.level().isClientSide()) {
             double rx = this.getX() + (this.random.nextDouble() - 0.5D) * 0.4D;
             double ry = this.getY() + this.random.nextDouble() * 2.0D;
             double rz = this.getZ() + (this.random.nextDouble() - 0.5D) * 0.4D;
@@ -169,7 +177,7 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
                 this.level().addParticle(ParticleTypes.WHITE_ASH, rx, ry, rz, 0.0D, 0.05D, 0.0D);
             }
         }
-        if (this.lifeTicks > 40) {
+        if (this.lifeTicks > ticks(2.0F)) {
             if (this.level() instanceof ServerLevel serverLevel) {
                 serverLevel.sendParticles(ParticleTypes.ASH, this.getX(), this.getY() + 1.0D, this.getZ(), 25, 0.3D, 0.8D, 0.3D, 0.1D);
                 serverLevel.sendParticles(ParticleTypes.WHITE_ASH, this.getX(), this.getY() + 1.0D, this.getZ(), 20, 0.3D, 0.8D, 0.3D, 0.1D);
