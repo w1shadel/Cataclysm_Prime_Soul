@@ -28,6 +28,12 @@ public class MaledictusAttackGoal extends Goal {
 
     private boolean hasAnyAttackReady(LivingEntity target) {
         double distance = this.maledictus.distanceTo(target);
+        double heightDiff = Math.abs(this.maledictus.getY() - target.getY());
+        if (heightDiff > 2.0D && !target.onGround()) {
+            return this.maledictus.isPhantomReady()
+                    || this.maledictus.isShockwaveReady()
+                    || this.maledictus.isBackstepReady();
+        }
         if (distance <= 4.8D) {
             return this.maledictus.isJabReady()
                     || this.maledictus.isCounterReady()
@@ -65,6 +71,31 @@ public class MaledictusAttackGoal extends Goal {
         double distance = this.maledictus.distanceTo(target);
         float roll = this.maledictus.getRandom().nextFloat();
         boolean isPhase2 = this.maledictus.isPhase2();
+        double heightDiff = Math.abs(this.maledictus.getY() - target.getY());
+        boolean targetIsAirborne = heightDiff > 2.0D && !target.onGround();
+        if (targetIsAirborne && this.maledictus.isPhantomReady()) {
+            return -1;
+        }
+        if (targetIsAirborne) {
+            if (this.maledictus.isShockwaveReady()) {
+                return Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START;
+            }
+            if (this.maledictus.isBackstepReady()) {
+                return Maledictus_PrimeEntity.BACKSTEP;
+            }
+            return 0;
+        }
+        if (this.maledictus.shouldChangeStrategyAfterMiss() && this.maledictus.isPhantomReady()) {
+            return -1;
+        }
+        if (this.maledictus.shouldChangeStrategyAfterMiss()) {
+            if (this.maledictus.isBackstepReady()) {
+                return Maledictus_PrimeEntity.BACKSTEP;
+            }
+            if (this.maledictus.isChargeReady()) {
+                return Maledictus_PrimeEntity.ATTACK_CHARGE;
+            }
+        }
         if (distance <= 3.5D) {
             if (target.isUsingItem() && target.getUseItem().getItem() instanceof net.minecraft.world.item.ShieldItem) {
                 if (this.maledictus.isGrabReady()) {
@@ -88,7 +119,6 @@ public class MaledictusAttackGoal extends Goal {
             }
             return Maledictus_PrimeEntity.ATTACK_JAB_1;
         }
-        double heightDiff = Math.abs(this.maledictus.getY() - target.getY());
         if (heightDiff > 2.0D) {
             if (this.maledictus.isShockwaveReady()) {
                 return Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START;
@@ -116,16 +146,7 @@ public class MaledictusAttackGoal extends Goal {
     private void spawnPhantom(LivingEntity target) {
         double distance = this.maledictus.distanceTo(target);
         boolean isPhase2 = this.maledictus.isPhase2();
-        int phantomType;
-        if (distance <= 7.0D) {
-            phantomType = MaledictusPhantomEntity.TYPE_MACE;
-        } else if (distance <= 16.0D) {
-            phantomType = this.maledictus.getRandom().nextBoolean()
-                    ? MaledictusPhantomEntity.TYPE_SPEAR
-                    : MaledictusPhantomEntity.TYPE_BOW;
-        } else {
-            phantomType = MaledictusPhantomEntity.TYPE_BOW;
-        }
+        int phantomType = choosePhantomType(target, distance);
         MaledictusPhantomEntity phantom = com.maxwell.cataclysm_primed_soul.init.ModEntities.MALEDICTUS_PHANTOM.get().create(this.maledictus.level());
         if (phantom != null) {
             double px = this.maledictus.getX();
@@ -145,21 +166,65 @@ public class MaledictusAttackGoal extends Goal {
             phantom.setSummonerYRot(pYaw);
             this.maledictus.level().addFreshEntity(phantom);
         }
+        float traceChance = isPhase2 ? 0.4F : 0.15F;
+        if (this.maledictus.getRandom().nextFloat() < traceChance) {
+            this.spawnTracePhantom(target);
+        }
         if (phantomType == MaledictusPhantomEntity.TYPE_SPEAR) {
             this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
         } else if (phantomType == MaledictusPhantomEntity.TYPE_MACE) {
             this.maledictus.setAttackState(Maledictus_PrimeEntity.BACKSTEP);
         } else if (phantomType == MaledictusPhantomEntity.TYPE_BOW) {
             double heightDiff = Math.abs(this.maledictus.getY() - target.getY());
-            if (heightDiff > 2.0D && this.maledictus.isShockwaveReady()) {
-                this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START);
-            } else if (this.maledictus.isChargeReady()) {
+            if (heightDiff > 2.0D) {
+                this.maledictus.setAttackState(0);
+            } else if (heightDiff <= 2.0D && this.maledictus.isChargeReady()) {
                 this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
             } else {
                 this.maledictus.setAttackState(0);
             }
         }
+        this.maledictus.resetAttackFailureStreak();
         float baseCooldownSeconds = 3.0F;
         this.maledictus.setPhantomCooldown(isPhase2 ? baseCooldownSeconds / 3.0F : baseCooldownSeconds);
+    }
+
+    private int choosePhantomType(LivingEntity target, double distance) {
+        boolean shielded = target.isUsingItem()
+                && target.getUseItem().getItem() instanceof net.minecraft.world.item.ShieldItem;
+        if (shielded) {
+            return MaledictusPhantomEntity.TYPE_MACE;
+        }
+        if (Math.abs(this.maledictus.getY() - target.getY()) > 2.0D) {
+            return MaledictusPhantomEntity.TYPE_BOW;
+        }
+
+        float roll = this.maledictus.getRandom().nextFloat();
+        if (distance <= 7.0D) {
+            // Mace pressures nearby players, while bow creates space and spear
+            // is reserved for the least common close-range option.
+            if (roll < 0.55F) return MaledictusPhantomEntity.TYPE_MACE;
+            if (roll < 0.85F) return MaledictusPhantomEntity.TYPE_BOW;
+            return MaledictusPhantomEntity.TYPE_SPEAR;
+        }
+        if (distance <= 16.0D) {
+            if (roll < 0.45F) return MaledictusPhantomEntity.TYPE_BOW;
+            if (roll < 0.78F) return MaledictusPhantomEntity.TYPE_MACE;
+            return MaledictusPhantomEntity.TYPE_SPEAR;
+        }
+        if (roll < 0.60F) return MaledictusPhantomEntity.TYPE_BOW;
+        if (roll < 0.88F) return MaledictusPhantomEntity.TYPE_MACE;
+        return MaledictusPhantomEntity.TYPE_SPEAR;
+    }
+
+    private void spawnTracePhantom(LivingEntity target) {
+        MaledictusPhantomEntity trace = com.maxwell.cataclysm_primed_soul.init.ModEntities.MALEDICTUS_PHANTOM.get().create(this.maledictus.level());
+        if (trace == null) return;
+        trace.moveTo(this.maledictus.getX(), this.maledictus.getY(), this.maledictus.getZ(), this.maledictus.getYRot(), 0.0F);
+        trace.setPhantomType(MaledictusPhantomEntity.TYPE_TRACE);
+        trace.setTarget(target);
+        trace.setSummoner(this.maledictus);
+        trace.setSummonerYRot(this.maledictus.getYRot());
+        this.maledictus.level().addFreshEntity(trace);
     }
 }

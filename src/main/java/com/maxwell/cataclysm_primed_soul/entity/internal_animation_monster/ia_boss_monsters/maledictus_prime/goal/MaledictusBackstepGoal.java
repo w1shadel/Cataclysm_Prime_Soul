@@ -26,11 +26,7 @@ public class MaledictusBackstepGoal extends Goal {
         if (target == null || !target.isAlive()) {
             return false;
         }
-        double distanceSq = this.maledictus.distanceToSqr(target);
-        if (distanceSq <= 20.25D) {
-            return this.maledictus.getRandom().nextFloat() < 0.10F;
-        }
-        return false;
+        return this.maledictus.isIncomingAttackThreat(target);
     }
 
     @Override
