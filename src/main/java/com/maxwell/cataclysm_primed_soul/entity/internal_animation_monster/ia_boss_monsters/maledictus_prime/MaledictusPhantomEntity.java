@@ -34,13 +34,14 @@ public class MaledictusPhantomEntity extends Mob {
     public static final int TYPE_SPEAR = 0;
     public static final int TYPE_MACE = 1;
     public static final int TYPE_BOW = 2;
-    public static final int TYPE_TRACE = 3;
+    public static final int TYPE_NEXT_STATE = 3;
     private static final int LIFE_SPEAR = ticks(3.0F);
     private static final int LIFE_MACE = ticks(2.0F);
     private static final int LIFE_BOW = ticks(3.5F);
-    private static final int LIFE_TRACE = ticks(3.5F);
-    private static final int TRACE_DELAY_TICKS = ticks(0.6F);
+    private static final int LIFE_NEXT_STATE = ticks(1.8F);
     private static final EntityDataAccessor<Integer> PHANTOM_TYPE =
+            SynchedEntityData.defineId(MaledictusPhantomEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> PLANNED_ATTACK_STATE =
             SynchedEntityData.defineId(MaledictusPhantomEntity.class, EntityDataSerializers.INT);
     private static final int SPEAR_CHARGE_START = ticks(1.1F);
     private static final int MACE_HIT_TICK = ticks(1.25F);
@@ -55,7 +56,7 @@ public class MaledictusPhantomEntity extends Mob {
     private LivingEntity cachedTarget;
     @Nullable
     private LivingEntity summoner;
-    private int lastTraceAttackState = Integer.MIN_VALUE;
+    private int plannedAttackState;
 
     private static int ticks(float seconds) {
         return Math.round(seconds * TICKS_PER_SECOND);
@@ -80,6 +81,7 @@ public class MaledictusPhantomEntity extends Mob {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(PHANTOM_TYPE, TYPE_SPEAR);
+        this.entityData.define(PLANNED_ATTACK_STATE, 0);
     }
 
     public int getPhantomType() {
@@ -91,7 +93,7 @@ public class MaledictusPhantomEntity extends Mob {
         this.lifeTicks = switch (type) {
             case TYPE_MACE -> LIFE_MACE;
             case TYPE_BOW -> LIFE_BOW;
-            case TYPE_TRACE -> LIFE_TRACE;
+            case TYPE_NEXT_STATE -> LIFE_NEXT_STATE;
             default -> LIFE_SPEAR;
         };
     }
@@ -110,6 +112,15 @@ public class MaledictusPhantomEntity extends Mob {
 
     public void setSummoner(@Nullable LivingEntity summoner) {
         this.summoner = summoner;
+    }
+
+    public void setPlannedAttackState(int state) {
+        this.plannedAttackState = state;
+        this.entityData.set(PLANNED_ATTACK_STATE, state);
+    }
+
+    public int getPlannedAttackState() {
+        return this.entityData.get(PLANNED_ATTACK_STATE);
     }
 
     @Override
@@ -165,16 +176,19 @@ public class MaledictusPhantomEntity extends Mob {
                 this.rotateTowardsTarget();
             }
         }
-        if (this.getPhantomType() == TYPE_TRACE) {
-            this.tickTraceAttack();
+        if (this.getPhantomType() == TYPE_NEXT_STATE) {
+            this.tickNextStateAttack();
         } else {
             this.tickPhantomAttack();
         }
         if (this.level().isClientSide()) {
             int type = this.getPhantomType();
-            this.phantomSpearChargeAnimationState.animateWhen(this.isAlive() && type == TYPE_SPEAR, this.tickCount);
-            this.phantomMaceCrushAnimationState.animateWhen(this.isAlive() && type == TYPE_MACE, this.tickCount);
-            this.phantomBowSnipeAnimationState.animateWhen(this.isAlive() && type == TYPE_BOW, this.tickCount);
+            this.phantomSpearChargeAnimationState.animateWhen(this.isAlive()
+                    && (type == TYPE_SPEAR || type == TYPE_NEXT_STATE && this.isPlannedJab()), this.tickCount);
+            this.phantomMaceCrushAnimationState.animateWhen(this.isAlive()
+                    && (type == TYPE_MACE || type == TYPE_NEXT_STATE && this.isPlannedMace()), this.tickCount);
+            this.phantomBowSnipeAnimationState.animateWhen(this.isAlive()
+                    && (type == TYPE_BOW || type == TYPE_NEXT_STATE && this.isPlannedBow()), this.tickCount);
         } else {
             this.lifeTicks--;
             if (this.lifeTicks <= 0) {
@@ -213,37 +227,12 @@ public class MaledictusPhantomEntity extends Mob {
         }
     }
 
-    private void tickTraceAttack() {
-        if (this.level().isClientSide()) {
-            return;
-        }
-        if (!(this.summoner instanceof Maledictus_PrimeEntity boss) || !boss.isAlive()) {
-            this.discard();
-            return;
-        }
-        Maledictus_PrimeEntity.TraceFrame frame = boss.getTraceFrame(TRACE_DELAY_TICKS);
-        this.setPos(frame.position().x, frame.position().y, frame.position().z);
-        this.setYRot(frame.yaw());
-        this.yBodyRot = frame.yaw();
-        this.yHeadRot = frame.yaw();
-        if (frame.attackState() != lastTraceAttackState) {
-            lastTraceAttackState = frame.attackState();
-            this.performTraceAttack(frame.attackState());
-        }
-        if (this.level() instanceof ServerLevel serverLevel && this.tickCount % 3 == 0) {
-            serverLevel.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, this.getX(), this.getY() + 1.0D, this.getZ(),
-                    3, 0.35D, 0.5D, 0.35D, 0.02D);
-        }
-    }
-
-    private void performTraceAttack(int attackState) {
-        switch (attackState) {
+    private void tickNextStateAttack() {
+        if (this.level().isClientSide() || this.tickCount != 4) return;
+        switch (this.plannedAttackState) {
             case Maledictus_PrimeEntity.ATTACK_JAB_1,
                     Maledictus_PrimeEntity.ATTACK_JAB_2,
-                    Maledictus_PrimeEntity.ATTACK_JAB_3,
-                    Maledictus_PrimeEntity.ATTACK_EX_JAB_1,
-                    Maledictus_PrimeEntity.ATTACK_EX_JAB_2,
-                    Maledictus_PrimeEntity.ATTACK_EX_JAB_3 ->
+                    Maledictus_PrimeEntity.ATTACK_JAB_3 ->
                     this.performPhantomForwardArc(0.65F, 3.8F, 110.0F, 0.25F, 0.15D, 0.05D);
             case Maledictus_PrimeEntity.ATTACK_CHARGE ->
                     this.performPhantomForwardArc(0.85F, 4.2F, 100.0F, 0.45F, 0.25D, 0.1D);
@@ -259,6 +248,24 @@ public class MaledictusPhantomEntity extends Mob {
             default -> {
             }
         }
+    }
+
+    private boolean isPlannedJab() {
+        int state = this.getPlannedAttackState();
+        return state == Maledictus_PrimeEntity.ATTACK_JAB_1
+                || state == Maledictus_PrimeEntity.ATTACK_JAB_2
+                || state == Maledictus_PrimeEntity.ATTACK_JAB_3;
+    }
+
+    private boolean isPlannedMace() {
+        int state = this.getPlannedAttackState();
+        return state == Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START
+                || state == Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_END
+                || state == Maledictus_PrimeEntity.ATTACK_GRAB_SUCCESS;
+    }
+
+    private boolean isPlannedBow() {
+        return this.getPlannedAttackState() == Maledictus_PrimeEntity.ATTACK_CHARGE;
     }
 
     private void tickSpear() {

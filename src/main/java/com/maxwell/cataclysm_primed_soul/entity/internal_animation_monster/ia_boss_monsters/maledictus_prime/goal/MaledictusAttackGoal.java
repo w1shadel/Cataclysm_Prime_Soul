@@ -37,8 +37,7 @@ public class MaledictusAttackGoal extends Goal {
         if (distance <= 4.8D) {
             return this.maledictus.isJabReady()
                     || this.maledictus.isCounterReady()
-                    || this.maledictus.isGrabReady()
-                    || this.maledictus.isExJabReady();
+                    || this.maledictus.isGrabReady();
         }
         return this.maledictus.isChargeReady()
                 || this.maledictus.isShockwaveReady()
@@ -101,8 +100,8 @@ public class MaledictusAttackGoal extends Goal {
                 if (this.maledictus.isGrabReady()) {
                     return Maledictus_PrimeEntity.ATTACK_GRAB_START;
                 }
-                if (this.maledictus.isExJabReady()) {
-                    return Maledictus_PrimeEntity.ATTACK_EX_JAB_1;
+                if (this.maledictus.isJabReady()) {
+                    return Maledictus_PrimeEntity.ATTACK_JAB_1;
                 }
             }
             if (isPhase2 && roll < 0.25F && this.maledictus.isPhantomReady()) {
@@ -110,9 +109,6 @@ public class MaledictusAttackGoal extends Goal {
             }
             if (roll < 0.36F && this.maledictus.isGrabReady()) {
                 return Maledictus_PrimeEntity.ATTACK_GRAB_START;
-            }
-            if (roll < 0.55F && this.maledictus.isExJabReady()) {
-                return Maledictus_PrimeEntity.ATTACK_EX_JAB_1;
             }
             if (this.maledictus.isJabReady()) {
                 return Maledictus_PrimeEntity.ATTACK_JAB_1;
@@ -166,10 +162,6 @@ public class MaledictusAttackGoal extends Goal {
             phantom.setSummonerYRot(pYaw);
             this.maledictus.level().addFreshEntity(phantom);
         }
-        float traceChance = isPhase2 ? 0.4F : 0.15F;
-        if (this.maledictus.getRandom().nextFloat() < traceChance) {
-            this.spawnTracePhantom(target);
-        }
         if (phantomType == MaledictusPhantomEntity.TYPE_SPEAR) {
             this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
         } else if (phantomType == MaledictusPhantomEntity.TYPE_MACE) {
@@ -217,14 +209,4 @@ public class MaledictusAttackGoal extends Goal {
         return MaledictusPhantomEntity.TYPE_SPEAR;
     }
 
-    private void spawnTracePhantom(LivingEntity target) {
-        MaledictusPhantomEntity trace = com.maxwell.cataclysm_primed_soul.init.ModEntities.MALEDICTUS_PHANTOM.get().create(this.maledictus.level());
-        if (trace == null) return;
-        trace.moveTo(this.maledictus.getX(), this.maledictus.getY(), this.maledictus.getZ(), this.maledictus.getYRot(), 0.0F);
-        trace.setPhantomType(MaledictusPhantomEntity.TYPE_TRACE);
-        trace.setTarget(target);
-        trace.setSummoner(this.maledictus);
-        trace.setSummonerYRot(this.maledictus.getYRot());
-        this.maledictus.level().addFreshEntity(trace);
-    }
 }

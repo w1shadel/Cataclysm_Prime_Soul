@@ -216,6 +216,18 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         return UpperBody;
     }
 
+    public ModelPart getHead() {
+        return Head;
+    }
+
+    public ModelPart getLeftEye() {
+        return Left_eye;
+    }
+
+    public ModelPart getRightEye() {
+        return Right_eye;
+    }
+
     public ModelPart getRight_Shoulder() {
         return Right_Shoulder;
     }

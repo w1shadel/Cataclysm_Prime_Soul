@@ -62,7 +62,7 @@ public class MaledictusPhantomModel extends HierarchicalModel<MaledictusPhantomE
         this.Broken_MaceRight.visible = mace;
         this.Broken_Mace_Left.visible = mace;
         this.Broken_Bow.visible = bow;
-        this.Sword.visible = false;
+        this.Sword.visible = type == MaledictusPhantomEntity.TYPE_NEXT_STATE;
     }
 
     @Override

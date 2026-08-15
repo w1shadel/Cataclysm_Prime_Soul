@@ -331,6 +331,9 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
 
     @Override
     public void setAttackState(int state) {
+        if ((this.isDeadOrDying() || !this.isAlive()) && state != STATE_DEATH) {
+            return;
+        }
         int current = this.getAttackState();
         if (this.isJumpAttackState(current)
                 && state != current
@@ -1224,6 +1227,12 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     @Override
     public void aiStep() {
         super.aiStep();
+        if (this.isDeadOrDying() || !this.isAlive()) {
+            if (this.getAttackState() != STATE_DEATH) {
+                this.setAttackState(STATE_DEATH);
+            }
+            return;
+        }
         if (this.getAttackState() == STATE_PHASE_CHANGE) {
             handlePhaseChangeAction();
             return;

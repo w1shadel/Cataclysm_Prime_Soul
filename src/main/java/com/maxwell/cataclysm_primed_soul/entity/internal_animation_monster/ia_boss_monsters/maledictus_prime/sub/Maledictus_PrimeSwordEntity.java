@@ -119,7 +119,7 @@ public class Maledictus_PrimeSwordEntity extends Entity {
                         if (boss instanceof Maledictus_PrimeEntity prime) {
                             prime.teleportTo(inFront.x, target.getY(), inFront.z);
                             prime.lookAt(target, 360.0F, 360.0F);
-                            prime.setAttackState(this.random.nextBoolean() ? Maledictus_PrimeEntity.ATTACK_JAB_1 : Maledictus_PrimeEntity.ATTACK_EX_JAB_1);
+                            prime.setAttackState(Maledictus_PrimeEntity.ATTACK_JAB_1);
                         }
                         this.discard();
                         return;
