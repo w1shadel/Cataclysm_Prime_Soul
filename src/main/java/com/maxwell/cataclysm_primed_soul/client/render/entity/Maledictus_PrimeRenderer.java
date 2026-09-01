@@ -69,6 +69,9 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
         double renderPosX = net.minecraft.util.Mth.lerp(partialTicks, pEntity.xo, pEntity.getX());
         double renderPosY = net.minecraft.util.Mth.lerp(partialTicks, pEntity.yo, pEntity.getY());
         double renderPosZ = net.minecraft.util.Mth.lerp(partialTicks, pEntity.zo, pEntity.getZ());
+        if (pEntity.getAttackState() == Maledictus_PrimeEntity.ATTACK_DEAD) {
+            renderDeathLight(pEntity, partialTicks, pPoseStack, pBuffer, renderPosX, renderPosY, renderPosZ);
+        }
         int attackState = pEntity.getAttackState();
         boolean isAttacking = attackState != 0
                 && attackState != Maledictus_PrimeEntity.ATTACK_COUNTER_START
@@ -242,6 +245,38 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
         renderEyeRay(beam, matrix, rightEye, forward, pulse, 0.72F);
         renderEyeBloom(beam, matrix, rightEye, forward, pulse);
         poseStack.popPose();
+    }
+
+    private void renderDeathLight(Maledictus_PrimeEntity entity, float partialTicks, PoseStack poseStack,
+                                  MultiBufferSource buffer, double entityX, double entityY, double entityZ) {
+        float age = entity.getAttackTicks() + partialTicks;
+        float start = 9.2F;
+        if (age < start || age >= 40.0F) return;
+        float progress = (age - start) / (40.0F - start);
+        float alpha = Math.min(1.0F, (age - start) / 4.0F) * (1.0F - progress);
+        Vec3 origin = getTorsoPosition(entity, partialTicks, entityX, entityY, entityZ);
+        poseStack.pushPose();
+        poseStack.translate(-entityX, -entityY, -entityZ);
+        Matrix4f matrix = poseStack.last().pose();
+        VertexConsumer beam = buffer.getBuffer(RenderType.lightning());
+        float pulse = 0.9F + 0.1F * (float) Math.sin((entity.tickCount + partialTicks) * 0.7F);
+        Vec3 up = new Vec3(0.0D, 1.0D, 0.0D);
+        addQuad(beam, matrix, origin.add(-0.16D * pulse, 0, 0), origin.add(0.16D * pulse, 0, 0),
+                origin.add(0.05D, 1.35D * pulse, 0), origin.add(-0.05D, 1.35D * pulse, 0),
+                150, 235, 255, (int) (230.0F * alpha));
+        addQuad(beam, matrix, origin.add(0, 0, -0.16D * pulse), origin.add(0, 0, 0.16D * pulse),
+                origin.add(0, 1.05D * pulse, 0.05D), origin.add(0, 1.05D * pulse, -0.05D),
+                220, 255, 255, (int) (190.0F * alpha));
+        poseStack.popPose();
+    }
+
+    private Vec3 getTorsoPosition(Maledictus_PrimeEntity entity, float partialTicks,
+                                  double entityX, double entityY, double entityZ) {
+        PoseStack poseStack = createModelPose(entity, partialTicks);
+        Maledictus_PrimeModel model = this.getModel();
+        model.getBody().translateAndRotate(poseStack);
+        model.getUpperBody().translateAndRotate(poseStack);
+        return toWorldPosition(poseStack, 0.0D, 0.35D, 0.0D, entityX, entityY, entityZ);
     }
 
     private Vec3 getEyePosition(Maledictus_PrimeEntity entity, float partialTicks,

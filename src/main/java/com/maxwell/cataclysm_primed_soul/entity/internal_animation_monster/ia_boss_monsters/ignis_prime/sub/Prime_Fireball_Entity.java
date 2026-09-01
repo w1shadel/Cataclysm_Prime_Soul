@@ -6,6 +6,7 @@ import com.github.L_Ender.cataclysm.entity.effect.Cm_Falling_Block_Entity;
 import com.github.L_Ender.cataclysm.entity.projectile.Ignis_Fireball_Entity;
 import com.github.L_Ender.cataclysm.init.ModEffect;
 import com.github.L_Ender.cataclysm.util.CustomExplosion.IgnisExplosion;
+import com.maxwell.cataclysm_primed_soul.entity.EntityDamageHelper;
 import com.maxwell.cataclysm_primed_soul.init.ModEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -133,9 +134,9 @@ public class Prime_Fireball_Entity extends AbstractHurtingProjectile {
             if (shooter instanceof LivingEntity) {
                 LivingEntity owner = (LivingEntity) shooter;
                 if (entity instanceof LivingEntity) {
-                    flag = entity.hurt(this.damageSources().mobProjectile(this, owner), 7.0F + ((LivingEntity) entity).getMaxHealth() * 0.10F);
+                    flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, this.damageSources().mobProjectile(this, owner), 7.0F + ((LivingEntity) entity).getMaxHealth() * 0.10F);
                 } else {
-                    flag = entity.hurt(this.damageSources().mobProjectile(this, owner), 7.0F);
+                    flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, this.damageSources().mobProjectile(this, owner), 7.0F);
                 }
                 if (flag) {
                     this.doEnchantDamageEffects(owner, entity);
@@ -146,7 +147,7 @@ public class Prime_Fireball_Entity extends AbstractHurtingProjectile {
                     }
                 }
             } else {
-                flag = entity.hurt(this.damageSources().magic(), 5.0F);
+                flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, this.damageSources().magic(), 5.0F);
             }
             IgnisExplosion explosion = new IgnisExplosion(this.level(), this, (DamageSource) null, (ExplosionDamageCalculator) null, this.getX(), this.getY(), this.getZ(), 2.0F, true, BlockInteraction.KEEP);
             explosion.explode();

@@ -1,6 +1,7 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.sub;
 
 import com.github.L_Ender.cataclysm.init.ModParticle;
+import com.maxwell.cataclysm_primed_soul.entity.EntityDamageHelper;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.MaledictusPhantomEntity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.Maledictus_PrimeEntity;
 import net.minecraft.core.particles.ParticleOptions;
@@ -96,7 +97,7 @@ public class Maledictus_PrimeSwordEntity extends Entity {
             serverLevel.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, this.getX(), this.getY(), this.getZ(), 2, 0.1D, 0.1D, 0.1D, 0.0D);
         }
         if (!this.level().isClientSide()) {
-            AABB swordBox = this.getBoundingBox().inflate(0.75D);
+            AABB swordBox = this.getBoundingBox().inflate(EntityDamageHelper.expandRange(0.75D));
             List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class, swordBox);
             for (LivingEntity target : targets) {
                 if (this.canHit(target)) {
@@ -105,7 +106,7 @@ public class Maledictus_PrimeSwordEntity extends Entity {
                     if (boss != null) {
                         damage = (float) boss.getAttributeValue(Attributes.ATTACK_DAMAGE) * 1.2F;
                     }
-                    if (target.hurt(this.damageSources().indirectMagic(this, boss != null ? boss : this), damage)) {
+                    if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().indirectMagic(this, boss != null ? boss : this), damage)) {
                         Vec3 inFront = target.position().subtract(Vec3.directionFromRotation(0.0F, target.getYRot()).normalize().scale(1.2D));
                         if (this.level() instanceof ServerLevel serverLevel) {
                             if (boss != null) {

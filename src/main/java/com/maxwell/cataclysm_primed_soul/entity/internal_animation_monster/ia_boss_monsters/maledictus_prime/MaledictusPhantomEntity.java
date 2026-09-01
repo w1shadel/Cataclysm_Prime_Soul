@@ -5,6 +5,7 @@ import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavio
 import com.github.L_Ender.cataclysm.entity.effect.ScreenShake_Entity;
 import com.github.L_Ender.cataclysm.init.ModParticle;
 import com.github.L_Ender.cataclysm.init.ModSounds;
+import com.maxwell.cataclysm_primed_soul.entity.EntityDamageHelper;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -30,11 +31,11 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class MaledictusPhantomEntity extends Mob {
-    private static final float TICKS_PER_SECOND = 20.0F;
     public static final int TYPE_SPEAR = 0;
     public static final int TYPE_MACE = 1;
     public static final int TYPE_BOW = 2;
     public static final int TYPE_NEXT_STATE = 3;
+    private static final float TICKS_PER_SECOND = 20.0F;
     private static final int LIFE_SPEAR = ticks(3.0F);
     private static final int LIFE_MACE = ticks(2.0F);
     private static final int LIFE_BOW = ticks(3.5F);
@@ -58,15 +59,15 @@ public class MaledictusPhantomEntity extends Mob {
     private LivingEntity summoner;
     private int plannedAttackState;
 
-    private static int ticks(float seconds) {
-        return Math.round(seconds * TICKS_PER_SECOND);
-    }
-
     public MaledictusPhantomEntity(EntityType<? extends Mob> type, Level level) {
         super(type, level);
         this.noPhysics = false;
         this.setInvulnerable(true);
         this.setNoGravity(true);
+    }
+
+    private static int ticks(float seconds) {
+        return Math.round(seconds * TICKS_PER_SECOND);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -114,13 +115,26 @@ public class MaledictusPhantomEntity extends Mob {
         this.summoner = summoner;
     }
 
+    public int getPlannedAttackState() {
+        return this.entityData.get(PLANNED_ATTACK_STATE);
+    }
+
     public void setPlannedAttackState(int state) {
         this.plannedAttackState = state;
         this.entityData.set(PLANNED_ATTACK_STATE, state);
     }
 
-    public int getPlannedAttackState() {
-        return this.entityData.get(PLANNED_ATTACK_STATE);
+    public int getSpearChargeStartTicks() {
+        return SPEAR_CHARGE_START;
+    }
+
+    public float getSpearTelegraphLength() {
+        return (float) ((LIFE_SPEAR - SPEAR_CHARGE_START) * 1.2D
+                + EntityDamageHelper.expandRange(3.8D));
+    }
+
+    public float getSpearTelegraphHalfWidth() {
+        return (float) EntityDamageHelper.expandRange(3.8D);
     }
 
     @Override
@@ -172,7 +186,7 @@ public class MaledictusPhantomEntity extends Mob {
             } else if (type == TYPE_BOW && this.tickCount < BOW_SHOT_TICK) {
                 isTelegraphing = true;
             }
-            if (isTelegraphing) {
+            if (isTelegraphing && this.tickCount == 1) {
                 this.rotateTowardsTarget();
             }
         }
@@ -231,19 +245,19 @@ public class MaledictusPhantomEntity extends Mob {
         if (this.level().isClientSide() || this.tickCount != 4) return;
         switch (this.plannedAttackState) {
             case Maledictus_PrimeEntity.ATTACK_JAB_1,
-                    Maledictus_PrimeEntity.ATTACK_JAB_2,
-                    Maledictus_PrimeEntity.ATTACK_JAB_3 ->
+                 Maledictus_PrimeEntity.ATTACK_JAB_2,
+                 Maledictus_PrimeEntity.ATTACK_JAB_3 ->
                     this.performPhantomForwardArc(0.65F, 3.8F, 110.0F, 0.25F, 0.15D, 0.05D);
             case Maledictus_PrimeEntity.ATTACK_CHARGE ->
                     this.performPhantomForwardArc(0.85F, 4.2F, 100.0F, 0.45F, 0.25D, 0.1D);
             case Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START,
-                    Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_END,
-                    Maledictus_PrimeEntity.ATTACK_HEAD_BREAK,
-                    Maledictus_PrimeEntity.ATTACK_ULTIMATE ->
+                 Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_END,
+                 Maledictus_PrimeEntity.ATTACK_HEAD_BREAK,
+                 Maledictus_PrimeEntity.ATTACK_ULTIMATE ->
                     this.performPhantomArea(0.75F, 0.8F, 4.5D, 2.0D, 0.1D, 0.25D);
             case Maledictus_PrimeEntity.ATTACK_GRAB_START,
-                    Maledictus_PrimeEntity.ATTACK_GRAB_SUCCESS,
-                    Maledictus_PrimeEntity.ATTACK_GRAB_SEND ->
+                 Maledictus_PrimeEntity.ATTACK_GRAB_SUCCESS,
+                 Maledictus_PrimeEntity.ATTACK_GRAB_SEND ->
                     this.performPhantomArea(0.55F, 0.45F, 2.8D, 1.5D, 0.1D, 0.2D);
             default -> {
             }
@@ -272,11 +286,6 @@ public class MaledictusPhantomEntity extends Mob {
         int elapsed = this.tickCount;
         if (elapsed == SPEAR_CHARGE_START) {
             this.playSound((SoundEvent) ModSounds.PHANTOM_SPEAR.get(), 1.0F, 1.0F);
-            LivingEntity target = this.getPhantomTarget();
-            if (target != null) {
-                float angle = (float) (Mth.atan2(target.getZ() - this.getZ(), target.getX() - this.getX()) * (180D / Math.PI)) - 90.0F;
-                this.setSummonerYRot(angle);
-            }
             if (this.level().isClientSide()) {
                 float rotYaw = (float) Math.toRadians(-this.getYRot());
                 float pitch = (float) Math.toRadians(-this.getXRot());
@@ -398,12 +407,12 @@ public class MaledictusPhantomEntity extends Mob {
                 serverLevel.sendParticles(ParticleTypes.SOUL, next.x, next.y, next.z, 1, 0.05D, 0.05D, 0.05D, 0.0D);
                 serverLevel.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, next.x, next.y, next.z, 1, 0.05D, 0.05D, 0.05D, 0.0D);
             }
-            AABB box = new AABB(pos, next).inflate(0.65D);
+            AABB box = new AABB(pos, next).inflate(EntityDamageHelper.expandRange(0.65D));
             List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class, box);
             for (LivingEntity t : targets) {
                 if (this.canPhantomHit(t)) {
                     float dmg = this.getPhantomBaseDamage() * 2.2F;
-                    t.hurt(this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg);
+                    EntityDamageHelper.hurtIgnoringInvulnerability(t, this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg);
                     t.setDeltaMovement(t.getDeltaMovement().add(direction.scale(0.6D)));
                     t.hasImpulse = true;
                     return;
@@ -433,16 +442,17 @@ public class MaledictusPhantomEntity extends Mob {
     private void performPhantomForwardArc(float damageMult, float range, float arc, float knockback,
                                           double forwardPush, double verticalImpulse) {
         float yaw = this.yBodyRot * ((float) Math.PI / 180F);
+        double effectiveRange = EntityDamageHelper.expandRange(range);
         List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class,
-                this.getBoundingBox().inflate(range, 2.0D, range));
+                this.getBoundingBox().inflate(effectiveRange, EntityDamageHelper.expandRange(2.0D), effectiveRange));
         for (LivingEntity target : targets) {
             if (!this.canPhantomHit(target)) continue;
             float angleToTarget = (float) (Mth.atan2(target.getZ() - this.getZ(), target.getX() - this.getX())
                     * (180D / Math.PI)) - 90.0F;
             if (Mth.degreesDifferenceAbs(this.yBodyRot, angleToTarget) > arc / 2.0F) continue;
-            if (this.distanceTo(target) > range + this.getBbWidth()) continue;
+            if (this.distanceTo(target) > effectiveRange + this.getBbWidth()) continue;
             float dmg = this.getPhantomBaseDamage() * damageMult;
-            if (target.hurt(this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg)) {
+            if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg)) {
                 if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
                 if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
                     Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);
@@ -456,13 +466,15 @@ public class MaledictusPhantomEntity extends Mob {
     private void performPhantomArea(float damageMult, float knockback, double xzRange, double yRange,
                                     double forwardPush, double verticalImpulse) {
         float yaw = this.yBodyRot * ((float) Math.PI / 180F);
+        double effectiveXzRange = EntityDamageHelper.expandRange(xzRange);
+        double effectiveYRange = EntityDamageHelper.expandRange(yRange);
         List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class,
-                this.getBoundingBox().inflate(xzRange, yRange, xzRange));
+                this.getBoundingBox().inflate(effectiveXzRange, effectiveYRange, effectiveXzRange));
         for (LivingEntity target : targets) {
             if (!this.canPhantomHit(target)) continue;
-            if (this.distanceTo(target) > xzRange + this.getBbWidth()) continue;
+            if (this.distanceTo(target) > effectiveXzRange + this.getBbWidth()) continue;
             float dmg = this.getPhantomBaseDamage() * damageMult;
-            if (target.hurt(this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg)) {
+            if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg)) {
                 if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
                 if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
                     Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);

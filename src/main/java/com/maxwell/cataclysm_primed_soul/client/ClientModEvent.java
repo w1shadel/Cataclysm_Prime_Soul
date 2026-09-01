@@ -1,6 +1,8 @@
-package com.maxwell.cataclysm_primed_soul;
+package com.maxwell.cataclysm_primed_soul.client;
 
 import com.github.L_Ender.cataclysm.client.gui.CustomBossBar;
+import com.maxwell.cataclysm_primed_soul.Primed_Soul;
+import com.maxwell.cataclysm_primed_soul.client.compat.gtbcs_cui.PrimeBossScreens;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Ignis_PrimeModel;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.MaledictusPhantomModel;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Maledictus_PrimeModel;
@@ -30,6 +32,7 @@ public class ClientModEvent {
                     new ResourceLocation(Primed_Soul.MODID, "textures/gui/boss_bar/ignis_prime_bar_overlay.png"),
                     5, 16, 1, 1, -2, -2, 256, 16, 25, 182, ChatFormatting.AQUA
             ));
+            PrimeBossScreens.registerAll();
         });
     }
 
@@ -42,6 +45,9 @@ public class ClientModEvent {
         event.registerEntityRenderer(ModEntities.PRIME_FIREBALL.get(), Prime_Fireball_Renderer::new);
         event.registerEntityRenderer(ModEntities.MALEDICTUS_PRIME_SWORD.get(), Maledictus_PrimeSwordRenderer::new);
         event.registerEntityRenderer(ModEntities.MALEDICTUS_PRIME_SWORD_SPIKE.get(), Maledictus_PrimeSwordSpikeRenderer::new);
+        event.registerEntityRenderer(ModEntities.IGNIS_PRIME_CUTSCENE.get(), Ignis_PrimeRenderer::new);
+        event.registerEntityRenderer(ModEntities.PURE_WHITE_ENERGY_SPHERE.get(), PureWhiteEnergySphereRenderer::new);
+        event.registerEntityRenderer(ModEntities.MALEDICTUS_PRIME_CUTSCENE.get(), Maledictus_PrimeRenderer::new);
     }
 
     @SubscribeEvent

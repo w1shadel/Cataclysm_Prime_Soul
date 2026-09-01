@@ -11,7 +11,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 
 @SuppressWarnings("removal")
 public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEntity> {
@@ -39,6 +38,7 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
     private final ModelPart Broken_Halbard;
     private final ModelPart Broken_MaceRight;
     private final ModelPart Sword;
+    private final ModelPart sword_cover;
     private final ModelPart sword_tip2;
     private final ModelPart sword_tip;
     private final ModelPart Left_Shoulder;
@@ -79,6 +79,7 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         this.Broken_Halbard = this.Right_ArmUnder.getChild("Broken_Halbard");
         this.Broken_MaceRight = this.Right_ArmUnder.getChild("Broken_MaceRight");
         this.Sword = this.Right_ArmUnder.getChild("Sword");
+        this.sword_cover = this.Sword.getChild("sword_cover");
         this.sword_tip2 = this.Sword.getChild("sword_tip2");
         this.sword_tip = this.Sword.getChild("sword_tip");
         this.Left_Shoulder = this.UpperBody.getChild("Left_Shoulder");
@@ -161,7 +162,6 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         PartDefinition cube_r14 = Broken_MaceRight.addOrReplaceChild("cube_r14", CubeListBuilder.create().texOffs(118, 107).addBox(-5.0F, 0.0F, -10.0F, 9.0F, 0.0F, 20.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -5.5333F, -24.1667F, 0.0F, 0.0F, -1.5708F));
         PartDefinition Sword = Right_ArmUnder.addOrReplaceChild("Sword", CubeListBuilder.create().texOffs(216, 46).addBox(-1.0F, -1.0031F, -4.7939F, 2.0F, 2.0F, 8.0F, new CubeDeformation(0.0F))
                 .texOffs(34, 188).addBox(-1.5F, -4.0031F, -6.7939F, 3.0F, 8.0F, 2.0F, new CubeDeformation(0.0F))
-                .texOffs(3, 69).addBox(-1.5F, -4.0031F, -60.7939F, 3.0F, 8.0F, 54.0F, new CubeDeformation(0.0F))
                 .texOffs(220, 0).addBox(0.0F, 0.9969F, -18.7939F, 0.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
                 .texOffs(220, 24).addBox(0.0F, 0.9969F, -37.4939F, 0.0F, 2.0F, 6.0F, new CubeDeformation(0.0F))
                 .texOffs(0, 67).addBox(-0.5F, -0.5017F, -61.0013F, 1.0F, 1.0F, 58.0F, new CubeDeformation(0.0F))
@@ -176,6 +176,7 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         PartDefinition cube_r19 = Sword.addOrReplaceChild("cube_r19", CubeListBuilder.create().texOffs(216, 144).addBox(0.0F, -1.0F, -5.5F, 0.0F, 2.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -0.4031F, -7.8939F, -0.3054F, 0.0F, 0.0F));
         PartDefinition cube_r20 = Sword.addOrReplaceChild("cube_r20", CubeListBuilder.create().texOffs(216, 74).addBox(0.0F, -1.0F, -5.5F, 0.0F, 2.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.3969F, -7.8939F, 0.3054F, 0.0F, 0.0F));
         PartDefinition cube_r21 = Sword.addOrReplaceChild("cube_r21", CubeListBuilder.create().texOffs(212, 164).addBox(-0.5F, -1.0F, -1.0F, 5.0F, 2.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-2.0F, -0.0031F, -5.7939F, 0.7418F, 0.0F, 0.0F));
+        PartDefinition sword_cover = Sword.addOrReplaceChild("sword_cover", CubeListBuilder.create().texOffs(3, 69).addBox(-2.0F, -5.0F, -60.0F, 3.0F, 8.0F, 54.0F, new CubeDeformation(0.0F)), PartPose.offset(0.5F, 0.9969F, -0.7939F));
         PartDefinition sword_tip2 = Sword.addOrReplaceChild("sword_tip2", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, -7.0F));
         PartDefinition sword_tip = Sword.addOrReplaceChild("sword_tip", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, -60.0F));
         PartDefinition Left_Shoulder = UpperBody.addOrReplaceChild("Left_Shoulder", CubeListBuilder.create(), PartPose.offset(3.5F, -14.5F, 0.0F));
@@ -288,7 +289,11 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         this.animate(entity.getAnimationState("grab_sloop"), Maledictus_PrimeAnimation.ATTACK_GRAB_SLOOP, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("grab_send"), Maledictus_PrimeAnimation.ATTACK_GRAB_SEND, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("grab_fail"), Maledictus_PrimeAnimation.ATTACK_GRAB_FAIL, ageInTicks, 1.1F);
-        this.animate(entity.getAnimationState("ultimate"), Maledictus_PrimeAnimation.ATTACK_LAST1, ageInTicks, 1.0F);
+        if (!entity.isUltimateLanding()) {
+            this.animate(entity.getAnimationState("ultimate"), Maledictus_PrimeAnimation.ATTACK_LAST1, ageInTicks, 1.0F);
+        }
+        this.animate(entity.getAnimationState("last2"), Maledictus_PrimeAnimation.ATTACK_LAST2, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("dead"), Maledictus_PrimeAnimation.DEAD, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("head_break"), Maledictus_PrimeAnimation.ATTACK_HEAD_BREAKER, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("ex_jab_1"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_1, ageInTicks, comboSpeed);
         this.animate(entity.getAnimationState("ex_jab_2"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_2, ageInTicks, comboSpeed);
@@ -296,13 +301,7 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         this.animate(entity.getAnimationState("backstep"), Maledictus_PrimeAnimation.BACKSTEP, ageInTicks, godSpeed);
         boolean isAttacking = entity.getAttackState() != 0;
         if (!isAttacking) {
-            float speed = 0.1662F;
-            float degree = 0.2F;
-            this.LeftLeg.xRot = Mth.cos(limbSwing * speed) * degree * limbSwingAmount;
-            this.RightLeg.xRot = Mth.cos(limbSwing * speed + (float) Math.PI) * degree * limbSwingAmount;
-            float kneeBending = 0.5F;
-            this.LeftLeg_Under.xRot = Math.max(0.0F, Mth.sin(limbSwing * speed) * kneeBending * limbSwingAmount);
-            this.RightLeg_Under.xRot = Math.max(0.0F, Mth.sin(limbSwing * speed + (float) Math.PI) * kneeBending * limbSwingAmount);
+            this.animate(entity.getAnimationState("walk"), Maledictus_PrimeAnimation.WALK, ageInTicks, 1.0f);
         }
         if (entity.getAttackState() == 0) {
             this.animateHeadLookTarget(netHeadYaw, headPitch);
@@ -316,6 +315,7 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         this.Broken_Mace_Left.visible = false;
         this.Broken_Bow.visible = false;
         this.Armor.visible = !entity.isPhase2();
+        this.sword_cover.visible = !entity.isPhase2();
     }
 
     private void animateHeadLookTarget(float yRot, float xRot) {

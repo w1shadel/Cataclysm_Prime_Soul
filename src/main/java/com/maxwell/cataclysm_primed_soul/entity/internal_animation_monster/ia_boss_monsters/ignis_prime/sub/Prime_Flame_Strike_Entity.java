@@ -4,6 +4,7 @@ import com.github.L_Ender.cataclysm.init.ModEffect;
 import com.github.L_Ender.cataclysm.init.ModParticle;
 import com.github.L_Ender.cataclysm.util.CMDamageTypes;
 import com.github.L_Ender.cataclysm.util.CustomExplosion.IgnisExplosion;
+import com.maxwell.cataclysm_primed_soul.entity.EntityDamageHelper;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.HealBlockManager;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
 import com.maxwell.cataclysm_primed_soul.init.ModEntities;
@@ -294,7 +295,8 @@ public class Prime_Flame_Strike_Entity extends Entity {
             }
         }
         if (!flag && this.tickCount % 5 == 0) {
-            for (LivingEntity livingentity : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox())) {
+            for (LivingEntity livingentity : this.level().getEntitiesOfClass(LivingEntity.class,
+                    this.getBoundingBox().inflate(EntityDamageHelper.expandRange(0.15D)))) {
                 this.damage(livingentity);
             }
         }
@@ -317,7 +319,7 @@ public class Prime_Flame_Strike_Entity extends Entity {
         }
         if (Hitentity.isAlive() && !Hitentity.isInvulnerable() && Hitentity != caster && this.tickCount % 2 == 0) {
             if (caster == null) {
-                boolean flag = Hitentity.hurt(this.damageSources().magic(), this.getDamage() + Hitentity.getMaxHealth() * 0.01F * this.getHpDamage());
+                boolean flag = EntityDamageHelper.hurtIgnoringInvulnerability(Hitentity, this.damageSources().magic(), this.getDamage() + Hitentity.getMaxHealth() * 0.01F * this.getHpDamage());
                 if (flag) {
                     MobEffectInstance effectinstance1 = Hitentity.getEffect((MobEffect) ModEffect.EFFECTBLAZING_BRAND.get());
                     int i = 1;
@@ -333,7 +335,7 @@ public class Prime_Flame_Strike_Entity extends Entity {
                     HealBlockManager.applyHealBlock(Hitentity, 60);
                 }
             } else if (!caster.isAlliedTo(Hitentity) && !Hitentity.isAlliedTo(caster)) {
-                boolean flag = Hitentity.hurt(CMDamageTypes.causeFlameStrikeDamage(this, caster), this.getDamage() + Hitentity.getMaxHealth() * 0.01F * this.getHpDamage());
+                boolean flag = EntityDamageHelper.hurtIgnoringInvulnerability(Hitentity, CMDamageTypes.causeFlameStrikeDamage(this, caster), this.getDamage() + Hitentity.getMaxHealth() * 0.01F * this.getHpDamage());
                 if (flag) {
                     MobEffectInstance effectinstance1 = Hitentity.getEffect((MobEffect) ModEffect.EFFECTBLAZING_BRAND.get());
                     int i = 1;

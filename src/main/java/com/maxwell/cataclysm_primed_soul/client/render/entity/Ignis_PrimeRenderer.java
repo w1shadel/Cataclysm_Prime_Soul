@@ -281,9 +281,7 @@ public class Ignis_PrimeRenderer extends MobRenderer<Ignis_PrimeEntity, Ignis_Pr
 
     private net.minecraft.world.phys.Vec3 getCorePosition(Ignis_PrimeEntity entity, float partialTicks, double entityX, double entityY, double entityZ) {
         PoseStack poseStack = createModelPose(entity, partialTicks);
-        this.getModel().getBoddies().translateAndRotate(poseStack);
-        this.getModel().getBody_Upper().translateAndRotate(poseStack);
-        this.getModel().getCore_pos().translateAndRotate(poseStack);
+        poseStack.translate(0.0D, 0.65D, 0.0D);
         return toWorldPosition(poseStack, entityX, entityY, entityZ);
     }
 

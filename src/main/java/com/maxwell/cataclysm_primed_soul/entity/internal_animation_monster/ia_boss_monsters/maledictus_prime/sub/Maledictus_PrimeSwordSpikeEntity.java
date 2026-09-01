@@ -1,6 +1,7 @@
 package com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.sub;
 
 import com.github.L_Ender.cataclysm.init.ModParticle;
+import com.maxwell.cataclysm_primed_soul.entity.EntityDamageHelper;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.MaledictusPhantomEntity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.Maledictus_PrimeEntity;
 import net.minecraft.core.particles.ParticleOptions;
@@ -29,10 +30,6 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
     @Nullable
     private UUID summonerUUID;
 
-    private static int ticks(float seconds) {
-        return Math.round(seconds * TICKS_PER_SECOND);
-    }
-
     public Maledictus_PrimeSwordSpikeEntity(EntityType<?> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         this.noPhysics = true;
@@ -46,6 +43,10 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
         this.warmupDelay = warmup;
         this.damage = damage;
         this.setSummoner(summoner);
+    }
+
+    private static int ticks(float seconds) {
+        return Math.round(seconds * TICKS_PER_SECOND);
     }
 
     @Nullable
@@ -150,7 +151,7 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
                 serverLevel.sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY() + 0.5D, this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
             }
             if (!this.level().isClientSide()) {
-                AABB spikeBox = this.getBoundingBox().inflate(0.75D, 2.5D, 0.75D);
+                AABB spikeBox = this.getBoundingBox().inflate(EntityDamageHelper.expandRange(0.75D), EntityDamageHelper.expandRange(2.5D), EntityDamageHelper.expandRange(0.75D));
                 List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class, spikeBox);
                 LivingEntity boss = this.getSummoner();
                 for (LivingEntity target : targets) {
@@ -159,7 +160,7 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
                         net.minecraft.world.damagesource.DamageSource source = boss != null
                                 ? this.damageSources().mobAttack(boss)
                                 : this.damageSources().generic();
-                        if (target.hurt(source, finalDamage)) {
+                        if (EntityDamageHelper.hurtIgnoringInvulnerability(target, source, finalDamage)) {
                             target.setDeltaMovement(target.getDeltaMovement().add(0.0D, 0.65D, 0.0D));
                             target.hasImpulse = true;
                         }

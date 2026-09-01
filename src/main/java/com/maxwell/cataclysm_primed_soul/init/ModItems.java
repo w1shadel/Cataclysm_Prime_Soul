@@ -2,6 +2,7 @@ package com.maxwell.cataclysm_primed_soul.init;
 
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.item.LavateinItem;
+import com.maxwell.cataclysm_primed_soul.item.MaledictusStateControllerItem;
 import com.maxwell.cataclysm_primed_soul.item.ModGenericItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
@@ -30,5 +31,8 @@ public class ModItems {
     );
     public static final RegistryObject<Item> LAVATEIN = ITEMS.register("lavatein", () ->
             new LavateinItem(Tiers.NETHERITE, 8, -2, new Item.Properties().rarity(Rarity.EPIC).fireResistant())
+    );
+    public static final RegistryObject<Item> MALEDICTUS_STATE_CONTROLLER = ITEMS.register("maledictus_state_controller", () ->
+            new MaledictusStateControllerItem(new Item.Properties().rarity(Rarity.EPIC).stacksTo(1))
     );
 }

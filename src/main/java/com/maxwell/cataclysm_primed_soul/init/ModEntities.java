@@ -1,6 +1,9 @@
 package com.maxwell.cataclysm_primed_soul.init;
 
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
+import com.maxwell.cataclysm_primed_soul.entity.cutscene.IgnisPrimeCutsceneEntity;
+import com.maxwell.cataclysm_primed_soul.entity.cutscene.MaledictusPrimeCutsceneEntity;
+import com.maxwell.cataclysm_primed_soul.entity.cutscene.PureWhiteEnergySphereEntity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.Ignis_PrimeEntity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.Prime_Fireball_Entity;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.Prime_Flame_Strike_Entity;
@@ -68,11 +71,26 @@ public class ModEntities {
                     .setTrackingRange(20)
                     .setShouldReceiveVelocityUpdates(true)
                     .build("prime_sword_spike"));
+    public static final RegistryObject<EntityType<IgnisPrimeCutsceneEntity>> IGNIS_PRIME_CUTSCENE = ENTITY_TYPES.register("ignis_prime_cutscene",
+            () -> EntityType.Builder.of(IgnisPrimeCutsceneEntity::new, MobCategory.MISC)
+                    .sized(2.25F, 3.5F)
+                    .fireImmune()
+                    .build("ignis_prime_cutscene"));
+    public static final RegistryObject<EntityType<PureWhiteEnergySphereEntity>> PURE_WHITE_ENERGY_SPHERE = ENTITY_TYPES.register("pure_white_energy_sphere",
+            () -> EntityType.Builder.of(PureWhiteEnergySphereEntity::new, MobCategory.MISC)
+                    .sized(3.0F, 3.0F).clientTrackingRange(32).updateInterval(1).build("pure_white_energy_sphere"));
+    public static final RegistryObject<EntityType<MaledictusPrimeCutsceneEntity>> MALEDICTUS_PRIME_CUTSCENE = ENTITY_TYPES.register("maledictus_prime_cutscene",
+            () -> EntityType.Builder.of(MaledictusPrimeCutsceneEntity::new, MobCategory.MISC)
+                    .sized(2.25F, 3.5F)
+                    .fireImmune()
+                    .build("maledictus_prime_cutscene"));
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(IGNIS_PRIME.get(), Ignis_PrimeEntity.createAttributes().build());
         event.put(MALEDICTUS_PRIME.get(), Maledictus_PrimeEntity.createAttributes().build());
         event.put(MALEDICTUS_PHANTOM.get(), MaledictusPhantomEntity.createAttributes().build());
+        event.put(IGNIS_PRIME_CUTSCENE.get(), Ignis_PrimeEntity.createAttributes().build());
+        event.put(MALEDICTUS_PRIME_CUTSCENE.get(), Maledictus_PrimeEntity.createAttributes().build());
     }
 }

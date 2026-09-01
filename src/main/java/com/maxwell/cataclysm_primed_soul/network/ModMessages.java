@@ -3,6 +3,7 @@ package com.maxwell.cataclysm_primed_soul.network;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.network.packet.MessageIgnisVisualEffect;
 import com.maxwell.cataclysm_primed_soul.network.packet.MessageSyncIgnisDebuff;
+import com.maxwell.cataclysm_primed_soul.network.packet.MessageUltrakillTitle;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -32,6 +33,11 @@ public class ModMessages {
                 .encoder(MessageSyncIgnisDebuff::encode)
                 .decoder(MessageSyncIgnisDebuff::decode)
                 .consumerMainThread(MessageSyncIgnisDebuff::handle)
+                .add();
+        INSTANCE.messageBuilder(MessageUltrakillTitle.class, id())
+                .encoder(MessageUltrakillTitle::encode)
+                .decoder(MessageUltrakillTitle::decode)
+                .consumerMainThread(MessageUltrakillTitle::handle)
                 .add();
     }
 

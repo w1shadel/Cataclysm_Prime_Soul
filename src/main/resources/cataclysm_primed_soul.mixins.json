@@ -5,7 +5,11 @@
   "refmap": "cataclysm_primed_soul.refmap.json",
   "mixins": [
     "AltarOfFireBlockEntityMixin",
-    "CursedTombstoneEntityMixin"
+    "CursedTombstoneEntityMixin",
+    "compat.AltarOfFireBlockPrimeMixin",
+    "compat.AltarOfFireBattleTriggerMixin",
+    "compat.CursedTombstoneBlockPrimeMixin",
+    "compat.CursedTombstoneBattleTriggerMixin"
   ],
   "client": [
     "client.CursedTombstoneRendererMixin",

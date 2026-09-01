@@ -8,6 +8,7 @@ import com.github.L_Ender.cataclysm.entity.etc.IHoldEntity;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.api.config.IgnisPrimeConfig;
 import com.maxwell.cataclysm_primed_soul.api.entity.IShaderBoss;
+import com.maxwell.cataclysm_primed_soul.entity.EntityDamageHelper;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.goal.*;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.FlameStrikeSpawner;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.ignis_prime.sub.Prime_Fireball_Entity;
@@ -1575,7 +1576,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                     if (this.attackTicks == 85) {
                         this.caughtEntity.stopRiding();
                         this.caughtEntity.invulnerableTime = 0;
-                        this.caughtEntity.hurt(this.damageSources().mobAttack(this), this.scaleDirectDamage((float) IgnisPrimeConfig.CATCH_DAMAGE_FINAL.get()));
+                        EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) this.caughtEntity, this.damageSources().mobAttack(this), this.scaleDirectDamage((float) IgnisPrimeConfig.CATCH_DAMAGE_FINAL.get()));
                         this.playSound(SoundEvents.PLAYER_ATTACK_KNOCKBACK, 1.5F, 0.5F);
                         float pushYaw = this.getYRot() * ((float) Math.PI / 180F);
                         double speed = 3.2D;
@@ -1980,7 +1981,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                             double distToTarget = this.distanceTo(target);
                             if (Math.abs(distToTarget - distance) <= 2.0D) {
                                 float dmg = this.scaleEnvironmentalDamage((float) (this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 1.25F));
-                                if (target.hurt(this.damageSources().indirectMagic(this, this), dmg)) {
+                                if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().indirectMagic(this, this), dmg)) {
                                     target.setSecondsOnFire(8);
                                     double dx = target.getX() - this.getX();
                                     double dz = target.getZ() - this.getZ();
@@ -2042,7 +2043,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
     private void performCatchDamage(float amount, float shakeIntensity, net.minecraft.sounds.SoundEvent sound, float pitch) {
         if (this.caughtEntity != null) {
             this.caughtEntity.invulnerableTime = 0;
-            this.caughtEntity.hurt(this.damageSources().mobAttack(this), this.scaleDirectDamage(amount));
+            EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) this.caughtEntity, this.damageSources().mobAttack(this), this.scaleDirectDamage(amount));
             this.caughtEntity.invulnerableTime = 10;
             this.playSound(sound, 1.2F, pitch);
             if (!this.level().isClientSide) {
@@ -2189,7 +2190,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                     float diff = Mth.degreesDifferenceAbs(centerYaw, angleToTarget);
                     if (diff <= arc * 0.5F) {
                         float damage = this.scaleEnvironmentalDamage((float) (this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 1.2F));
-                        if (target.hurt(this.damageSources().mobAttack(this), damage)) {
+                        if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().mobAttack(this), damage)) {
                             target.setDeltaMovement(target.getDeltaMovement().add(0, 0.6D, 0));
                             target.hasImpulse = true;
                         }
@@ -2326,7 +2327,7 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
                         this.level().broadcastEntityEvent(player, (byte) 30);
                     }
                 }
-                if (target.hurt(this.damageSources().magic(), damage)) {
+                if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().magic(), damage)) {
                     this.applyAttackKnockback(target, (float) IgnisPrimeConfig.OVERHEAD_KNOCKBACK.get(), 0.0D, 0.0D);
                     this.heal(damage * 0.10F);
                 }
@@ -2360,12 +2361,14 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
         if (this.level().isClientSide)
             return false;
         boolean hit = false;
+        double effectiveXzRange = EntityDamageHelper.expandRange(xzRange);
+        double effectiveYRange = EntityDamageHelper.expandRange(yRange);
         List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class,
-                this.getBoundingBox().inflate(xzRange, yRange, xzRange));
+                this.getBoundingBox().inflate(effectiveXzRange, effectiveYRange, effectiveXzRange));
         for (LivingEntity target : targets) {
-            if (this.canDamageTarget(target) && this.distanceTo(target) <= xzRange + this.getBbWidth()) {
+            if (this.canDamageTarget(target) && this.distanceTo(target) <= effectiveXzRange + this.getBbWidth()) {
                 float damage = this.scaleDirectDamage((float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMultiplier);
-                if (target.hurt(this.damageSources().mobAttack(this), damage)) {
+                if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().mobAttack(this), damage)) {
                     this.applyAttackKnockback(target, knockback, forwardPush, verticalImpulse);
                     this.heal(damage * 0.10F);
                     hit = true;
@@ -2385,12 +2388,13 @@ public class Ignis_PrimeEntity extends IABoss_monster implements IHoldEntity, IS
         if (this.level().isClientSide)
             return false;
         boolean hit = false;
+        double effectiveRange = EntityDamageHelper.expandRange(range);
         List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class,
-                this.getBoundingBox().inflate(range, 2.0D, range));
+                this.getBoundingBox().inflate(effectiveRange, EntityDamageHelper.expandRange(2.0D), effectiveRange));
         for (LivingEntity target : targets) {
-            if (this.canDamageTarget(target) && this.isInFrontArc(target, arc) && this.distanceTo(target) <= range + this.getBbWidth()) {
+            if (this.canDamageTarget(target) && this.isInFrontArc(target, arc) && this.distanceTo(target) <= effectiveRange + this.getBbWidth()) {
                 float damage = this.scaleDirectDamage((float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMultiplier);
-                if (target.hurt(this.damageSources().mobAttack(this), damage)) {
+                if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().mobAttack(this), damage)) {
                     this.applyAttackKnockback(target, knockback, forwardPush, verticalImpulse);
                     this.heal(damage * 0.10F);
                     hit = true;

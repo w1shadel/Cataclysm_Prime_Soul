@@ -74,11 +74,9 @@ repositories {
     maven {
         url "https://cursemaven.com"
     }
-    repositories {
-        maven {
+    maven {
             name = "Modrinth Maven"
             url = "https://api.modrinth.com/maven"
-        }
     }
 }
 mixin {
@@ -88,7 +86,10 @@ mixin {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     implementation fg.deobf("curse.maven:spark-361579:4738952")
+    implementation fg.deobf("curse.maven:hyperdamage-library-1582026:8776011")
     implementation fg.deobf("curse.maven:appleskin-248787:4770828")
+    implementation fg.deobf("curse.maven:cinematic-cataclysm-1399324:7817167")
+    implementation fg.deobf("curse.maven:fdlib-1271749:7844812")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
     compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
@@ -109,6 +110,7 @@ dependencies {
     implementation fg.deobf("curse.maven:legendary-monsters-944035:8124553")
     implementation fg.deobf("curse.maven:better-combat-by-daedelus-639842:7287334")
     implementation fg.deobf("curse.maven:playeranimator-658587:4587214")
+    implementation fg.deobf("curse.maven:gtbcs-cataclysmic-boss-ui-1637570:8634909")
 //    implementation fg.deobf("maven.modrinth:manaitamtk:1.7.1")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
@@ -138,10 +140,6 @@ tasks.named('jar', Jar).configure {
                 'Implementation-Version'  : project.jar.archiveVersion,
                 'Implementation-Vendor'   : mod_authors,
                 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-
-                "Premain-Class"           : "com.maxwell.cataclysm_primed_soul.util.DecayAgent",
-                "Can-Retransform-Classes" : "true",
-                "Can-Redefine-Classes"    : "true"
         ])
     }
 

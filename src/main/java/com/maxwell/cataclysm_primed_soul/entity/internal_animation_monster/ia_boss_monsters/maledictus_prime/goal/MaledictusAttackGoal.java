@@ -8,6 +8,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import java.util.EnumSet;
 
 public class MaledictusAttackGoal extends Goal {
+    private static final double MELEE_DECISION_RANGE = 5.8D;
     private final Maledictus_PrimeEntity maledictus;
 
     public MaledictusAttackGoal(Maledictus_PrimeEntity entity) {
@@ -29,12 +30,15 @@ public class MaledictusAttackGoal extends Goal {
     private boolean hasAnyAttackReady(LivingEntity target) {
         double distance = this.maledictus.distanceTo(target);
         double heightDiff = Math.abs(this.maledictus.getY() - target.getY());
+        if (this.maledictus.isBackstepRecoveryActive()) {
+            return this.maledictus.isPhantomReady();
+        }
         if (heightDiff > 2.0D && !target.onGround()) {
             return this.maledictus.isPhantomReady()
                     || this.maledictus.isShockwaveReady()
                     || this.maledictus.isBackstepReady();
         }
-        if (distance <= 4.8D) {
+        if (distance <= MELEE_DECISION_RANGE) {
             return this.maledictus.isJabReady()
                     || this.maledictus.isCounterReady()
                     || this.maledictus.isGrabReady();
@@ -84,6 +88,28 @@ public class MaledictusAttackGoal extends Goal {
             }
             return 0;
         }
+        if (distance <= MELEE_DECISION_RANGE) {
+            if (target.isUsingItem() && target.getUseItem().getItem() instanceof net.minecraft.world.item.ShieldItem
+                    && this.maledictus.isGrabReady()) {
+                return Maledictus_PrimeEntity.ATTACK_GRAB_START;
+            }
+            if (this.maledictus.isJabReady()) {
+                return Maledictus_PrimeEntity.ATTACK_JAB_1;
+            }
+            if (this.maledictus.isGrabReady() && (roll < 0.35F || !this.maledictus.isChargeReady())) {
+                return Maledictus_PrimeEntity.ATTACK_GRAB_START;
+            }
+            if (this.maledictus.isChargeReady()) {
+                return Maledictus_PrimeEntity.ATTACK_CHARGE;
+            }
+            if (this.maledictus.isShockwaveReady()) {
+                return Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START;
+            }
+            return this.maledictus.isPhantomReady() ? -1 : 0;
+        }
+        if (this.maledictus.isBackstepRecoveryActive()) {
+            return this.maledictus.isPhantomReady() ? -1 : 0;
+        }
         if (this.maledictus.shouldChangeStrategyAfterMiss() && this.maledictus.isPhantomReady()) {
             return -1;
         }
@@ -95,48 +121,19 @@ public class MaledictusAttackGoal extends Goal {
                 return Maledictus_PrimeEntity.ATTACK_CHARGE;
             }
         }
-        if (distance <= 3.5D) {
-            if (target.isUsingItem() && target.getUseItem().getItem() instanceof net.minecraft.world.item.ShieldItem) {
-                if (this.maledictus.isGrabReady()) {
-                    return Maledictus_PrimeEntity.ATTACK_GRAB_START;
-                }
-                if (this.maledictus.isJabReady()) {
-                    return Maledictus_PrimeEntity.ATTACK_JAB_1;
-                }
-            }
-            if (isPhase2 && roll < 0.25F && this.maledictus.isPhantomReady()) {
-                return -1;
-            }
-            if (roll < 0.36F && this.maledictus.isGrabReady()) {
-                return Maledictus_PrimeEntity.ATTACK_GRAB_START;
-            }
-            if (this.maledictus.isJabReady()) {
-                return Maledictus_PrimeEntity.ATTACK_JAB_1;
-            }
-            return Maledictus_PrimeEntity.ATTACK_JAB_1;
-        }
-        if (heightDiff > 2.0D) {
-            if (this.maledictus.isShockwaveReady()) {
-                return Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START;
-            }
-        } else {
-            if (this.maledictus.isChargeReady()) {
-                return Maledictus_PrimeEntity.ATTACK_CHARGE;
-            }
-        }
-        if (heightDiff > 2.0D && this.maledictus.isChargeReady()) {
-            return Maledictus_PrimeEntity.ATTACK_CHARGE;
-        }
-        if (heightDiff <= 2.0D && this.maledictus.isShockwaveReady()) {
-            return Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START;
-        }
         if (this.maledictus.isPhantomReady()) {
             float phantomThreshold = isPhase2 ? 0.75F : 0.45F;
             if (roll < phantomThreshold) {
                 return -1;
             }
         }
-        return Maledictus_PrimeEntity.ATTACK_JAB_1;
+        if (this.maledictus.isChargeReady()) {
+            return Maledictus_PrimeEntity.ATTACK_CHARGE;
+        }
+        if (this.maledictus.isShockwaveReady()) {
+            return Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START;
+        }
+        return 0;
     }
 
     private void spawnPhantom(LivingEntity target) {
@@ -162,7 +159,9 @@ public class MaledictusAttackGoal extends Goal {
             phantom.setSummonerYRot(pYaw);
             this.maledictus.level().addFreshEntity(phantom);
         }
-        if (phantomType == MaledictusPhantomEntity.TYPE_SPEAR) {
+        if (this.maledictus.isBackstepRecoveryActive()) {
+            this.maledictus.setAttackState(0);
+        } else if (phantomType == MaledictusPhantomEntity.TYPE_SPEAR) {
             this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
         } else if (phantomType == MaledictusPhantomEntity.TYPE_MACE) {
             this.maledictus.setAttackState(Maledictus_PrimeEntity.BACKSTEP);
@@ -190,11 +189,8 @@ public class MaledictusAttackGoal extends Goal {
         if (Math.abs(this.maledictus.getY() - target.getY()) > 2.0D) {
             return MaledictusPhantomEntity.TYPE_BOW;
         }
-
         float roll = this.maledictus.getRandom().nextFloat();
         if (distance <= 7.0D) {
-            // Mace pressures nearby players, while bow creates space and spear
-            // is reserved for the least common close-range option.
             if (roll < 0.55F) return MaledictusPhantomEntity.TYPE_MACE;
             if (roll < 0.85F) return MaledictusPhantomEntity.TYPE_BOW;
             return MaledictusPhantomEntity.TYPE_SPEAR;

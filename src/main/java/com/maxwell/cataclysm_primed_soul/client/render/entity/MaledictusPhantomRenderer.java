@@ -3,6 +3,7 @@ package com.maxwell.cataclysm_primed_soul.client.render.entity;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.MaledictusPhantomModel;
 import com.maxwell.cataclysm_primed_soul.client.render.layer.MaledictusPhantomGhostLayer;
+import com.maxwell.cataclysm_primed_soul.client.render.layer.MaledictusPhantomTelegraphLayer;
 import com.maxwell.cataclysm_primed_soul.entity.internal_animation_monster.ia_boss_monsters.maledictus_prime.MaledictusPhantomEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.RenderType;
@@ -27,6 +28,7 @@ public class MaledictusPhantomRenderer extends MobRenderer<MaledictusPhantomEnti
         super(context, new MaledictusPhantomModel(
                 context.bakeLayer(MaledictusPhantomModel.LAYER_LOCATION)), 1.0F);
         this.addLayer(new MaledictusPhantomGhostLayer(this));
+        this.addLayer(new MaledictusPhantomTelegraphLayer(this));
     }
 
     @Override
