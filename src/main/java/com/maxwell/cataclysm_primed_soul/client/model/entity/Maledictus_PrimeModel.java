@@ -273,32 +273,30 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
     public void setupAnim(Maledictus_PrimeEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
         this.setupWeaponVisibility(entity);
-        boolean isPhase2 = entity.isPhase2();
-        float comboSpeed = isPhase2 ? 1.4F : 1.15F;
-        float heavyAttackSpeed = isPhase2 ? 1.25F : 1.05F;
-        float godSpeed = isPhase2 ? 1.6F : 1.35F;
         this.animate(entity.getAnimationState("idle"), Maledictus_PrimeAnimation.IDLE, ageInTicks, 1.0F);
-        this.animate(entity.getAnimationState("jab_1"), Maledictus_PrimeAnimation.ATTACK_JAB_1, ageInTicks, comboSpeed);
-        this.animate(entity.getAnimationState("jab_2"), Maledictus_PrimeAnimation.ATTACK_JAB_2, ageInTicks, comboSpeed);
-        this.animate(entity.getAnimationState("jab_3"), Maledictus_PrimeAnimation.ATTACK_JAB_3, ageInTicks, comboSpeed);
-        this.animate(entity.getAnimationState("charge"), Maledictus_PrimeAnimation.ATTACK_CHARGE, ageInTicks, heavyAttackSpeed);
-        this.animate(entity.getAnimationState("shockwave_start"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_START, ageInTicks, heavyAttackSpeed);
-        this.animate(entity.getAnimationState("shockwave_end"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_END, ageInTicks, heavyAttackSpeed);
-        this.animate(entity.getAnimationState("grab_start"), Maledictus_PrimeAnimation.ATTACK_GRAB_START, ageInTicks, comboSpeed);
+        this.animate(entity.getAnimationState("jab_1"), Maledictus_PrimeAnimation.ATTACK_JAB_1, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("jab_2"), Maledictus_PrimeAnimation.ATTACK_JAB_2, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("jab_3"), Maledictus_PrimeAnimation.ATTACK_JAB_3, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("charge"), Maledictus_PrimeAnimation.ATTACK_CHARGE, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("shockwave_start"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_START, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("shockwave_end"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_END, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("grab_start"), Maledictus_PrimeAnimation.ATTACK_GRAB_START, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("grab_success"), Maledictus_PrimeAnimation.ATTACK_GRAB_SUCCESS, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("grab_sloop"), Maledictus_PrimeAnimation.ATTACK_GRAB_SLOOP, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("grab_send"), Maledictus_PrimeAnimation.ATTACK_GRAB_SEND, ageInTicks, 1.0F);
-        this.animate(entity.getAnimationState("grab_fail"), Maledictus_PrimeAnimation.ATTACK_GRAB_FAIL, ageInTicks, 1.1F);
-        if (!entity.isUltimateLanding()) {
+        this.animate(entity.getAnimationState("grab_fail"), Maledictus_PrimeAnimation.ATTACK_GRAB_FAIL, ageInTicks, 1.0F);
+        if (!entity.isUltimateLanding() && entity.getAttackState() == Maledictus_PrimeEntity.ATTACK_ULTIMATE) {
             this.animate(entity.getAnimationState("ultimate"), Maledictus_PrimeAnimation.ATTACK_LAST1, ageInTicks, 1.0F);
         }
-        this.animate(entity.getAnimationState("last2"), Maledictus_PrimeAnimation.ATTACK_LAST2, ageInTicks, 1.0F);
+        if (entity.isUltimateLanding() && entity.getAttackState() == Maledictus_PrimeEntity.ATTACK_LAST2) {
+            this.animate(entity.getAnimationState("last2"), Maledictus_PrimeAnimation.ATTACK_LAST2, ageInTicks, 1.0F);
+        }
         this.animate(entity.getAnimationState("dead"), Maledictus_PrimeAnimation.DEAD, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("head_break"), Maledictus_PrimeAnimation.ATTACK_HEAD_BREAKER, ageInTicks, 1.0F);
-        this.animate(entity.getAnimationState("ex_jab_1"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_1, ageInTicks, comboSpeed);
-        this.animate(entity.getAnimationState("ex_jab_2"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_2, ageInTicks, comboSpeed);
-        this.animate(entity.getAnimationState("ex_jab_3"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_3, ageInTicks, godSpeed);
-        this.animate(entity.getAnimationState("backstep"), Maledictus_PrimeAnimation.BACKSTEP, ageInTicks, godSpeed);
+        this.animate(entity.getAnimationState("ex_jab_1"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_1, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("ex_jab_2"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_2, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("ex_jab_3"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_3, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("backstep"), Maledictus_PrimeAnimation.BACKSTEP, ageInTicks, 1.0F);
         boolean isAttacking = entity.getAttackState() != 0;
         if (!isAttacking) {
             this.animate(entity.getAnimationState("walk"), Maledictus_PrimeAnimation.WALK, ageInTicks, 1.0f);

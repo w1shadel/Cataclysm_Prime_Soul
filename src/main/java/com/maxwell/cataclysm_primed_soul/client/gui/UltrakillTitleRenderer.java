@@ -50,7 +50,7 @@ public final class UltrakillTitleRenderer {
         float fadeOutAlpha = Mth.clamp(ticksRemaining / 15.0F, 0.0F, 1.0F);
         String topFullText;
         if (!footer.isEmpty() && !header.isEmpty()) {
-            topFullText = footer + "///" + header;
+            topFullText = footer + "///" +header;
         } else if (!footer.isEmpty()) {
             topFullText = footer;
         } else {

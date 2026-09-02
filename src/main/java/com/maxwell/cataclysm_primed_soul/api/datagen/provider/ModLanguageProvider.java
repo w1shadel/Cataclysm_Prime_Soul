@@ -66,6 +66,10 @@ public abstract class ModLanguageProvider extends LanguageProvider {
             this.add("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.grab.desc", "Grabs a player with one hand, ascends into the air, and slams them down into the ground.");
             this.add("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.phase2.title", "Armor Shatter");
             this.add("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.phase2.desc", "Below 50% HP, its armor shatters, drastically boosting attack speed and offensive aggression.");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.name", "Maledictus Prime");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.0", "Ah... such brilliant light...");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.1", "The curse of ages... finally begins to fade.");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.2", "Go, warrior. The crown was always a burden.");
         }
     }
 
@@ -124,6 +128,10 @@ public abstract class ModLanguageProvider extends LanguageProvider {
             this.add("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.grab.desc", "プレイヤーを片手で拘束して上空へ飛び上がり、地面へ叩きつけます。");
             this.add("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.phase2.title", "鎧の崩壊");
             this.add("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.phase2.desc", "HPが50%以下になると鎧が破壊され、もう一体の幻影が現れ、攻撃が激化します。");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.name", "マレディクタス・プライム");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.0", "ああ...なんと眩い光だ...。");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.1", "幾世代もの呪いが...ようやく薄れ始める。");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.2", "行け、戦士よ。王冠はいつだって重荷だった。");
         }
     }
 }

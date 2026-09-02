@@ -8,7 +8,8 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import java.util.EnumSet;
 
 public class MaledictusAttackGoal extends Goal {
-    private static final double MELEE_DECISION_RANGE = 5.8D;
+    private static final double MELEE_DECISION_RANGE = 3.5D;
+    private static final double FLASH_STEP_RANGE = 16.0D;
     private final Maledictus_PrimeEntity maledictus;
 
     public MaledictusAttackGoal(Maledictus_PrimeEntity entity) {
@@ -39,9 +40,17 @@ public class MaledictusAttackGoal extends Goal {
                     || this.maledictus.isBackstepReady();
         }
         if (distance <= MELEE_DECISION_RANGE) {
-            return this.maledictus.isJabReady()
+            return this.maledictus.isExJabReady() // ★ EX JAB のチェックを追加
+                    || this.maledictus.isJabReady()
                     || this.maledictus.isCounterReady()
                     || this.maledictus.isGrabReady();
+        }
+        if (distance <= FLASH_STEP_RANGE) {
+            return this.maledictus.isExJabReady() // ★ EX JAB のチェックを追加
+                    || this.maledictus.isJabReady()
+                    || this.maledictus.isChargeReady()
+                    || this.maledictus.isShockwaveReady()
+                    || this.maledictus.isPhantomReady();
         }
         return this.maledictus.isChargeReady()
                 || this.maledictus.isShockwaveReady()
@@ -57,6 +66,18 @@ public class MaledictusAttackGoal extends Goal {
         this.maledictus.getNavigation().stop();
         this.maledictus.getLookControl().setLookAt(target, 60.0F, 60.0F);
         this.maledictus.lookAt(target, 60.0F, 60.0F);
+        double distance = this.maledictus.distanceTo(target);
+
+        if (distance > MELEE_DECISION_RANGE && distance <= FLASH_STEP_RANGE) {
+            if (this.maledictus.isPhase2() && this.maledictus.isExJabReady()) {
+                this.maledictus.startFlashStep(target, Maledictus_PrimeEntity.ATTACK_EX_JAB_1);
+                return;
+            } else if (this.maledictus.isJabReady()) {
+                this.maledictus.startFlashStep(target, Maledictus_PrimeEntity.ATTACK_JAB_1);
+                return;
+            }
+        }
+
         int chosen = this.chooseAttack(target);
         if (chosen == -1) {
             this.spawnPhantom(target);
@@ -76,6 +97,7 @@ public class MaledictusAttackGoal extends Goal {
         boolean isPhase2 = this.maledictus.isPhase2();
         double heightDiff = Math.abs(this.maledictus.getY() - target.getY());
         boolean targetIsAirborne = heightDiff > 2.0D && !target.onGround();
+
         if (targetIsAirborne && this.maledictus.isPhantomReady()) {
             return -1;
         }
@@ -88,10 +110,15 @@ public class MaledictusAttackGoal extends Goal {
             }
             return 0;
         }
+
         if (distance <= MELEE_DECISION_RANGE) {
             if (target.isUsingItem() && target.getUseItem().getItem() instanceof net.minecraft.world.item.ShieldItem
                     && this.maledictus.isGrabReady()) {
                 return Maledictus_PrimeEntity.ATTACK_GRAB_START;
+            }
+            // ★ 至近距離：Phase 2なら EX JAB 1 を最優先で選択
+            if (isPhase2 && this.maledictus.isExJabReady()) {
+                return Maledictus_PrimeEntity.ATTACK_EX_JAB_1;
             }
             if (this.maledictus.isJabReady()) {
                 return Maledictus_PrimeEntity.ATTACK_JAB_1;
@@ -107,6 +134,7 @@ public class MaledictusAttackGoal extends Goal {
             }
             return this.maledictus.isPhantomReady() ? -1 : 0;
         }
+
         if (this.maledictus.isBackstepRecoveryActive()) {
             return this.maledictus.isPhantomReady() ? -1 : 0;
         }
@@ -204,5 +232,4 @@ public class MaledictusAttackGoal extends Goal {
         if (roll < 0.88F) return MaledictusPhantomEntity.TYPE_MACE;
         return MaledictusPhantomEntity.TYPE_SPEAR;
     }
-
 }
