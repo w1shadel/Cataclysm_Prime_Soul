@@ -14,7 +14,7 @@ public class MaledictusStateGoal extends Goal {
     public MaledictusStateGoal(Maledictus_PrimeEntity entity, int attackState) {
         this.maledictus = entity;
         this.state = attackState;
-        // 攻撃実行中は通常の歩行AI（InternalMoveGoal）や索敵AIを完全にブロックする
+
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
@@ -30,19 +30,19 @@ public class MaledictusStateGoal extends Goal {
 
     @Override
     public boolean isInterruptable() {
-        return false; // 他の低優先度Goalによる割り込みを拒否
+        return false; 
     }
 
     @Override
     public void start() {
-        // ナビゲーションを停止するのみ（ステートをいじらない）
+
         this.maledictus.getNavigation().stop();
     }
 
     @Override
     public void tick() {
         LivingEntity target = this.maledictus.getTarget();
-        // チャージ突進・急降下中以外は、ターゲットへ滑らかに視線を向ける
+
         if (target != null && this.maledictus.getAttackState() != Maledictus_PrimeEntity.ATTACK_CHARGE) {
             double dx = target.getX() - this.maledictus.getX();
             double dz = target.getZ() - this.maledictus.getZ();

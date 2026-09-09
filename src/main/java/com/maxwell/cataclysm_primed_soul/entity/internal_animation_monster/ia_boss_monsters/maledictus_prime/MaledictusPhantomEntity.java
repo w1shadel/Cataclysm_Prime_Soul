@@ -412,7 +412,8 @@ public class MaledictusPhantomEntity extends Mob {
             for (LivingEntity t : targets) {
                 if (this.canPhantomHit(t)) {
                     float dmg = this.getPhantomBaseDamage() * 2.2F;
-                    EntityDamageHelper.hurtIgnoringInvulnerability(t, this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg);
+                    EntityDamageHelper.hurtIgnoringInvulnerability(t, this.summoner != null ? this.summoner : this, dmg,
+                            "death.maledictus_prime.echo_attack.1");
                     t.setDeltaMovement(t.getDeltaMovement().add(direction.scale(0.6D)));
                     t.hasImpulse = true;
                     return;
@@ -452,7 +453,8 @@ public class MaledictusPhantomEntity extends Mob {
             if (Mth.degreesDifferenceAbs(this.yBodyRot, angleToTarget) > arc / 2.0F) continue;
             if (this.distanceTo(target) > effectiveRange + this.getBbWidth()) continue;
             float dmg = this.getPhantomBaseDamage() * damageMult;
-            if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg)) {
+            if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.summoner != null ? this.summoner : this, dmg,
+                    "death.maledictus_prime.echo_attack.1")) {
                 if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
                 if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
                     Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);
@@ -474,7 +476,8 @@ public class MaledictusPhantomEntity extends Mob {
             if (!this.canPhantomHit(target)) continue;
             if (this.distanceTo(target) > effectiveXzRange + this.getBbWidth()) continue;
             float dmg = this.getPhantomBaseDamage() * damageMult;
-            if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().mobAttack(this.summoner != null ? this.summoner : this), dmg)) {
+            if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.summoner != null ? this.summoner : this, dmg,
+                    "death.maledictus_prime.echo_attack.2")) {
                 if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
                 if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
                     Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);

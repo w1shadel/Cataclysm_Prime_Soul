@@ -134,9 +134,11 @@ public class Prime_Fireball_Entity extends AbstractHurtingProjectile {
             if (shooter instanceof LivingEntity) {
                 LivingEntity owner = (LivingEntity) shooter;
                 if (entity instanceof LivingEntity) {
-                    flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, this.damageSources().mobProjectile(this, owner), 7.0F + ((LivingEntity) entity).getMaxHealth() * 0.10F);
+                    flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, owner,
+                            7.0F + ((LivingEntity) entity).getMaxHealth() * 0.10F, "death.ignis_prime.2");
                 } else {
-                    flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, this.damageSources().mobProjectile(this, owner), 7.0F);
+                    flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, owner,
+                            7.0F, "death.ignis_prime.2");
                 }
                 if (flag) {
                     this.doEnchantDamageEffects(owner, entity);
@@ -147,7 +149,9 @@ public class Prime_Fireball_Entity extends AbstractHurtingProjectile {
                     }
                 }
             } else {
-                flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, this.damageSources().magic(), 5.0F);
+                LivingEntity owner = this.getOwner() instanceof LivingEntity livingOwner ? livingOwner : null;
+                flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, owner,
+                        5.0F, "death.ignis_prime.4");
             }
             IgnisExplosion explosion = new IgnisExplosion(this.level(), this, (DamageSource) null, (ExplosionDamageCalculator) null, this.getX(), this.getY(), this.getZ(), 2.0F, true, BlockInteraction.KEEP);
             explosion.explode();

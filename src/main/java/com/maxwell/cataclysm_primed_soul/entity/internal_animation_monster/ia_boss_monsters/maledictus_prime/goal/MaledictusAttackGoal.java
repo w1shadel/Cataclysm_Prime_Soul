@@ -40,13 +40,13 @@ public class MaledictusAttackGoal extends Goal {
                     || this.maledictus.isBackstepReady();
         }
         if (distance <= MELEE_DECISION_RANGE) {
-            return this.maledictus.isExJabReady() // ★ EX JAB のチェックを追加
+            return this.maledictus.isExJabReady()
                     || this.maledictus.isJabReady()
                     || this.maledictus.isCounterReady()
                     || this.maledictus.isGrabReady();
         }
         if (distance <= FLASH_STEP_RANGE) {
-            return this.maledictus.isExJabReady() // ★ EX JAB のチェックを追加
+            return this.maledictus.isExJabReady()
                     || this.maledictus.isJabReady()
                     || this.maledictus.isChargeReady()
                     || this.maledictus.isShockwaveReady()
@@ -69,7 +69,7 @@ public class MaledictusAttackGoal extends Goal {
         double distance = this.maledictus.distanceTo(target);
 
         if (distance > MELEE_DECISION_RANGE && distance <= FLASH_STEP_RANGE) {
-            if (this.maledictus.isPhase2() && this.maledictus.isExJabReady()) {
+            if (this.maledictus.isExJabReady()) {
                 this.maledictus.startFlashStep(target, Maledictus_PrimeEntity.ATTACK_EX_JAB_1);
                 return;
             } else if (this.maledictus.isJabReady()) {
@@ -116,8 +116,8 @@ public class MaledictusAttackGoal extends Goal {
                     && this.maledictus.isGrabReady()) {
                 return Maledictus_PrimeEntity.ATTACK_GRAB_START;
             }
-            // ★ 至近距離：Phase 2なら EX JAB 1 を最優先で選択
-            if (isPhase2 && this.maledictus.isExJabReady()) {
+
+            if (this.maledictus.isExJabReady()) {
                 return Maledictus_PrimeEntity.ATTACK_EX_JAB_1;
             }
             if (this.maledictus.isJabReady()) {
@@ -187,20 +187,22 @@ public class MaledictusAttackGoal extends Goal {
             phantom.setSummonerYRot(pYaw);
             this.maledictus.level().addFreshEntity(phantom);
         }
-        if (this.maledictus.isBackstepRecoveryActive()) {
-            this.maledictus.setAttackState(0);
-        } else if (phantomType == MaledictusPhantomEntity.TYPE_SPEAR) {
-            this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
-        } else if (phantomType == MaledictusPhantomEntity.TYPE_MACE) {
-            this.maledictus.setAttackState(Maledictus_PrimeEntity.BACKSTEP);
-        } else if (phantomType == MaledictusPhantomEntity.TYPE_BOW) {
-            double heightDiff = Math.abs(this.maledictus.getY() - target.getY());
-            if (heightDiff > 2.0D) {
+        if (this.maledictus.getAttackState() == 0) {
+            if (this.maledictus.isBackstepRecoveryActive()) {
                 this.maledictus.setAttackState(0);
-            } else if (heightDiff <= 2.0D && this.maledictus.isChargeReady()) {
+            } else if (phantomType == MaledictusPhantomEntity.TYPE_SPEAR) {
                 this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
-            } else {
-                this.maledictus.setAttackState(0);
+            } else if (phantomType == MaledictusPhantomEntity.TYPE_MACE) {
+                this.maledictus.setAttackState(Maledictus_PrimeEntity.BACKSTEP);
+            } else if (phantomType == MaledictusPhantomEntity.TYPE_BOW) {
+                double heightDiff = Math.abs(this.maledictus.getY() - target.getY());
+                if (heightDiff > 2.0D) {
+                    this.maledictus.setAttackState(0);
+                } else if (this.maledictus.isChargeReady()) {
+                    this.maledictus.setAttackState(Maledictus_PrimeEntity.ATTACK_CHARGE);
+                } else {
+                    this.maledictus.setAttackState(0);
+                }
             }
         }
         this.maledictus.resetAttackFailureStreak();

@@ -106,7 +106,8 @@ public class Maledictus_PrimeSwordEntity extends Entity {
                     if (boss != null) {
                         damage = (float) boss.getAttributeValue(Attributes.ATTACK_DAMAGE) * 1.2F;
                     }
-                    if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.damageSources().indirectMagic(this, boss != null ? boss : this), damage)) {
+                    if (EntityDamageHelper.hurtIgnoringInvulnerability(target, boss != null ? boss : boss, damage,
+                            "death.maledictus_prime.echo_attack.3")) {
                         Vec3 inFront = target.position().subtract(Vec3.directionFromRotation(0.0F, target.getYRot()).normalize().scale(1.2D));
                         if (this.level() instanceof ServerLevel serverLevel) {
                             if (boss != null) {

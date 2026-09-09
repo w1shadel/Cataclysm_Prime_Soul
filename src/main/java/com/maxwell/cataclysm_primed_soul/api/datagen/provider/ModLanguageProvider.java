@@ -67,9 +67,20 @@ public abstract class ModLanguageProvider extends LanguageProvider {
             this.add("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.phase2.title", "Armor Shatter");
             this.add("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.phase2.desc", "Below 50% HP, its armor shatters, drastically boosting attack speed and offensive aggression.");
             this.add("dialogue.cataclysm_primed_soul.maledictus_prime.name", "Maledictus Prime");
-            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.0", "Ah... such brilliant light...");
-            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.1", "The curse of ages... finally begins to fade.");
-            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.2", "Go, warrior. The crown was always a burden.");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.0", "Ah... Will the cursed king's dream—sealed away in the permafrost—now come to an end?");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.1", "I never once hoped for salvation. The countless curses that torment me. My accumulated sins. For those are the only way I have ever loved this world.");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.2", "The tale faded into silver-white, and the crown became an iron shackle. Yet I lived through this hell as myself. Warrior, go forth. May your path, too, be filled with proud despair.");
+            this.add("death.ignis_prime.1", "%victim% was consumed by Ignis Prime's white flame.");
+            this.add("death.ignis_prime.2", "%victim% was pierced by Ignis Prime's blazing soul.");
+            this.add("death.ignis_prime.3", "%victim% was crushed beneath Ignis Prime's assault.");
+            this.add("death.ignis_prime.4", "%victim% vanished in Ignis Prime's inferno.");
+            this.add("death.maledictus_prime.1", "%victim% was cut down by Maledictus Prime.");
+            this.add("death.maledictus_prime.2", "%victim% was slammed into the ground by Maledictus Prime.");
+            this.add("death.maledictus_prime.3", "%victim% was condemned by Maledictus Prime's phantom blade.");
+            this.add("death.maledictus_prime.4", "%victim% was frozen in the curse of Maledictus Prime.");
+            this.add("death.maledictus_prime.echo_attack.1", "%victim% was pierced by Maledictus Prime's spear phantom.");
+            this.add("death.maledictus_prime.echo_attack.2", "%victim% was crushed by Maledictus Prime's mace phantom.");
+            this.add("death.maledictus_prime.echo_attack.3", "%victim% was slain by Maledictus Prime's sword phantom.");
         }
     }
 
@@ -129,9 +140,20 @@ public abstract class ModLanguageProvider extends LanguageProvider {
             this.add("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.phase2.title", "鎧の崩壊");
             this.add("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.phase2.desc", "HPが50%以下になると鎧が破壊され、もう一体の幻影が現れ、攻撃が激化します。");
             this.add("dialogue.cataclysm_primed_soul.maledictus_prime.name", "マレディクタス・プライム");
-            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.0", "ああ...なんと眩い光だ...。");
-            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.1", "幾世代もの呪いが...ようやく薄れ始める。");
-            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.2", "行け、戦士よ。王冠はいつだって重荷だった。");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.0", "ああ...呪われし王の伝説も、これにて幕引きか。");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.1", "救いなど不要。この罪こそが、私が生きた証なのだ。");
+            this.add("dialogue.cataclysm_primed_soul.maledictus_prime.line.2", "戦士よ、行け。貴様の道もまた、美しき地獄であれ。");
+            this.add("death.ignis_prime.1", "%victim%はイグニス・プライムの白炎に焼き尽くされた。");
+            this.add("death.ignis_prime.2", "%victim%はイグニス・プライムの灼熱の魂に貫かれた。");
+            this.add("death.ignis_prime.3", "%victim%はイグニス・プライムの猛攻に押し潰された。");
+            this.add("death.ignis_prime.4", "%victim%はイグニス・プライムの業火に消えた。");
+            this.add("death.maledictus_prime.1", "%victim%はマレディクタス・プライムに斬り伏せられた。");
+            this.add("death.maledictus_prime.2", "%victim%はマレディクタス・プライムに地面へ叩きつけられた。");
+            this.add("death.maledictus_prime.3", "%victim%はマレディクタス・プライムの幻影の刃に葬られた。");
+            this.add("death.maledictus_prime.4", "%victim%はマレディクタス・プライムの呪いに凍りついた。");
+            this.add("death.maledictus_prime.echo_attack.1", "%victim%はマレディクタス・プライムの槍の幻影に貫かれた。");
+            this.add("death.maledictus_prime.echo_attack.2", "%victim%はマレディクタス・プライムのメイスの幻影に潰された。");
+            this.add("death.maledictus_prime.echo_attack.3", "%victim%はマレディクタス・プライムの剣の幻影に斬られた。");
         }
     }
 }

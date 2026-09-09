@@ -319,7 +319,8 @@ public class Prime_Flame_Strike_Entity extends Entity {
         }
         if (Hitentity.isAlive() && !Hitentity.isInvulnerable() && Hitentity != caster && this.tickCount % 2 == 0) {
             if (caster == null) {
-                boolean flag = EntityDamageHelper.hurtIgnoringInvulnerability(Hitentity, this.damageSources().magic(), this.getDamage() + Hitentity.getMaxHealth() * 0.01F * this.getHpDamage());
+                boolean flag = EntityDamageHelper.hurtIgnoringInvulnerability(Hitentity, caster,
+                        this.getDamage() + Hitentity.getMaxHealth() * 0.01F * this.getHpDamage(), "death.ignis_prime.4");
                 if (flag) {
                     MobEffectInstance effectinstance1 = Hitentity.getEffect((MobEffect) ModEffect.EFFECTBLAZING_BRAND.get());
                     int i = 1;
@@ -335,7 +336,8 @@ public class Prime_Flame_Strike_Entity extends Entity {
                     HealBlockManager.applyHealBlock(Hitentity, 60);
                 }
             } else if (!caster.isAlliedTo(Hitentity) && !Hitentity.isAlliedTo(caster)) {
-                boolean flag = EntityDamageHelper.hurtIgnoringInvulnerability(Hitentity, CMDamageTypes.causeFlameStrikeDamage(this, caster), this.getDamage() + Hitentity.getMaxHealth() * 0.01F * this.getHpDamage());
+                boolean flag = EntityDamageHelper.hurtIgnoringInvulnerability(Hitentity, caster,
+                        this.getDamage() + Hitentity.getMaxHealth() * 0.01F * this.getHpDamage(), "death.ignis_prime.2");
                 if (flag) {
                     MobEffectInstance effectinstance1 = Hitentity.getEffect((MobEffect) ModEffect.EFFECTBLAZING_BRAND.get());
                     int i = 1;
