@@ -106,16 +106,24 @@ public class Maledictus_PrimeSwordEntity extends Entity {
                     if (boss != null) {
                         damage = (float) boss.getAttributeValue(Attributes.ATTACK_DAMAGE) * 1.2F;
                     }
-                    if (EntityDamageHelper.hurtIgnoringInvulnerability(target, boss != null ? boss : boss, damage,
-                            "death.maledictus_prime.echo_attack.3")) {
-                        Vec3 inFront = target.position().subtract(Vec3.directionFromRotation(0.0F, target.getYRot()).normalize().scale(1.2D));
+                    EntityDamageHelper.hurtIgnoringInvulnerability(target, boss, damage,
+                            "death.maledictus_prime.echo_attack.3");
+                    Vec3 inFront = target.position().subtract(Vec3.directionFromRotation(0.0F, target.getYRot()).normalize().scale(1.2D));
                         if (this.level() instanceof ServerLevel serverLevel) {
                             if (boss != null) {
                                 serverLevel.sendParticles((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(), boss.getX(), boss.getY() + 1.0D, boss.getZ(), 12, 0.5D, 0.5D, 0.5D, 0.05D);
-                                serverLevel.sendParticles(ParticleTypes.FLASH, boss.getX(), boss.getY() + 1.0D, boss.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                                serverLevel.sendParticles(
+                                        new net.minecraft.core.particles.BlockParticleOption(
+                                                ParticleTypes.BLOCK, net.minecraft.world.level.block.Blocks.BLUE_ICE.defaultBlockState()),
+                                        boss.getX(), boss.getY() + 1.0D, boss.getZ(), 8,
+                                        0.25D, 0.35D, 0.25D, 0.08D);
                             }
                             serverLevel.sendParticles((ParticleOptions) ModParticle.PHANTOM_WING_FLAME.get(), inFront.x, target.getY() + 1.0D, inFront.z, 12, 0.5D, 0.5D, 0.5D, 0.05D);
-                            serverLevel.sendParticles(ParticleTypes.FLASH, inFront.x, target.getY() + 1.0D, inFront.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                            serverLevel.sendParticles(
+                                    new net.minecraft.core.particles.BlockParticleOption(
+                                            ParticleTypes.BLOCK, net.minecraft.world.level.block.Blocks.BLUE_ICE.defaultBlockState()),
+                                    inFront.x, target.getY() + 1.0D, inFront.z, 8,
+                                    0.25D, 0.35D, 0.25D, 0.08D);
                         }
                         this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.2F, 0.55F);
                         if (boss instanceof Maledictus_PrimeEntity prime) {
@@ -125,7 +133,6 @@ public class Maledictus_PrimeSwordEntity extends Entity {
                         }
                         this.discard();
                         return;
-                    }
                 }
             }
             if (this.lifeTicks > 30 || this.horizontalCollision || this.verticalCollision) {

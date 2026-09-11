@@ -1,5 +1,7 @@
 package com.maxwell.cataclysm_primed_soul.client.render.entity;
 
+import com.github.L_Ender.cataclysm.client.particle.Options.RingParticleOptions;
+import com.github.L_Ender.cataclysm.client.particle.RingParticle.EnumRingBehavior;
 import com.maxwell.cataclysm_primed_soul.Primed_Soul;
 import com.maxwell.cataclysm_primed_soul.client.model.entity.Maledictus_PrimeModel;
 import com.maxwell.cataclysm_primed_soul.client.render.layer.Maledictus_PrimeGhost_Layer;
@@ -14,7 +16,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -42,7 +43,7 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
     private static final ResourceLocation GLITCH_TEXTURE = new ResourceLocation(
             Primed_Soul.MODID, "textures/entity/maledictus_prime/maledictus_prime_ghost.png"
     );
-    private static final int MAX_SHADOWS = 5;
+    private static final int MAX_SHADOWS = 4;
     private final Map<Maledictus_PrimeEntity, Deque<ShadowPose>> shadowHistory = new WeakHashMap<>();
     private final Map<Maledictus_PrimeEntity, Deque<SwordSegment>> swordTrails = new WeakHashMap<>();
     private final Map<Maledictus_PrimeEntity, Integer> trailHoldTicks = new WeakHashMap<>();
@@ -79,46 +80,36 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
         } else {
             super.render(pEntity, pEntityYaw, partialTicks, pPoseStack, pBuffer, pPackedLight);
         }
-        if (pEntity.isAlive() && !pEntity.isInvisible() && pEntity.isPhase2()) {
-            pPoseStack.pushPose();
-            GlacialRenderHelper.renderGlacialBitOrbit(pPoseStack, pBuffer, 3.6F,
-                    pEntity.tickCount + partialTicks, 0.9F);
-            pPoseStack.popPose();
+        if (pEntity.getAttackState() == Maledictus_PrimeEntity.ATTACK_EXCALIBUR_END
+                && pEntity.getAttackTicks() == 19) {
+            pEntity.level().addParticle(
+                    new RingParticleOptions(0.0F, ((float) Math.PI / 2F),
+                            45, 86, 236, 204, 1.0F, 35.0F, false,
+                            EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
+                    pEntity.getX(), pEntity.getY() + 0.1D, pEntity.getZ(),
+                    0.0D, 0.0D, 0.0D);
+            pEntity.level().addParticle(
+                    new RingParticleOptions(0.0F, ((float) Math.PI / 2F),
+                            55, 200, 245, 255, 0.6F, 45.0F, false,
+                            EnumRingBehavior.GROW_THEN_SHRINK.ordinal()),
+                    pEntity.getX(), pEntity.getY() + 0.1D, pEntity.getZ(),
+                    0.0D, 0.0D, 0.0D);
         }
         if (pEntity.getAttackState() == Maledictus_PrimeEntity.ATTACK_CHARGE
-                && pEntity.getAttackTicks() > 20 && !pEntity.isInvisible()) {
+                && pEntity.getAttackTicks() >= 20 && !pEntity.isInvisible()) {
             pPoseStack.pushPose();
-            pPoseStack.translate(0.0D, 1.5D, 0.0D);
+
             pPoseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180.0F - pEntityYaw));
-            pPoseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(90.0F));
-            float vortexRotation = (pEntity.tickCount + partialTicks) * 0.4F;
-            GlacialRenderHelper.renderBlizzardVortex(pPoseStack, pBuffer, 2.8F, 16.0F, 8,
-                    vortexRotation, 0.75F);
+            int chargeTicks = pEntity.getAttackTicks();
+
+            float pathLength = Math.min(18.0F, (chargeTicks - 20) * 0.9F + 3.0F);
+            GlacialVoxelHelper.renderVoxelIcePath(pPoseStack, pBuffer, 2.2F, pathLength, 0.85F);
             pPoseStack.popPose();
         }
         if (pEntity.getAttackState() == Maledictus_PrimeEntity.ATTACK_DEAD) {
             renderDeathLight(pEntity, partialTicks, pPoseStack, pBuffer, renderPosX, renderPosY, renderPosZ);
         }
         int attackState = pEntity.getAttackState();
-        if ((attackState == Maledictus_PrimeEntity.ATTACK_JAB_1
-                || attackState == Maledictus_PrimeEntity.ATTACK_JAB_2
-                || attackState == Maledictus_PrimeEntity.ATTACK_JAB_3
-                || attackState == Maledictus_PrimeEntity.ATTACK_EX_JAB_1
-                || attackState == Maledictus_PrimeEntity.ATTACK_EX_JAB_3)
-                && pEntity.getAttackTicks() >= 5 && pEntity.getAttackTicks() <= 18) {
-            pPoseStack.pushPose();
-            pPoseStack.translate(0.0D, 1.2D, 0.0D);
-            pPoseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180.0F - pEntityYaw));
-            if (attackState == Maledictus_PrimeEntity.ATTACK_JAB_2) {
-                pPoseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(25.0F));
-            } else if (attackState == Maledictus_PrimeEntity.ATTACK_EX_JAB_3) {
-                pPoseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-35.0F));
-            }
-            float slashProgress = (pEntity.getAttackTicks() - 5.0F) / 13.0F;
-            GlacialRenderHelper.renderGlacialSlashArc(pPoseStack, pBuffer, 2.0F, 7.5F,
-                    140.0F, slashProgress, 1.0F - slashProgress);
-            pPoseStack.popPose();
-        }
         boolean isAttacking = attackState != 0
                 && attackState != Maledictus_PrimeEntity.ATTACK_COUNTER_START
                 && attackState != Maledictus_PrimeEntity.ATTACK_COUNTER_FAIL
@@ -143,16 +134,6 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
         if (!pEntity.isInvisible() && pEntity.isAlive()) {
             renderEyeFlash(pEntity, partialTicks, pPoseStack, pBuffer, pPackedLight,
                     renderPosX, renderPosY, renderPosZ);
-        }
-        Entity grabbedEntity = pEntity.getControllingPassenger();
-        if (grabbedEntity != null && pEntity.getAttackState() == Maledictus_PrimeEntity.ATTACK_GRAB_SUCCESS) {
-            Vec3 handPos = getRightHandPosition(pEntity, partialTicks, renderPosX, renderPosY, renderPosZ);
-            grabbedEntity.setPos(handPos.x, handPos.y, handPos.z);
-            grabbedEntity.setOldPosAndRot();
-            pPoseStack.pushPose();
-            pPoseStack.translate(handPos.x - renderPosX, handPos.y - renderPosY - 0.5D, handPos.z - renderPosZ);
-            GlacialRenderHelper.renderCryoCasket(pPoseStack, pBuffer, 1.2F, 2.2F, 0.85F);
-            pPoseStack.popPose();
         }
     }
 
@@ -180,7 +161,7 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
 
         int index = 0;
         for (ShadowPose shadow : shadows) {
-            float alpha = (0.45F - index * 0.08F) * (entity.isEcho() ? 1.4F : 1.0F);
+            float alpha = (0.42F - index * 0.09F) * (entity.isEcho() ? 1.3F : 1.0F);
             if (alpha <= 0.02F) {
                 index++;
                 continue;
@@ -193,8 +174,8 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
             poseStack.scale(-0.96F, -0.96F, 0.96F);
             poseStack.translate(0.0F, -1.501F, 0.0F);
             VertexConsumer shadowConsumer = buffer.getBuffer(RenderType.entityTranslucentEmissive(GLITCH_TEXTURE));
-            float red = index % 2 == 0 ? 0.1F : 0.6F;
-            float green = index % 2 == 0 ? 0.9F : 0.2F;
+            float red = index % 2 == 0 ? 0.05F : 0.60F;
+            float green = index % 2 == 0 ? 0.95F : 0.20F;
             this.getModel().renderToBuffer(poseStack, shadowConsumer, 15728880,
                     OverlayTexture.NO_OVERLAY, red, green, 1.0F, alpha);
             poseStack.popPose();
@@ -219,18 +200,28 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
         model.getSwordTip2().translateAndRotate(poseStack);
         Vec3 basePos = toWorldPosition(poseStack, entityX, entityY, entityZ);
         poseStack.popPose();
-        return new SwordSegment(basePos, tipPos);
+        return new SwordSegment(basePos, tipPos, 0.0F);
     }
 
     private void updateSwordTrail(Maledictus_PrimeEntity entity, SwordSegment current) {
         Deque<SwordSegment> trail = swordTrails.computeIfAbsent(entity, id -> new ArrayDeque<>());
         SwordSegment last = trail.peekLast();
+        float intensity = 0.0F;
         if (last != null) {
-            if (current.tip.distanceToSqr(last.tip) < 0.0025D) {
+            double distanceSquared = current.tip.distanceToSqr(last.tip);
+
+            if (distanceSquared < 0.0025D) {
                 return;
             }
+
+            double speed = Math.sqrt(distanceSquared);
+            float minSpeed = 0.20F;
+            float maxSpeed = 0.85F;
+            intensity = Mth.clamp(((float) speed - minSpeed) / (maxSpeed - minSpeed), 0.0F, 1.0F);
+
+            intensity *= intensity;
         }
-        trail.addLast(current);
+        trail.addLast(new SwordSegment(current.base, current.tip, intensity));
         while (trail.size() > MAX_TRAIL_SAMPLES) {
             trail.removeFirst();
         }
@@ -240,49 +231,86 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
                                 PoseStack poseStack, MultiBufferSource buffer, int light, float fade) {
         Deque<SwordSegment> trail = swordTrails.get(entity);
         if (trail == null || trail.size() < 2) return;
+
         poseStack.pushPose();
         poseStack.translate(-entityX, -entityY, -entityZ);
         PoseStack.Pose lastPose = poseStack.last();
         Matrix4f matrix = lastPose.pose();
         Matrix3f normal = lastPose.normal();
+
         VertexConsumer consumer = buffer.getBuffer(RenderType.entityTranslucentEmissive(TRAIL_TEXTURE));
         SwordSegment[] segments = trail.toArray(new SwordSegment[0]);
-        Vec3 cameraPos = net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher().camera.getPosition();
+
         for (int i = 1; i < segments.length; i++) {
-            float ratio = (float) i / (float) (segments.length - 1);
-            float prevRatio = (float) (i - 1) / (float) (segments.length - 1);
+            float currAgeRatio = (float) i / (float) (segments.length - 1);
+            float prevAgeRatio = (float) (i - 1) / (float) (segments.length - 1);
+
             SwordSegment prev = segments[i - 1];
             SwordSegment curr = segments[i];
-            draw5ColorRibbonLayer(consumer, matrix, normal, prev, curr, prevRatio, ratio,
-                    0.95F * fade, 1.60D, 0.85F, cameraPos, light);
-            draw5ColorRibbonLayer(consumer, matrix, normal, prev, curr, prevRatio, ratio,
-                    1.00F * fade, 0.90D, 0.45F, cameraPos, light);
-            draw5ColorRibbonLayer(consumer, matrix, normal, prev, curr, prevRatio, ratio,
-                    1.00F * fade, 0.35D, 0.05F, cameraPos, light);
+
+            float segmentIntensity = Math.max(prev.speedIntensity, curr.speedIntensity);
+            if (segmentIntensity <= 0.02F) {
+                continue;
+            }
+
+            Vec3 prevBlade = prev.tip.subtract(prev.base);
+            Vec3 currBlade = curr.tip.subtract(curr.base);
+
+            Vec3 swingDir = curr.tip.subtract(prev.tip);
+            Vec3 bladeNormal = prevBlade.cross(swingDir);
+            if (bladeNormal.lengthSqr() < 1.0E-4D) {
+                bladeNormal = new Vec3(0, 1, 0);
+            } else {
+                bladeNormal = bladeNormal.normalize();
+            }
+
+
+            float trailThickness = 0.04F * segmentIntensity;
+            Vec3 thicknessOffset = bladeNormal.scale(trailThickness);
+            float dynamicFade = fade * segmentIntensity;
+
+            drawVoxelBladeSegment(consumer, matrix, normal, prev, curr,
+                    prevBlade.scale(0.8D * segmentIntensity), currBlade.scale(0.8D * segmentIntensity),
+                    thicknessOffset, prevAgeRatio, currAgeRatio, 0.85F * dynamicFade, 0.85F, light);
+
+            drawVoxelBladeSegment(consumer, matrix, normal, prev, curr,
+                    prevBlade.scale(0.35D * segmentIntensity), currBlade.scale(0.35D * segmentIntensity),
+                    thicknessOffset.scale(1.5D), prevAgeRatio, currAgeRatio, 1.0F * dynamicFade, 0.45F, light);
+
+            drawVoxelBladeSegment(consumer, matrix, normal, prev, curr, Vec3.ZERO, Vec3.ZERO,
+                    thicknessOffset.scale(2.0D), prevAgeRatio, currAgeRatio, 1.0F * dynamicFade, 0.05F, light);
         }
         poseStack.popPose();
     }
 
-    private void draw5ColorRibbonLayer(VertexConsumer consumer, Matrix4f matrix, Matrix3f normal,
+    /**
+     * 刀身に完全追従し、直角・階段状の角張りを持つボクセルスラブを描画
+     */
+    private void drawVoxelBladeSegment(VertexConsumer consumer, Matrix4f matrix, Matrix3f normal,
                                        SwordSegment prev, SwordSegment curr,
+                                       Vec3 prevExpand, Vec3 currExpand, Vec3 thicknessOffset,
                                        float prevAgeRatio, float currAgeRatio,
-                                       float alphaFade, double width, float crossOffset,
-                                       Vec3 cameraPos, int light) {
-        double prevTipFactor = Math.pow(prevAgeRatio, 1.2D);
-        double currTipFactor = Math.pow(currAgeRatio, 1.2D);
-        Vec3 prevTip = prev.base.add(prev.tip.subtract(prev.base).scale(prevTipFactor));
-        Vec3 currTip = curr.base.add(curr.tip.subtract(curr.base).scale(currTipFactor));
-        Vec3 prevWidth = getTrailWidth(prev.base, prevTip, cameraPos, width);
-        Vec3 currWidth = getTrailWidth(curr.base, currTip, cameraPos, width);
+                                       float alphaFade, float crossOffset, int light) {
 
-        float[] outer0 = getGlacial5Color(prevAgeRatio, Math.min(1.0F, crossOffset + 0.45F), alphaFade * 0.75F);
-        float[] inner0 = getGlacial5Color(prevAgeRatio, crossOffset, alphaFade);
-        float[] inner1 = getGlacial5Color(currAgeRatio, crossOffset, alphaFade);
-        float[] outer1 = getGlacial5Color(currAgeRatio, Math.min(1.0F, crossOffset + 0.45F), alphaFade * 0.75F);
-        addColoredVertex(consumer, matrix, normal, prev.base.subtract(prevWidth), outer0, prevAgeRatio, 0.0F, light);
-        addColoredVertex(consumer, matrix, normal, prevTip.add(prevWidth), inner0, prevAgeRatio, 1.0F, light);
-        addColoredVertex(consumer, matrix, normal, currTip.add(currWidth), inner1, currAgeRatio, 1.0F, light);
-        addColoredVertex(consumer, matrix, normal, curr.base.subtract(currWidth), outer1, currAgeRatio, 0.0F, light);
+        Vec3 pBase0 = prev.base.subtract(thicknessOffset);
+        Vec3 pTip0  = prev.tip.add(prevExpand).add(thicknessOffset);
+        Vec3 pBase1 = curr.base.subtract(thicknessOffset);
+        Vec3 pTip1  = curr.tip.add(currExpand).add(thicknessOffset);
+
+        float[] colInner0 = getGlacial5Color(prevAgeRatio, crossOffset, alphaFade);
+        float[] colOuter0 = getGlacial5Color(prevAgeRatio, Math.min(1.0F, crossOffset + 0.45F), alphaFade * 0.75F);
+        float[] colInner1 = getGlacial5Color(currAgeRatio, crossOffset, alphaFade);
+        float[] colOuter1 = getGlacial5Color(currAgeRatio, Math.min(1.0F, crossOffset + 0.45F), alphaFade * 0.75F);
+
+        addColoredVertex(consumer, matrix, normal, pBase0, colOuter0, prevAgeRatio, 0.0F, light);
+        addColoredVertex(consumer, matrix, normal, pTip0,  colInner0, prevAgeRatio, 1.0F, light);
+        addColoredVertex(consumer, matrix, normal, pTip1,  colInner1, currAgeRatio, 1.0F, light);
+        addColoredVertex(consumer, matrix, normal, pBase1, colOuter1, currAgeRatio, 0.0F, light);
+
+        addColoredVertex(consumer, matrix, normal, pBase1, colOuter1, currAgeRatio, 0.0F, light);
+        addColoredVertex(consumer, matrix, normal, pTip1,  colInner1, currAgeRatio, 1.0F, light);
+        addColoredVertex(consumer, matrix, normal, pTip0,  colInner0, prevAgeRatio, 1.0F, light);
+        addColoredVertex(consumer, matrix, normal, pBase0, colOuter0, prevAgeRatio, 0.0F, light);
     }
 
     private Vec3 getTrailWidth(Vec3 base, Vec3 tip, Vec3 cameraPos, double width) {
@@ -488,17 +516,6 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
         consumer.vertex(matrix, (float) d.x, (float) d.y, (float) d.z).color(red, green, blue, alpha).endVertex();
     }
 
-    private Vec3 getRightHandPosition(Maledictus_PrimeEntity entity, float partialTicks, double entityX, double entityY, double entityZ) {
-        PoseStack poseStack = createModelPose(entity, partialTicks);
-        this.getModel().getBody().translateAndRotate(poseStack);
-        this.getModel().getUpperBody().translateAndRotate(poseStack);
-        this.getModel().getRight_Shoulder().translateAndRotate(poseStack);
-        this.getModel().getRightArm().translateAndRotate(poseStack);
-        this.getModel().getRight_ArmUnder().translateAndRotate(poseStack);
-        this.getModel().getRightHand().translateAndRotate(poseStack);
-        return toWorldPosition(poseStack, entityX, entityY, entityZ);
-    }
-
     private PoseStack createModelPose(Maledictus_PrimeEntity entity, float partialTicks) {
         PoseStack poseStack = new PoseStack();
         float yaw = Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
@@ -533,10 +550,12 @@ public class Maledictus_PrimeRenderer extends MobRenderer<Maledictus_PrimeEntity
     private static class SwordSegment {
         final Vec3 base;
         final Vec3 tip;
+        final float speedIntensity;
 
-        SwordSegment(Vec3 base, Vec3 tip) {
+        SwordSegment(Vec3 base, Vec3 tip, float speedIntensity) {
             this.base = base;
             this.tip = tip;
+            this.speedIntensity = speedIntensity;
         }
     }
 }

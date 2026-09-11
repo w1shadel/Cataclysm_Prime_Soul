@@ -43,7 +43,9 @@ public class MaledictusStateGoal extends Goal {
     public void tick() {
         LivingEntity target = this.maledictus.getTarget();
 
-        if (target != null && this.maledictus.getAttackState() != Maledictus_PrimeEntity.ATTACK_CHARGE) {
+        if (target != null
+                && this.maledictus.getAttackState() != Maledictus_PrimeEntity.ATTACK_CHARGE
+                && this.maledictus.getAttackState() != Maledictus_PrimeEntity.ATTACK_EXCALIBUR_END) {
             double dx = target.getX() - this.maledictus.getX();
             double dz = target.getZ() - this.maledictus.getZ();
             float targetYaw = (float) (Mth.atan2(dz, dx) * (180D / Math.PI)) - 90.0F;

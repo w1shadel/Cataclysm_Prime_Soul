@@ -53,6 +53,7 @@ public class MaledictusPhantomEntity extends Mob {
     private int lifeTicks;
     private boolean damageDealt;
     private float summonerYRot;
+    private boolean chargeDirectionInitialized;
     @Nullable
     private LivingEntity cachedTarget;
     @Nullable
@@ -141,6 +142,10 @@ public class MaledictusPhantomEntity extends Mob {
     public void setTarget(@Nullable LivingEntity target) {
         super.setTarget(target);
         this.cachedTarget = target;
+        if (!this.level().isClientSide() && target != null && target.isAlive()
+                && !this.chargeDirectionInitialized) {
+            this.setChargeDirectionToward(target);
+        }
     }
 
     @Nullable
@@ -186,8 +191,18 @@ public class MaledictusPhantomEntity extends Mob {
             } else if (type == TYPE_BOW && this.tickCount < BOW_SHOT_TICK) {
                 isTelegraphing = true;
             }
-            if (isTelegraphing && this.tickCount == 1) {
-                this.rotateTowardsTarget();
+            if (isTelegraphing && this.isDirectionalCharge()) {
+                if (!this.chargeDirectionInitialized) {
+                    LivingEntity target = this.getPhantomTarget();
+                    if (target != null && target.isAlive()) {
+                        this.setChargeDirectionToward(target);
+                    } else {
+                        this.chargeDirectionInitialized = true;
+                    }
+                }
+                if (this.isPhaseTwoSummoner() && this.tickCount < this.getDirectionLockTick()) {
+                    this.rotateTowardsTarget();
+                }
             }
         }
         if (this.getPhantomType() == TYPE_NEXT_STATE) {
@@ -232,6 +247,38 @@ public class MaledictusPhantomEntity extends Mob {
         }
     }
 
+    private boolean isDirectionalCharge() {
+        return this.getPhantomType() == TYPE_SPEAR
+                || this.getPhantomType() == TYPE_NEXT_STATE && this.isPlannedBow();
+    }
+
+    private boolean isPhaseTwoSummoner() {
+        return this.summoner instanceof Maledictus_PrimeEntity prime && prime.isPhase2();
+    }
+
+    private int getDirectionLockTick() {
+        return this.getPhantomType() == TYPE_SPEAR
+                ? Math.max(1, SPEAR_CHARGE_START - 3)
+                : 2;
+    }
+
+    private void setChargeDirectionToward(LivingEntity target) {
+        double dx = target.getX() - this.getX();
+        double dz = target.getZ() - this.getZ();
+        if (dx * dx + dz * dz < 1.0E-6D) {
+            this.chargeDirectionInitialized = true;
+            return;
+        }
+        float targetYaw = (float) (Mth.atan2(dz, dx) * (180D / Math.PI)) - 90.0F;
+        this.summonerYRot = targetYaw;
+        this.setYRot(targetYaw);
+        this.yBodyRot = targetYaw;
+        this.yHeadRot = targetYaw;
+        this.yRotO = targetYaw;
+        this.yBodyRotO = targetYaw;
+        this.chargeDirectionInitialized = true;
+    }
+
     private void tickPhantomAttack() {
         int type = this.getPhantomType();
         switch (type) {
@@ -250,15 +297,13 @@ public class MaledictusPhantomEntity extends Mob {
                     this.performPhantomForwardArc(0.65F, 3.8F, 110.0F, 0.25F, 0.15D, 0.05D);
             case Maledictus_PrimeEntity.ATTACK_CHARGE ->
                     this.performPhantomForwardArc(0.85F, 4.2F, 100.0F, 0.45F, 0.25D, 0.1D);
-            case Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START,
+            case Maledictus_PrimeEntity.ATTACK_EXCALIBUR_START,
+                 Maledictus_PrimeEntity.ATTACK_EXCALIBUR_END,
+                 Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START,
                  Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_END,
                  Maledictus_PrimeEntity.ATTACK_HEAD_BREAK,
                  Maledictus_PrimeEntity.ATTACK_ULTIMATE ->
                     this.performPhantomArea(0.75F, 0.8F, 4.5D, 2.0D, 0.1D, 0.25D);
-            case Maledictus_PrimeEntity.ATTACK_GRAB_START,
-                 Maledictus_PrimeEntity.ATTACK_GRAB_SUCCESS,
-                 Maledictus_PrimeEntity.ATTACK_GRAB_SEND ->
-                    this.performPhantomArea(0.55F, 0.45F, 2.8D, 1.5D, 0.1D, 0.2D);
             default -> {
             }
         }
@@ -275,7 +320,7 @@ public class MaledictusPhantomEntity extends Mob {
         int state = this.getPlannedAttackState();
         return state == Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START
                 || state == Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_END
-                || state == Maledictus_PrimeEntity.ATTACK_GRAB_SUCCESS;
+                || state == Maledictus_PrimeEntity.ATTACK_EXCALIBUR_END;
     }
 
     private boolean isPlannedBow() {
@@ -453,15 +498,14 @@ public class MaledictusPhantomEntity extends Mob {
             if (Mth.degreesDifferenceAbs(this.yBodyRot, angleToTarget) > arc / 2.0F) continue;
             if (this.distanceTo(target) > effectiveRange + this.getBbWidth()) continue;
             float dmg = this.getPhantomBaseDamage() * damageMult;
-            if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.summoner != null ? this.summoner : this, dmg,
-                    "death.maledictus_prime.echo_attack.1")) {
-                if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
-                if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
-                    Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);
-                    target.setDeltaMovement(target.getDeltaMovement().add(push));
-                }
-                target.hasImpulse = true;
+            EntityDamageHelper.hurtIgnoringInvulnerability(target, this.summoner != null ? this.summoner : this, dmg,
+                    "death.maledictus_prime.echo_attack.1");
+            if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
+            if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
+                Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);
+                target.setDeltaMovement(target.getDeltaMovement().add(push));
             }
+            target.hasImpulse = true;
         }
     }
 
@@ -476,15 +520,14 @@ public class MaledictusPhantomEntity extends Mob {
             if (!this.canPhantomHit(target)) continue;
             if (this.distanceTo(target) > effectiveXzRange + this.getBbWidth()) continue;
             float dmg = this.getPhantomBaseDamage() * damageMult;
-            if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this.summoner != null ? this.summoner : this, dmg,
-                    "death.maledictus_prime.echo_attack.2")) {
-                if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
-                if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
-                    Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);
-                    target.setDeltaMovement(target.getDeltaMovement().add(push));
-                }
-                target.hasImpulse = true;
+            EntityDamageHelper.hurtIgnoringInvulnerability(target, this.summoner != null ? this.summoner : this, dmg,
+                    "death.maledictus_prime.echo_attack.2");
+            if (knockback > 0.0F) target.knockback(knockback, Math.sin(yaw), -Math.cos(yaw));
+            if (forwardPush != 0.0D || verticalImpulse != 0.0D) {
+                Vec3 push = new Vec3(-Mth.sin(yaw) * forwardPush, verticalImpulse, Mth.cos(yaw) * forwardPush);
+                target.setDeltaMovement(target.getDeltaMovement().add(push));
             }
+            target.hasImpulse = true;
         }
     }
 

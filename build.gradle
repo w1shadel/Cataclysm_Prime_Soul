@@ -86,7 +86,7 @@ mixin {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     implementation fg.deobf("curse.maven:spark-361579:4738952")
-    implementation fg.deobf("curse.maven:hyperdamage-library-1582026:8776011")
+    implementation fg.deobf("curse.maven:hyperdamage-library-1582026:8851659")
     implementation fg.deobf("curse.maven:appleskin-248787:4770828")
     implementation fg.deobf("curse.maven:cinematic-cataclysm-1399324:7817167")
     implementation fg.deobf("curse.maven:fdlib-1271749:7844812")
@@ -100,7 +100,9 @@ dependencies {
     implementation fg.deobf("curse.maven:lionfish-api-1001614:8095554")
     implementation fg.deobf("curse.maven:powerful-dummy-1276893:6956104")
     implementation fg.deobf("curse.maven:mob-battle-mod-268746:6588027")
-    implementation fg.deobf("curse.maven:goety-586095:8087429")
+    implementation fg.deobf("curse.maven:panoptic-1620784:8622617")
+   // implementation fg.deobf("curse.maven:goety-revelation-1236817:8311906")
+  //  implementation fg.deobf("curse.maven:endinglibrary-1471165:8292038")
     implementation fg.deobf("curse.maven:eeeabs-mobs-921600:8073814")
     implementation fg.deobf("curse.maven:time-stop-clock-mod-690991:8180939")
     implementation fg.deobf("curse.maven:get-it-together-drops-411045:4578649")
@@ -111,6 +113,7 @@ dependencies {
     implementation fg.deobf("curse.maven:better-combat-by-daedelus-639842:7287334")
     implementation fg.deobf("curse.maven:playeranimator-658587:4587214")
     implementation fg.deobf("curse.maven:gtbcs-cataclysmic-boss-ui-1637570:8634909")
+    implementation fg.deobf("curse.maven:goety-586095:8750818")
 //    implementation fg.deobf("maven.modrinth:manaitamtk:1.7.1")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

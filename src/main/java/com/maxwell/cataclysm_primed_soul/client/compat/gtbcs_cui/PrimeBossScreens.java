@@ -75,10 +75,6 @@ public class PrimeBossScreens {
                         Component.translatable("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.counter.desc")
                 )
                 .addSpoilerAdvancedInfo(
-                        Component.translatable("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.grab.title"),
-                        Component.translatable("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.grab.desc")
-                )
-                .addSpoilerAdvancedInfo(
                         Component.translatable("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.phase2.title"),
                         Component.translatable("boss_screen.cataclysm_primed_soul.maledictus_prime.advanced_info.phase2.desc")
                 )

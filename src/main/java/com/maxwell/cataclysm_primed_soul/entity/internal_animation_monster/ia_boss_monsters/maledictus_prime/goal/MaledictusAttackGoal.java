@@ -42,17 +42,19 @@ public class MaledictusAttackGoal extends Goal {
         if (distance <= MELEE_DECISION_RANGE) {
             return this.maledictus.isExJabReady()
                     || this.maledictus.isJabReady()
-                    || this.maledictus.isCounterReady()
-                    || this.maledictus.isGrabReady();
+                    || this.maledictus.isCounterReady();
         }
         if (distance <= FLASH_STEP_RANGE) {
-            return this.maledictus.isExJabReady()
+            return this.maledictus.isExcaliburReady()
+                    || this.maledictus.isIceShockReady()
+                    || this.maledictus.isExJabReady()
                     || this.maledictus.isJabReady()
                     || this.maledictus.isChargeReady()
                     || this.maledictus.isShockwaveReady()
                     || this.maledictus.isPhantomReady();
         }
-        return this.maledictus.isChargeReady()
+        return this.maledictus.isExcaliburReady()
+                || this.maledictus.isChargeReady()
                 || this.maledictus.isShockwaveReady()
                 || this.maledictus.isPhantomReady();
     }
@@ -68,12 +70,25 @@ public class MaledictusAttackGoal extends Goal {
         this.maledictus.lookAt(target, 60.0F, 60.0F);
         double distance = this.maledictus.distanceTo(target);
 
-        if (distance > MELEE_DECISION_RANGE && distance <= FLASH_STEP_RANGE) {
+        if (distance > 14.0D && distance <= FLASH_STEP_RANGE) {
             if (this.maledictus.isExJabReady()) {
                 this.maledictus.startFlashStep(target, Maledictus_PrimeEntity.ATTACK_EX_JAB_1);
                 return;
             } else if (this.maledictus.isJabReady()) {
                 this.maledictus.startFlashStep(target, Maledictus_PrimeEntity.ATTACK_JAB_1);
+                return;
+            }
+        }
+
+
+        if (distance > MELEE_DECISION_RANGE && distance <= 14.0D) {
+            float approachRoll = this.maledictus.getRandom().nextFloat();
+            if (approachRoll < 0.70F
+                    && (this.maledictus.isExJabReady() || this.maledictus.isJabReady())) {
+                this.maledictus.startFlashStep(target,
+                        this.maledictus.isExJabReady()
+                                ? Maledictus_PrimeEntity.ATTACK_EX_JAB_1
+                                : Maledictus_PrimeEntity.ATTACK_JAB_1);
                 return;
             }
         }
@@ -112,19 +127,11 @@ public class MaledictusAttackGoal extends Goal {
         }
 
         if (distance <= MELEE_DECISION_RANGE) {
-            if (target.isUsingItem() && target.getUseItem().getItem() instanceof net.minecraft.world.item.ShieldItem
-                    && this.maledictus.isGrabReady()) {
-                return Maledictus_PrimeEntity.ATTACK_GRAB_START;
-            }
-
             if (this.maledictus.isExJabReady()) {
                 return Maledictus_PrimeEntity.ATTACK_EX_JAB_1;
             }
             if (this.maledictus.isJabReady()) {
                 return Maledictus_PrimeEntity.ATTACK_JAB_1;
-            }
-            if (this.maledictus.isGrabReady() && (roll < 0.35F || !this.maledictus.isChargeReady())) {
-                return Maledictus_PrimeEntity.ATTACK_GRAB_START;
             }
             if (this.maledictus.isChargeReady()) {
                 return Maledictus_PrimeEntity.ATTACK_CHARGE;
@@ -149,6 +156,30 @@ public class MaledictusAttackGoal extends Goal {
                 return Maledictus_PrimeEntity.ATTACK_CHARGE;
             }
         }
+
+        if (distance > MELEE_DECISION_RANGE) {
+
+            if (this.maledictus.isExcaliburReady() && roll < 0.30F) {
+                return Maledictus_PrimeEntity.ATTACK_EXCALIBUR_START;
+            }
+
+            if (this.maledictus.isIceShockReady() && roll < 0.50F) {
+                return Maledictus_PrimeEntity.ATTACK_ICESHOCK;
+            }
+
+            if (this.maledictus.isExJabReady()) {
+                this.maledictus.startFlashStep(target, Maledictus_PrimeEntity.ATTACK_EX_JAB_1);
+                return 0;
+            } else if (this.maledictus.isJabReady() && roll < 0.75F) {
+                this.maledictus.startFlashStep(target, Maledictus_PrimeEntity.ATTACK_JAB_1);
+                return 0;
+            }
+
+            if (this.maledictus.isChargeReady()) {
+                return Maledictus_PrimeEntity.ATTACK_CHARGE;
+            }
+        }
+
         if (this.maledictus.isPhantomReady()) {
             float phantomThreshold = isPhase2 ? 0.75F : 0.45F;
             if (roll < phantomThreshold) {

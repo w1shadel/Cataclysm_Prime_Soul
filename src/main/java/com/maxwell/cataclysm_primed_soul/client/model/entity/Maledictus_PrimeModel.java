@@ -363,11 +363,8 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         this.animate(entity.getAnimationState("charge"), Maledictus_PrimeAnimation.ATTACK_CHARGE, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("shockwave_start"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_START, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("shockwave_end"), Maledictus_PrimeAnimation.ATTACK_SHOCKWAVE_END, ageInTicks, 1.0F);
-        this.animate(entity.getAnimationState("grab_start"), Maledictus_PrimeAnimation.ATTACK_GRAB_START, ageInTicks, 1.0F);
-        this.animate(entity.getAnimationState("grab_success"), Maledictus_PrimeAnimation.ATTACK_GRAB_SUCCESS, ageInTicks, 1.0F);
-        this.animate(entity.getAnimationState("grab_sloop"), Maledictus_PrimeAnimation.ATTACK_GRAB_SLOOP, ageInTicks, 1.0F);
-        this.animate(entity.getAnimationState("grab_send"), Maledictus_PrimeAnimation.ATTACK_GRAB_SEND, ageInTicks, 1.0F);
-        this.animate(entity.getAnimationState("grab_fail"), Maledictus_PrimeAnimation.ATTACK_GRAB_FAIL, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("excalibur_start"), Maledictus_PrimeAnimation.ATTACK_ULTIMATE_START, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("excalibur_end"), Maledictus_PrimeAnimation.ATTACK_ULTIMATE_END, ageInTicks, 1.0F);
         if (!entity.isUltimateLanding() && entity.getAttackState() == Maledictus_PrimeEntity.ATTACK_ULTIMATE) {
             this.animate(entity.getAnimationState("ultimate"), Maledictus_PrimeAnimation.ATTACK_LAST1, ageInTicks, 1.0F);
         }
@@ -380,6 +377,7 @@ public class Maledictus_PrimeModel extends HierarchicalModel<Maledictus_PrimeEnt
         this.animate(entity.getAnimationState("ex_jab_2"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_2, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("ex_jab_3"), Maledictus_PrimeAnimation.ATTACK_EX_JAB_3, ageInTicks, 1.0F);
         this.animate(entity.getAnimationState("backstep"), Maledictus_PrimeAnimation.BACKSTEP, ageInTicks, 1.0F);
+        this.animate(entity.getAnimationState("iceshock"), Maledictus_PrimeAnimation.ICESHOCK, ageInTicks, 1.0F);
         boolean isAttacking = entity.getAttackState() != 0;
         if (!isAttacking) {
             this.animate(entity.getAnimationState("walk"), Maledictus_PrimeAnimation.WALK, ageInTicks, 1.0f);

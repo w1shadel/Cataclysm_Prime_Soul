@@ -1982,14 +1982,13 @@ public class Ignis_PrimeEntity extends BasePrimeBossEntity implements IHoldEntit
                             double distToTarget = this.distanceTo(target);
                             if (Math.abs(distToTarget - distance) <= 2.0D) {
                                 float dmg = this.scaleEnvironmentalDamage((float) (this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 1.25F));
-                                if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this, dmg, "death.ignis_prime.2")) {
-                                    target.setSecondsOnFire(8);
+                                EntityDamageHelper.hurtIgnoringInvulnerability(target, this, dmg, "death.ignis_prime.2");
+                                target.setSecondsOnFire(8);
                                     double dx = target.getX() - this.getX();
                                     double dz = target.getZ() - this.getZ();
                                     double d2 = Math.max(dx * dx + dz * dz, 0.001D);
                                     target.push(dx / d2 * 3.5D, 0.5D, dz / d2 * 3.5D);
                                     target.hasImpulse = true;
-                                }
                             }
                         }
                     }
@@ -2191,10 +2190,9 @@ public class Ignis_PrimeEntity extends BasePrimeBossEntity implements IHoldEntit
                     float diff = Mth.degreesDifferenceAbs(centerYaw, angleToTarget);
                     if (diff <= arc * 0.5F) {
                         float damage = this.scaleEnvironmentalDamage((float) (this.getAttributeValue(Attributes.ATTACK_DAMAGE) * 1.2F));
-                        if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this, damage, "death.ignis_prime.3")) {
-                            target.setDeltaMovement(target.getDeltaMovement().add(0, 0.6D, 0));
-                            target.hasImpulse = true;
-                        }
+                        EntityDamageHelper.hurtIgnoringInvulnerability(target, this, damage, "death.ignis_prime.3");
+                        target.setDeltaMovement(target.getDeltaMovement().add(0, 0.6D, 0));
+                        target.hasImpulse = true;
                     }
                 }
             }
@@ -2328,10 +2326,9 @@ public class Ignis_PrimeEntity extends BasePrimeBossEntity implements IHoldEntit
                         this.level().broadcastEntityEvent(player, (byte) 30);
                     }
                 }
-                if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this, damage, "death.ignis_prime.4")) {
-                    this.applyAttackKnockback(target, (float) IgnisPrimeConfig.OVERHEAD_KNOCKBACK.get(), 0.0D, 0.0D);
-                    this.heal(damage * 0.10F);
-                }
+                EntityDamageHelper.hurtIgnoringInvulnerability(target, this, damage, "death.ignis_prime.4");
+                this.applyAttackKnockback(target, (float) IgnisPrimeConfig.OVERHEAD_KNOCKBACK.get(), 0.0D, 0.0D);
+                this.heal(damage * 0.10F);
             }
         }
     }
@@ -2369,11 +2366,10 @@ public class Ignis_PrimeEntity extends BasePrimeBossEntity implements IHoldEntit
         for (LivingEntity target : targets) {
             if (this.canDamageTarget(target) && this.distanceTo(target) <= effectiveXzRange + this.getBbWidth()) {
                 float damage = this.scaleDirectDamage((float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMultiplier);
-                if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this, damage, "death.ignis_prime.3")) {
-                    this.applyAttackKnockback(target, knockback, forwardPush, verticalImpulse);
-                    this.heal(damage * 0.10F);
-                    hit = true;
-                }
+                EntityDamageHelper.hurtIgnoringInvulnerability(target, this, damage, "death.ignis_prime.3");
+                this.applyAttackKnockback(target, knockback, forwardPush, verticalImpulse);
+                this.heal(damage * 0.10F);
+                hit = true;
             }
         }
         return hit;
@@ -2395,11 +2391,10 @@ public class Ignis_PrimeEntity extends BasePrimeBossEntity implements IHoldEntit
         for (LivingEntity target : targets) {
             if (this.canDamageTarget(target) && this.isInFrontArc(target, arc) && this.distanceTo(target) <= effectiveRange + this.getBbWidth()) {
                 float damage = this.scaleDirectDamage((float) this.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMultiplier);
-                if (EntityDamageHelper.hurtIgnoringInvulnerability(target, this, damage, "death.ignis_prime.3")) {
-                    this.applyAttackKnockback(target, knockback, forwardPush, verticalImpulse);
-                    this.heal(damage * 0.10F);
-                    hit = true;
-                }
+                EntityDamageHelper.hurtIgnoringInvulnerability(target, this, damage, "death.ignis_prime.3");
+                this.applyAttackKnockback(target, knockback, forwardPush, verticalImpulse);
+                this.heal(damage * 0.10F);
+                hit = true;
             }
         }
         return hit;

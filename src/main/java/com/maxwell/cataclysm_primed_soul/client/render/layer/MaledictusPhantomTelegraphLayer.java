@@ -8,6 +8,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 public class MaledictusPhantomTelegraphLayer extends RenderLayer<MaledictusPhantomEntity, MaledictusPhantomModel> {
@@ -28,6 +32,9 @@ public class MaledictusPhantomTelegraphLayer extends RenderLayer<MaledictusPhant
         float halfWidth = entity.getSpearTelegraphHalfWidth();
         float length = entity.getSpearTelegraphLength();
         poseStack.pushPose();
+        float entityYaw = Mth.lerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
+        float displayYaw = calculateDisplayYaw(entity, partialTicks, entityYaw);
+        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(displayYaw - entityYaw));
         poseStack.translate(0.0D, 0.035D, 0.0D);
         Matrix4f matrix = poseStack.last().pose();
         VertexConsumer vertices = buffer.getBuffer(RenderType.lightning());
@@ -41,6 +48,50 @@ public class MaledictusPhantomTelegraphLayer extends RenderLayer<MaledictusPhant
                     110, 235, 255, Math.min(0.95F, alpha + 0.2F));
         }
         poseStack.popPose();
+    }
+
+    /**
+     * The telegraph is intentionally calculated from the target/motion on the client,
+     * instead of trusting the phantom's body rotation used by server-side physics.
+     */
+    private float calculateDisplayYaw(MaledictusPhantomEntity entity, float partialTicks, float fallbackYaw) {
+        LivingEntity target = entity.getPhantomTarget();
+        if (target == null && entity.level().isClientSide()) {
+            double nearestDistance = Double.MAX_VALUE;
+            for (Player candidate : entity.level().getEntitiesOfClass(Player.class,
+                    entity.getBoundingBox().inflate(32.0D))) {
+                if (!candidate.isAlive() || candidate.isCreative() || candidate.isSpectator()) {
+                    continue;
+                }
+                double distance = entity.distanceToSqr(candidate);
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    target = candidate;
+                }
+            }
+        }
+        if (target != null && target.isAlive()) {
+            double entityX = Mth.lerp(partialTicks, entity.xo, entity.getX());
+            double entityZ = Mth.lerp(partialTicks, entity.zo, entity.getZ());
+            double targetX = Mth.lerp(partialTicks, target.xo, target.getX());
+            double targetZ = Mth.lerp(partialTicks, target.zo, target.getZ());
+            double dx = targetX - entityX;
+            double dz = targetZ - entityZ;
+            if (dx * dx + dz * dz > 1.0E-4D) {
+                return (float) (Mth.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
+            }
+        }
+
+        Vec3 movement = entity.getDeltaMovement();
+        if (movement.horizontalDistanceSqr() > 1.0E-4D) {
+            return (float) (Mth.atan2(movement.z, movement.x) * (180.0D / Math.PI)) - 90.0F;
+        }
+        double dx = entity.getX() - entity.xo;
+        double dz = entity.getZ() - entity.zo;
+        if (dx * dx + dz * dz > 1.0E-4D) {
+            return (float) (Mth.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
+        }
+        return fallbackYaw;
     }
 
     private void drawLane(VertexConsumer vertices, Matrix4f matrix, float left, float right,

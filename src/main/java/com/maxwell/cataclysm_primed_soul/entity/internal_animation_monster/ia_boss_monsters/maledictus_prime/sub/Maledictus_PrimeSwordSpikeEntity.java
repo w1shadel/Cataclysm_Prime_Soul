@@ -157,11 +157,10 @@ public class Maledictus_PrimeSwordSpikeEntity extends Entity {
                 for (LivingEntity target : targets) {
                     if (this.canHit(target)) {
                         float finalDamage = this.damage > 0 ? this.damage : 16.0F;
-                        if (EntityDamageHelper.hurtIgnoringInvulnerability(target, boss, finalDamage,
-                                "death.maledictus_prime.echo_attack.2")) {
-                            target.setDeltaMovement(target.getDeltaMovement().add(0.0D, 0.65D, 0.0D));
-                            target.hasImpulse = true;
-                        }
+                        EntityDamageHelper.hurtIgnoringInvulnerability(target, boss, finalDamage,
+                                "death.maledictus_prime.echo_attack.2");
+                        target.setDeltaMovement(target.getDeltaMovement().add(0.0D, 0.65D, 0.0D));
+                        target.hasImpulse = true;
                     }
                 }
             }

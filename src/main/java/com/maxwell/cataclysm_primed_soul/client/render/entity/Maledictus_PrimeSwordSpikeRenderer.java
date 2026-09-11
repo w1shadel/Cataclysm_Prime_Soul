@@ -32,15 +32,14 @@ public class Maledictus_PrimeSwordSpikeRenderer extends EntityRenderer<Maledictu
 
         poseStack.pushPose();
         float age = entity.getLifeTicks() + partialTicks;
-        float emergeProgress = Math.min(1.0F, age / 6.0F);
-        float popHeight = (1.0F - (float) Math.pow(1.0F - emergeProgress, 3.0D)) * 10.5F;
-        float radius = Mth.lerp(emergeProgress, 0.4F, 1.35F);
-        float alpha = age > 25.0F ? 1.0F - ((age - 25.0F) / 15.0F) : 1.0F;
-        alpha = Mth.clamp(alpha, 0.0F, 1.0F);
+        float emergeProgress = Math.min(1.0F, age / 5.0F);
+        float popHeight = (float) Math.sin(emergeProgress * (Math.PI / 2.0D)) * 7.0F;
+        float baseWidth = Mth.lerp(emergeProgress, 0.6F, 1.4F);
+        float alpha = age > 24.0F ? Math.max(0.0F, 1.0F - ((age - 24.0F) / 14.0F)) : 1.0F;
 
-        float yaw = Mth.lerp(partialTicks, entity.yRotO, entity.getYRot());
-        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180.0F - yaw + age * 2.0F));
-        GlacialRenderHelper.renderMassiveGlacialPillar(poseStack, buffer, radius, popHeight, alpha);
+        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(entity.getYRot()));
+        GlacialVoxelHelper.renderSteppedGlacialPillar(poseStack, buffer, baseWidth, popHeight, 5, alpha);
         poseStack.popPose();
+        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
     }
 }

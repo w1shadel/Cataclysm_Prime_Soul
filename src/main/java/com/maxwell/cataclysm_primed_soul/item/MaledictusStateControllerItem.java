@@ -31,15 +31,13 @@ public class MaledictusStateControllerItem extends Item implements ISpecialModel
             Maledictus_PrimeEntity.ATTACK_COUNTER_FAIL,
             Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START,
             Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_END,
-            Maledictus_PrimeEntity.ATTACK_GRAB_START,
-            Maledictus_PrimeEntity.ATTACK_GRAB_SUCCESS,
-            Maledictus_PrimeEntity.ATTACK_GRAB_FAIL,
-            Maledictus_PrimeEntity.ATTACK_GRAB_SLOOP,
-            Maledictus_PrimeEntity.ATTACK_GRAB_SEND,
             Maledictus_PrimeEntity.ATTACK_HEAD_BREAK,
             Maledictus_PrimeEntity.ATTACK_EX_JAB_1,
             Maledictus_PrimeEntity.ATTACK_EX_JAB_2,
             Maledictus_PrimeEntity.ATTACK_EX_JAB_3,
+            Maledictus_PrimeEntity.ATTACK_ICESHOCK,
+            Maledictus_PrimeEntity.ATTACK_EXCALIBUR_START,
+            Maledictus_PrimeEntity.ATTACK_EXCALIBUR_END,
             Maledictus_PrimeEntity.ATTACK_ULTIMATE,
             Maledictus_PrimeEntity.BACKSTEP,
             Maledictus_PrimeEntity.BACKSTEP_BEFORE_CHARGE
@@ -130,15 +128,13 @@ public class MaledictusStateControllerItem extends Item implements ISpecialModel
             case Maledictus_PrimeEntity.ATTACK_COUNTER_FAIL -> "COUNTER_FAIL (7)";
             case Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_START -> "SHOCKWAVE_START (8)";
             case Maledictus_PrimeEntity.ATTACK_SHOCKWAVE_END -> "SHOCKWAVE_END (9)";
-            case Maledictus_PrimeEntity.ATTACK_GRAB_START -> "GRAB_START (10)";
-            case Maledictus_PrimeEntity.ATTACK_GRAB_SUCCESS -> "GRAB_SUCCESS (11)";
-            case Maledictus_PrimeEntity.ATTACK_GRAB_FAIL -> "GRAB_FAIL (12)";
-            case Maledictus_PrimeEntity.ATTACK_GRAB_SLOOP -> "GRAB_SLOOP (13)";
-            case Maledictus_PrimeEntity.ATTACK_GRAB_SEND -> "GRAB_SEND (14)";
             case Maledictus_PrimeEntity.ATTACK_HEAD_BREAK -> "HEAD_BREAK (15)";
             case Maledictus_PrimeEntity.ATTACK_EX_JAB_1 -> "EX_JAB_1 (16)";
             case Maledictus_PrimeEntity.ATTACK_EX_JAB_2 -> "EX_JAB_2 (17)";
             case Maledictus_PrimeEntity.ATTACK_EX_JAB_3 -> "EX_JAB_3 (18)";
+            case Maledictus_PrimeEntity.ATTACK_ICESHOCK -> "ICESHOCK (19)";
+            case Maledictus_PrimeEntity.ATTACK_EXCALIBUR_START -> "EXCALIBUR_START (20)";
+            case Maledictus_PrimeEntity.ATTACK_EXCALIBUR_END -> "EXCALIBUR_END (21)";
             case Maledictus_PrimeEntity.ATTACK_ULTIMATE -> "ULTIMATE (35)";
             case Maledictus_PrimeEntity.BACKSTEP -> "BACKSTEP (80)";
             case Maledictus_PrimeEntity.BACKSTEP_BEFORE_CHARGE -> "BACKSTEP_BEFORE_CHARGE (81)";

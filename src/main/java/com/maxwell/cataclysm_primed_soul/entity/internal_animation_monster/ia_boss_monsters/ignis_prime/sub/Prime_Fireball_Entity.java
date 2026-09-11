@@ -130,28 +130,24 @@ public class Prime_Fireball_Entity extends AbstractHurtingProjectile {
             return;
         }
         if (!this.level().isClientSide && !(entity instanceof Ignis_Fireball_Entity) && !(entity instanceof com.github.L_Ender.cataclysm.entity.projectile.Ignis_Abyss_Fireball_Entity) && !(entity instanceof Cm_Falling_Block_Entity) && (!(entity instanceof Ignis_Entity) || !(shooter instanceof Ignis_Entity)) && this.getFired()) {
-            boolean flag;
-            if (shooter instanceof LivingEntity) {
-                LivingEntity owner = (LivingEntity) shooter;
-                if (entity instanceof LivingEntity) {
-                    flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, owner,
-                            7.0F + ((LivingEntity) entity).getMaxHealth() * 0.10F, "death.ignis_prime.2");
-                } else {
-                    flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, owner,
-                            7.0F, "death.ignis_prime.2");
-                }
-                if (flag) {
+            boolean flag = false;
+            if (entity instanceof LivingEntity livingEntity) {
+                if (shooter instanceof LivingEntity owner) {
+                    EntityDamageHelper.hurtIgnoringInvulnerability(livingEntity, owner,
+                            7.0F + livingEntity.getMaxHealth() * 0.10F, "death.ignis_prime.2");
                     this.doEnchantDamageEffects(owner, entity);
                     if (owner instanceof Ignis_Entity) {
                         owner.heal(5.0F * (float) CMCommonConfig.Ignis.healthMultiplier);
                     } else {
                         owner.heal(5.0F);
                     }
+                    flag = true;
+                } else {
+                    LivingEntity owner = this.getOwner() instanceof LivingEntity livingOwner ? livingOwner : null;
+                    EntityDamageHelper.hurtIgnoringInvulnerability(livingEntity, owner,
+                            5.0F, "death.ignis_prime.4");
+                    flag = true;
                 }
-            } else {
-                LivingEntity owner = this.getOwner() instanceof LivingEntity livingOwner ? livingOwner : null;
-                flag = EntityDamageHelper.hurtIgnoringInvulnerability((LivingEntity) entity, owner,
-                        5.0F, "death.ignis_prime.4");
             }
             IgnisExplosion explosion = new IgnisExplosion(this.level(), this, (DamageSource) null, (ExplosionDamageCalculator) null, this.getX(), this.getY(), this.getZ(), 2.0F, true, BlockInteraction.KEEP);
             explosion.explode();

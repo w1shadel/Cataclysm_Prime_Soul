@@ -10,14 +10,13 @@ public final class EntityDamageHelper {
     private EntityDamageHelper() {
     }
 
-    public static boolean hurtIgnoringInvulnerability(LivingEntity target, LivingEntity owner, float amount,
+    public static void hurtIgnoringInvulnerability(LivingEntity target, LivingEntity owner, float amount,
                                                       String deathMessage) {
         if (target == null || !target.isAlive() || amount <= 0.0F) {
-            return false;
+            return;
         }
-        target.invulnerableTime = 0;
         DamageSource source = DecayDamageUtil.getPenetrateSource(target.level(), owner, deathMessage);
-        return target.hurt(source, amount);
+        DecayDamageUtil.applyCustomDamage(target, source, amount);
     }
 
     public static double expandRange(double range) {
